@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes cartMove {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-cart {
+  animation: cartMove 1s ease-in-out;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes marquee2 {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee2 {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee2 30s linear infinite;
+}
+
+/* Improve text readability on gradient backgrounds */
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+  .text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+}
+
+/* Ensure smooth animations across browsers */
+@media screen and (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Improve touch interactions on mobile devices */
+@media (hover: none) {
+  .hover\:scale-105:hover {
+    transform: none;
+  }
+}
+
+/* Responsive font sizes */
+html {
+  font-size: 16px;
+}
+
+@media screen and (min-width: 640px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  html {
+    font-size: 20px;
+  }
+}
+
+ @keyframes gradient-x {
+     0% {
+       background-position: 0% 50%;
+     }
+     50% {
+       background-position: 100% 50%;
+     }
+     100% {
+       background-position: 0% 50%;
+     }
+   }
+  
+ .animate-gradient-x {
+   animation: gradient-x 15s ease infinite;
+   background-size: 200% 200%;
+ }
