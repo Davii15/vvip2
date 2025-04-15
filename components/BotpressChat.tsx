@@ -17,8 +17,10 @@ export default function BotpressChat() {
 
     // Initialize Botpress
     script.onload = () => {
-      // @ts-ignore
-      window.botpressWebChat.init(botpressConfig)
+      if (typeof window !== "undefined" && window.botpressWebChat) {
+        // @ts-ignore
+        window.botpressWebChat.init(botpressConfig)
+      }
     }
 
     return () => {
@@ -30,20 +32,24 @@ export default function BotpressChat() {
   // Function to toggle chat visibility
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen)
-    if (!isChatOpen) {
-      // @ts-ignore
-      window.botpressWebChat.sendEvent({ type: "show" })
-    } else {
-      // @ts-ignore
-      window.botpressWebChat.sendEvent({ type: "hide" })
+    if (typeof window !== "undefined" && window.botpressWebChat) {
+      if (!isChatOpen) {
+        // @ts-ignore
+        window.botpressWebChat.sendEvent({ type: "show" })
+      } else {
+        // @ts-ignore
+        window.botpressWebChat.sendEvent({ type: "hide" })
+      }
     }
   }
 
   // Function to close chat
   const closeChat = () => {
     setIsChatOpen(false)
-    // @ts-ignore
-    window.botpressWebChat.sendEvent({ type: "hide" })
+    if (typeof window !== "undefined" && window.botpressWebChat) {
+      // @ts-ignore
+      window.botpressWebChat.sendEvent({ type: "hide" })
+    }
   }
 
   return (
@@ -91,4 +97,3 @@ export default function BotpressChat() {
     </>
   )
 }
-

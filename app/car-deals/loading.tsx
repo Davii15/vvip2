@@ -5,8 +5,11 @@ import { motion } from "framer-motion"
 
 export default function Loading() {
   const [progress, setProgress] = useState(0)
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
 
   useEffect(() => {
+    setWindowSize({ width: window.innerWidth, height: window.innerHeight })
+
     const timer = setInterval(() => {
       setProgress((prevProgress) => {
         if (prevProgress >= 100) {
