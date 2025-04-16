@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { Leaf, Calendar, TrendingUp, Droplets, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -14,11 +14,26 @@ interface AgricultureRecommendationsProps {
   allProducts: any[]
 }
 
+// Helper function to format KSh currency
+const formatCurrency = (price: any): string => {
+  if (typeof price === "object") {
+    // If it's an object with currency and amount
+    const amount = price.amount.toLocaleString()
+    // Ensure we're using KSh regardless of what's in the data
+    return `KSh ${amount}`
+  } else if (typeof price === "number") {
+    // If it's just a number
+    return `KSh ${price.toLocaleString()}`
+  }
+  // If it's already a string or something else
+  return String(price)
+}
+
 export default function AgricultureRecommendations({ allProducts }: AgricultureRecommendationsProps) {
   const { recommendations, isLoading } = useRecommendations({
     products: allProducts,
     category: "agriculture",
-    count: 4,
+    count: 8, // Get more products for rotation
     strategies: ["seasonal", "farmSize", "cropType", "weather"],
   })
 
@@ -27,6 +42,9 @@ export default function AgricultureRecommendations({ allProducts }: AgricultureR
 
   const [currentSeason, setCurrentSeason] = useState("Rainy Season")
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1)
+  const [displayedProducts, setDisplayedProducts] = useState<any[]>([])
+  const [currentSet, setCurrentSet] = useState(0)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Set current season based on month
   useEffect(() => {
@@ -45,7 +63,56 @@ export default function AgricultureRecommendations({ allProducts }: AgricultureR
     }
   }, [])
 
-  if (isLoading || recommendations.length === 0) {
+  // Set up product rotation
+  useEffect(() => {
+    if (!isLoading && recommendations.length > 0) {
+      // Initialize with first set of products
+      updateDisplayedProducts(0)
+
+      // Set up interval to rotate products every 5 minutes (300000ms)
+      intervalRef.current = setInterval(() => {
+        setCurrentSet((prevSet) => {
+          const nextSet = (prevSet + 1) % Math.ceil(recommendations.length / 4)
+          updateDisplayedProducts(nextSet)
+          return nextSet
+        })
+      }, 300000) // 5 minutes
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [isLoading, recommendations])
+
+  // Update displayed products based on current set
+  const updateDisplayedProducts = (setIndex: number) => {
+    const startIdx = setIndex * 4
+    const endIdx = Math.min(startIdx + 4, recommendations.length)
+    setDisplayedProducts(recommendations.slice(startIdx, endIdx))
+  }
+
+  // Manual rotation function
+  const rotateProducts = () => {
+    const nextSet = (currentSet + 1) % Math.ceil(recommendations.length / 4)
+    setCurrentSet(nextSet)
+    updateDisplayedProducts(nextSet)
+
+    // Reset the interval timer when manually rotated
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+    }
+    intervalRef.current = setInterval(() => {
+      setCurrentSet((prevSet) => {
+        const nextSet = (prevSet + 1) % Math.ceil(recommendations.length / 4)
+        updateDisplayedProducts(nextSet)
+        return nextSet
+      })
+    }, 300000) // 5 minutes
+  }
+
+  if (isLoading || displayedProducts.length === 0) {
     return null
   }
 
@@ -57,26 +124,32 @@ export default function AgricultureRecommendations({ allProducts }: AgricultureR
             <Leaf className="h-6 w-6 text-green-400 mr-2" />
             <h2 className="text-xl font-bold text-white">Seasonal Recommendations</h2>
           </div>
-          <Button variant="ghost" className="text-white hover:bg-white/20">
-            View All <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" className="text-white hover:bg-white/20" onClick={rotateProducts}>
+              Rotate Products <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+            <Button variant="ghost" className="text-white hover:bg-white/20">
+              View All <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         </div>
         <p className="text-white/80 mt-1">
-          Perfect for {currentSeason} (Month: {currentMonth})
+          Perfect for {currentSeason} (Month: {currentMonth}) • Set {currentSet + 1} of{" "}
+          {Math.ceil(recommendations.length / 4)}
         </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {recommendations.slice(0, 4).map((product) => (
+        {displayedProducts.map((product) => (
           <div key={product.id} className="h-full" onClick={() => trackView(product.id)}>
             <Card className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full border border-green-100 hover:shadow-xl transition-all duration-300">
-              <div className="relative w-full pt-[60%] overflow-hidden group">
+              <div className="relative w-full pt-[60%] overflow-hidden">
                 <Image
                   src={product.imageUrl || "/placeholder.svg"}
                   alt={product.name}
                   layout="fill"
                   objectFit="cover"
-                  className="group-hover:scale-110 transition-transform duration-500"
+                  className="transition-transform duration-300 hover:scale-105"
                 />
 
                 <div className="absolute bottom-2 left-2">
@@ -113,16 +186,10 @@ export default function AgricultureRecommendations({ allProducts }: AgricultureR
 
                 <div className="flex flex-col mb-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-green-600">
-                      {typeof product.currentPrice === "object"
-                        ? `${product.currentPrice.currency} ${product.currentPrice.amount.toLocaleString()}`
-                        : product.currentPrice}
-                    </span>
+                    <span className="text-lg font-bold text-green-600">{formatCurrency(product.currentPrice)}</span>
                     {product.originalPrice && product.originalPrice !== product.currentPrice && (
                       <span className="text-sm text-gray-500 line-through">
-                        {typeof product.originalPrice === "object"
-                          ? `${product.originalPrice.currency} ${product.originalPrice.amount.toLocaleString()}`
-                          : product.originalPrice}
+                        {formatCurrency(product.originalPrice)}
                       </span>
                     )}
                   </div>
