@@ -6,6 +6,7 @@ import TrustedPartners from "@/components/TrustedPartners"
 import WelcomeBackAlert from "@/components/WelcomeBackAlert"
 import MonthlyRecommendations from "@/components/MonthlyRecommendations"
 import SeasonalRecommendationBanner from "@/components/SeasonalRecommendations"
+import TopAdvertisementSection from "@/components/TopAdvertisementSection"
 
 export default function Home() {
   return (
@@ -14,9 +15,11 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8">
         <CountdownTimer targetDate="2025-12-31T23:59:59" startDate="2025-02-13T00:00:00" />
     
-       {/* Seasonal Recommendation Banner - Top of page */}
+     {/* Seasonal Recommendation Banner - Top of page */}
        <SeasonalRecommendationBanner colorScheme="blue" maxItems={3} />
-
+      {/* Top Advertisement Section - Added here */}
+        <TopAdvertisementSection />
+        
         <div className="bg-gray-100 rounded-lg shadow-lg p-8 mb-8">
           <Greeting />
           <h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">
@@ -65,6 +68,7 @@ export default function Home() {
                 click away. 🛍️🔖
               </p>
             </div>
+ 
 
              {/* Monthly Recommendations - Sidebar */}
          <div className="lg:col-span-1">
