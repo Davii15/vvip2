@@ -1911,13 +1911,13 @@ const insuranceColorScheme = {
           />
         )}
 
-{/* Calendar-based Recommendations */}
+{/* Calendar-based Recommendations */}{/*
 <CalendarBasedRecommendations 
   allProducts={vendors.flatMap(vendor => vendor.offerings)}
   title="Seasonal Insurance Recommendations"
   subtitle="Insurance products that match your current needs based on the calendar"
 />
-
+*/}
 
         {/* New Products For You Section */}
         <NewProductsForYou allProducts={newProducts} colorScheme="blue" maxProducts={4} />
