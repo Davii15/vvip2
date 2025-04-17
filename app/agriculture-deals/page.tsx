@@ -818,7 +818,7 @@ export default function AgricultureDeals() {
               <Link href="/agriculture-deals/shop">
                 <Button
                   size="lg"
-                  className="bg-green text-white-600 hover:bg-gray-100 transition-transform hover:scale-105"
+                  className="bg-green text-amber-600 hover:bg-gray-100 transition-transform hover:scale-105"
                 >
                   Check out more  Agriculture Products from Our shops!
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -830,7 +830,7 @@ export default function AgricultureDeals() {
               <Link href="/agriculture-deals/media">
                 <Button
                   size="lg"
-                  className="bg-green text-white-600 hover:bg-gray-100 transition-transform hover:scale-105"
+                  className="bg-green text-amber-600 hover:bg-gray-100 transition-transform hover:scale-105"
                 >
                   Check out more  Agriculture Products from Our Media!
                   <ArrowRight className="ml-2 h-5 w-5" />
