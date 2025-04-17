@@ -1732,6 +1732,14 @@ export default function EntertainmentShopPage() {
     }, 800)
   }, [filteredProducts, hasMore, isLoading, page, productsPerPage])
 
+  
+//added new feature to controll loading of pages
+useEffect(() => {
+  loadMoreProducts()
+}, [])
+
+
+    
   // Intersection observer for infinite scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
