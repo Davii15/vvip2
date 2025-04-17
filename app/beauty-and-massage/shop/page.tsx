@@ -1,7 +1,6 @@
 "use client"
 
-import { useMemo, useRef, useCallback } from "react"
-import { useState, useEffect } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
@@ -39,8 +38,9 @@ import { cn } from "@/lib/utils"
 import CountdownTimer from "@/components/CountdownTimer"
 import HotTimeDeals from "@/components/HotTimeDeals"
 import TrendingPopularSection from "@/components/TrendingPopularSection"
-import { trendingProducts, popularProducts } from "./trending-data"
+import { trendingProducts, popularProducts } from "../trending-data"
 import { TimeBasedRecommendations } from "@/components/TimeBasedRecommendations"
+import { Skeleton } from "@/components/ui/skeleton"
 
 // Types
 interface Price {
@@ -83,7 +83,7 @@ interface Vendor {
   location: string
   rating?: number
   reviewCount?: number
-  verified?:boolean
+  verified?: boolean
   website?: string
 }
 
@@ -167,41 +167,41 @@ const vendors: Vendor[] = [
   {
     id: "v1",
     name: "Glow & Shine",
-    logo: "/placeholder.svg",
+    logo: "/placeholder.svg?height=60&width=60",
     location: "Nairobi, Kenya",
     rating: 4.8,
     reviewCount: 342,
-    verified:true,
+    verified: true,
     website: "https://glowandshine.co.ke",
   },
   {
     id: "v2",
     name: "Natural Beauty",
-    logo: "/placeholder.svg",
+    logo: "/placeholder.svg?height=60&width=60",
     location: "Mombasa, Kenya",
     rating: 4.7,
     reviewCount: 256,
-    verified:true,
+    verified: true,
     website: "https://naturalbeauty.co.ke",
   },
   {
     id: "v3",
     name: "Elegance Cosmetics",
-    logo: "/placeholder.svg",
+    logo: "/placeholder.svg?height=60&width=60",
     location: "Kisumu, Kenya",
     rating: 4.9,
     reviewCount: 189,
-    verified:true,
+    verified: true,
     website: "https://elegancecosmetics.co.ke",
   },
   {
     id: "v4",
     name: "Pure Essence",
-    logo: "/placeholder.svg",
+    logo: "/placeholder.svg?height=60&width=60",
     location: "Nakuru, Kenya",
     rating: 4.6,
     reviewCount: 127,
-    verified:true,
+    verified: true,
     website: "https://puressence.co.ke",
   },
 ]
@@ -212,11 +212,11 @@ const products: BeautyProduct[] = [
   {
     id: "mp1",
     name: "Gentleman's Face Wash with Activated Charcoal",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-      "/placeholder.svg",
-      "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 1200, currency: "KSH" },
     originalPrice: { amount: 1500, currency: "KSH" },
@@ -242,11 +242,11 @@ const products: BeautyProduct[] = [
   {
     id: "mp2",
     name: "Men's Anti-Aging Moisturizer with SPF 30",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-     "/placeholder.svg",
-      "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 2200, currency: "KSH" },
     originalPrice: { amount: 2800, currency: "KSH" },
@@ -274,11 +274,11 @@ const products: BeautyProduct[] = [
   {
     id: "mo1",
     name: "Beard Growth Oil with Argan & Jojoba",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-     "/placeholder.svg",
-      "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 1800, currency: "KSH" },
     originalPrice: { amount: 2200, currency: "KSH" },
@@ -305,10 +305,11 @@ const products: BeautyProduct[] = [
   {
     id: "mo2",
     name: "Men's Hair Styling Pomade",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-      
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 950, currency: "KSH" },
     originalPrice: { amount: 1200, currency: "KSH" },
@@ -335,11 +336,11 @@ const products: BeautyProduct[] = [
   {
     id: "mf1",
     name: "Midnight Essence Eau de Parfum for Men",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-     "/placeholder.svg",
-     "/placeholder.svg",
-      "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 4500, currency: "KSH" },
     originalPrice: { amount: 5800, currency: "KSH" },
@@ -364,10 +365,11 @@ const products: BeautyProduct[] = [
   {
     id: "mf2",
     name: "Ocean Breeze Cologne for Men",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-      
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 3200, currency: "KSH" },
     originalPrice: { amount: 3800, currency: "KSH" },
@@ -394,11 +396,11 @@ const products: BeautyProduct[] = [
   {
     id: "wf1",
     name: "Vitamin C Brightening Serum",
-    imageUrl:"/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-      "/placeholder.svg",
-      "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 2800, currency: "KSH" },
     originalPrice: { amount: 3500, currency: "KSH" },
@@ -425,11 +427,11 @@ const products: BeautyProduct[] = [
   {
     id: "wf2",
     name: "Hydrating Rose Water Facial Toner",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-     "/placeholder.svg",
-     "/placeholder.svg",
-     "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 1200, currency: "KSH" },
     originalPrice: { amount: 1500, currency: "KSH" },
@@ -457,11 +459,11 @@ const products: BeautyProduct[] = [
   {
     id: "wh1",
     name: "Argan Oil Hair Mask Treatment",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-      "/placeholder.svg",
-      "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 1800, currency: "KSH" },
     originalPrice: { amount: 2200, currency: "KSH" },
@@ -488,11 +490,11 @@ const products: BeautyProduct[] = [
   {
     id: "wh2",
     name: "Curl Defining Cream with Coconut Oil",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-      "/placeholder.svg",
-      "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 1500, currency: "KSH" },
     originalPrice: { amount: 1800, currency: "KSH" },
@@ -520,11 +522,11 @@ const products: BeautyProduct[] = [
   {
     id: "ww1",
     name: "Brazilian Body Wave Human Hair Wig",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-     "/placeholder.svg",
-      "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 12000, currency: "KSH" },
     originalPrice: { amount: 15000, currency: "KSH" },
@@ -549,11 +551,11 @@ const products: BeautyProduct[] = [
   {
     id: "ww2",
     name: "Kinky Curly Clip-In Hair Extensions",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-      "/placeholder.svg",
-      "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 8500, currency: "KSH" },
     originalPrice: { amount: 10000, currency: "KSH" },
@@ -580,11 +582,11 @@ const products: BeautyProduct[] = [
   {
     id: "wn1",
     name: "Gel Polish Starter Kit with LED Lamp",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-      "/placeholder.svg",
-      "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 4500, currency: "KSH" },
     originalPrice: { amount: 5800, currency: "KSH" },
@@ -610,11 +612,11 @@ const products: BeautyProduct[] = [
   {
     id: "wn2",
     name: "Press-On Nails Set - Nude Collection",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-      "/placeholder.svg",
-      "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 1200, currency: "KSH" },
     originalPrice: { amount: 1500, currency: "KSH" },
@@ -641,11 +643,11 @@ const products: BeautyProduct[] = [
   {
     id: "wo1",
     name: "Shea Butter & Cocoa Body Butter",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-     "/placeholder.svg",
-      "/placeholder.svg",
-     "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 1800, currency: "KSH" },
     originalPrice: { amount: 2200, currency: "KSH" },
@@ -672,11 +674,11 @@ const products: BeautyProduct[] = [
   {
     id: "wo2",
     name: "Lavender & Rosemary Massage Oil",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-      "/placeholder.svg",
-      "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 1500, currency: "KSH" },
     originalPrice: { amount: 1800, currency: "KSH" },
@@ -704,11 +706,11 @@ const products: BeautyProduct[] = [
   {
     id: "wp1",
     name: "Floral Elegance Eau de Parfum",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-     "/placeholder.svg",
-      "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 5500, currency: "KSH" },
     originalPrice: { amount: 6800, currency: "KSH" },
@@ -734,10 +736,11 @@ const products: BeautyProduct[] = [
   {
     id: "wp2",
     name: "Citrus Breeze Eau de Toilette",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-      
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 3200, currency: "KSH" },
     originalPrice: { amount: 3800, currency: "KSH" },
@@ -764,11 +767,11 @@ const products: BeautyProduct[] = [
   {
     id: "wm1",
     name: "24-Hour Wear Matte Liquid Lipstick",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-     "/placeholder.svg",
-      "/placeholder.svg",
-      "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 1500, currency: "KSH" },
     originalPrice: { amount: 1800, currency: "KSH" },
@@ -793,10 +796,11 @@ const products: BeautyProduct[] = [
   {
     id: "wm2",
     name: "Waterproof Volumizing Mascara",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-     "/placeholder.svg",
-      
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 1200, currency: "KSH" },
     originalPrice: { amount: 1500, currency: "KSH" },
@@ -823,11 +827,11 @@ const products: BeautyProduct[] = [
   {
     id: "wfd1",
     name: "24-Hour Full Coverage Foundation with SPF 30",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-      "/placeholder.svg",
-     "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 2800, currency: "KSH" },
     originalPrice: { amount: 3500, currency: "KSH" },
@@ -852,11 +856,11 @@ const products: BeautyProduct[] = [
   {
     id: "wfd2",
     name: "Hydrating BB Cream with Hyaluronic Acid",
-    imageUrl: "/placeholder.svg",
+    imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
-      "/placeholder.svg",
-    "/placeholder.svg",
-     "/placeholder.svg",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
     ],
     currentPrice: { amount: 1800, currency: "KSH" },
     originalPrice: { amount: 2200, currency: "KSH" },
@@ -899,21 +903,19 @@ export default function BeautyShopPage() {
   // New product alert state
   const [newProductAlert, setNewProductAlert] = useState<BeautyProduct | null>(null)
 
-// Custom color scheme for beauty and massage
-const beautyColorScheme = {
-  primary: "from-pink-500 to-rose-700",
-  secondary: "bg-pink-100",
-  accent: "bg-rose-600",
-  text: "text-rose-900",
-  background: "bg-pink-50",
-}
+  // Custom color scheme for beauty and massage
+  const beautyColorScheme = {
+    primary: "from-pink-500 to-rose-700",
+    secondary: "bg-pink-100",
+    accent: "bg-rose-600",
+    text: "text-rose-900",
+    background: "bg-pink-50",
+  }
 
-  // Infinite scroll states
-  const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
-  const [visibleProducts, setVisibleProducts] = useState<BeautyProduct[]>([])
-  const loaderRef = useRef<HTMLDivElement>(null)
-  const productsPerPage = 8
+  // State for products display with skeleton loading
+  const [displayProducts, setDisplayProducts] = useState<BeautyProduct[]>([])
+  const [loadingProducts, setLoadingProducts] = useState(true)
+  const productsPerPage = 12
 
   // Get all available brands
   const allBrands = useMemo(() => {
@@ -1010,17 +1012,17 @@ const beautyColorScheme = {
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category)
     setActiveSubcategory("")
-    resetPagination()
+    loadProducts()
   }
 
   const handleSubcategoryChange = (subcategory: string) => {
     setActiveSubcategory(subcategory)
-    resetPagination()
+    loadProducts()
   }
 
   const handlePriceRangeChange = (value: number[]) => {
     setPriceRange(value as [number, number])
-    resetPagination()
+    loadProducts()
   }
 
   const handleBrandToggle = (brand: string) => {
@@ -1028,7 +1030,7 @@ const beautyColorScheme = {
       const newBrands = prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
       return newBrands
     })
-    resetPagination()
+    loadProducts()
   }
 
   const handleProductClick = (product: BeautyProduct) => {
@@ -1043,77 +1045,39 @@ const beautyColorScheme = {
     setNewProductAlert(null)
   }
 
-  const resetPagination = () => {
-    setPage(1)
-    setVisibleProducts([])
-    setHasMore(true)
-  }
+  // Load products with skeleton loading
+  const loadProducts = () => {
+    setLoadingProducts(true)
 
-  // Load more products for infinite scroll
-  const loadMoreProducts = useCallback(() => {
-    if (!hasMore || isLoading) return
-
-    setIsLoading(true)
-
-    // Simulate API call with setTimeout
+    // Simulate API call delay
     setTimeout(() => {
-      const startIndex = (page - 1) * productsPerPage
-      const endIndex = startIndex + productsPerPage
-      const newProducts = filteredProducts.slice(startIndex, endIndex)
-
-      if (newProducts.length > 0) {
-        setVisibleProducts((prev) => [...prev, ...newProducts])
-        setPage((prev) => prev + 1)
-        setHasMore(endIndex < filteredProducts.length)
-      } else {
-        setHasMore(false)
-      }
-
-      setIsLoading(false)
-    }, 800)
-  }, [filteredProducts, hasMore, isLoading, page, productsPerPage])
-
-  
-  // Add this useEffect right after your other useEffect hooks
-useEffect(() => {
-  // Force initial data load when component mounts
-  if (visibleProducts.length === 0 && filteredProducts.length > 0) {
-    const initialProducts = filteredProducts.slice(0, productsPerPage);
-    setVisibleProducts(initialProducts);
-    setPage(2); // Set to 2 since we've loaded the first page
+      setDisplayProducts(filteredProducts.slice(0, productsPerPage))
+      setLoadingProducts(false)
+    }, 1000)
   }
-}, [filteredProducts, productsPerPage])
 
+  // Load more products when user clicks "Load More"
+  const handleLoadMore = () => {
+    setLoadingProducts(true)
 
-  
-  
-  // Intersection observer for infinite scroll
+    // Simulate API call delay
+    setTimeout(() => {
+      const currentCount = displayProducts.length
+      const newProducts = filteredProducts.slice(currentCount, currentCount + productsPerPage)
+      setDisplayProducts((prev) => [...prev, ...newProducts])
+      setLoadingProducts(false)
+    }, 1000)
+  }
+
+  // Reset filters and reload products
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoading) {
-          loadMoreProducts()
-        }
-      },
-      { threshold: 0.1 },
-    )
+    loadProducts()
+  }, [filteredProducts.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current)
-    }
-
-    return () => {
-      if (loaderRef.current) {
-        observer.unobserve(loaderRef.current)
-      }
-    }
-  }, [hasMore, isLoading, loadMoreProducts])
-
-  // Reset pagination when filters change
+  // Initial load
   useEffect(() => {
-    resetPagination()
-    loadMoreProducts()
-  }, [filteredProducts]) // eslint-disable-line react-hooks/exhaustive-deps
+    loadProducts()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Show new product alert
   useEffect(() => {
@@ -1149,6 +1113,46 @@ useEffect(() => {
   const hotDeals = useMemo(() => {
     return transformForHotDeals(products)
   }, [])
+
+  // Product Skeleton component
+  const ProductSkeleton = () => (
+    <div className="h-full">
+      <Card className="h-full overflow-hidden border-pink-100 hover:shadow-md transition-all duration-300">
+        <div className="relative h-64 bg-pink-50">
+          <Skeleton className="h-full w-full" />
+        </div>
+        <CardContent className="p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-4 w-16" />
+          </div>
+          <Skeleton className="h-6 w-full mb-1" />
+          <Skeleton className="h-4 w-full mb-1" />
+          <Skeleton className="h-4 w-3/4 mb-3" />
+
+          <div className="flex items-center mb-3 bg-pink-50 p-2 rounded-md">
+            <Skeleton className="w-8 h-8 rounded-full mr-2" />
+            <div className="flex-1 min-w-0">
+              <Skeleton className="h-4 w-24 mb-1" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+          </div>
+
+          <div className="flex items-center mb-3">
+            <Skeleton className="h-4 w-24" />
+          </div>
+
+          <div className="flex items-end justify-between mb-3">
+            <Skeleton className="h-6 w-20" />
+          </div>
+        </CardContent>
+        <CardFooter className="p-4 pt-0 grid grid-cols-2 gap-2">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </CardFooter>
+      </Card>
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
@@ -1197,36 +1201,37 @@ useEffect(() => {
       </div>
 
       {/*Inside your component's return statement*/}
-<div className="container mx-auto px-4">
-  <TimeBasedRecommendations
-    products={products.map((product) => {
-      const vendor = getVendorForProduct(product.vendorId);
-      return {
-        id: product.id,
-        name: product.name,
-        imageUrl: product.imageUrl,
-        description: product.description,
-        currentPrice: product.currentPrice,
-        originalPrice: product.originalPrice,
-        category: product.subcategory,
-        vendorName: vendor?.name,
-        vendorLocation: vendor?.location,
-        recommendedTimes: 
-          product.subcategory?.toLowerCase().includes("cleanser") && !product.name.toLowerCase().includes("night")
-            ? ["morning"]
-            : product.name.toLowerCase().includes("night") || product.subcategory?.toLowerCase().includes("repair")
-              ? ["night"]
-              : product.subcategory?.toLowerCase().includes("spf") || product.name.toLowerCase().includes("day")
-                ? ["morning"]
-                : undefined,
-              };
-            })}
-    title="Skincare Recommendations For Now"
-    subtitle="Products ideal for your current skincare routine"
-    colorScheme="pink"
-    maxProducts={4}
-  />
-</div>
+      <div className="container mx-auto px-4">
+        <TimeBasedRecommendations
+          products={products.map((product) => {
+            const vendor = getVendorForProduct(product.vendorId)
+            return {
+              id: product.id,
+              name: product.name,
+              imageUrl: product.imageUrl,
+              description: product.description,
+              currentPrice: product.currentPrice,
+              originalPrice: product.originalPrice,
+              category: product.subcategory,
+              vendorName: vendor?.name,
+              vendorLocation: vendor?.location,
+              recommendedTimes:
+                product.subcategory?.toLowerCase().includes("cleanser") && !product.name.toLowerCase().includes("night")
+                  ? ["morning"]
+                  : product.name.toLowerCase().includes("night") ||
+                      product.subcategory?.toLowerCase().includes("repair")
+                    ? ["night"]
+                    : product.subcategory?.toLowerCase().includes("spf") || product.name.toLowerCase().includes("day")
+                      ? ["morning"]
+                      : undefined,
+            }
+          })}
+          title="Skincare Recommendations For Now"
+          subtitle="Products ideal for your current skincare routine"
+          colorScheme="pink"
+          maxProducts={4}
+        />
+      </div>
       {/* Hot Time Deals Section */}
       {hotDeals.length > 0 && (
         <div className="container mx-auto px-4">
@@ -1239,80 +1244,80 @@ useEffect(() => {
         </div>
       )}
 
-{/* Trending and Popular Section */}
-<TrendingPopularSection
+      {/* Trending and Popular Section */}
+      <TrendingPopularSection
         trendingProducts={trendingProducts}
         popularProducts={popularProducts}
         colorScheme={beautyColorScheme}
         title="Beauty Favorites"
         subtitle="Discover trending and most popular beauty products"
       />
- {/*some beauty shop logic*/}
- <div className="flex justify-center my-8">
-      <Link href="/beauty-and-massage/shop/best-beauty-usage">
-        <Button
-          size="lg"
-          className="group relative overflow-hidden bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <motion.div
-            className="absolute inset-0 bg-white opacity-10"
-            initial={{ x: "-100%" }}
-            animate={{ x: isHovered ? "100%" : "-100%" }}
-            transition={{ duration: 1, ease: "easeInOut" }}
-          />
-          <span className="flex items-center text-lg font-medium">
-            <ShoppingBag className="mr-2 h-5 w-5" />
-            Open our Beauty Products-usage 
-            <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </motion.div>
-          </span>
-          <motion.div
-            className="absolute -top-1 -right-1"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
+      {/*some beauty shop logic*/}
+      <div className="flex justify-center my-8">
+        <Link href="/beauty-and-massage/shop/best-beauty-usage">
+          <Button
+            size="lg"
+            className="group relative overflow-hidden bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
           >
-            <Sparkles className="h-5 w-5 text-yellow-300" />
-          </motion.div>
-        </Button>
-      </Link>
-    </div>
-{/*some beauty shop logic*/}
-<div className="flex justify-center my-8">
-      <Link href="/beauty-and-massage/shop/beauty-shop">
-        <Button
-          size="lg"
-          className="group relative overflow-hidden bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <motion.div
-            className="absolute inset-0 bg-white opacity-10"
-            initial={{ x: "-100%" }}
-            animate={{ x: isHovered ? "100%" : "-100%" }}
-            transition={{ duration: 1, ease: "easeInOut" }}
-          />
-          <span className="flex items-center text-lg font-medium">
-            <ShoppingBag className="mr-2 h-5 w-5" />
-            Open our Beauty Shop 
-            <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
-              <ChevronRight className="ml-2 h-5 w-5" />
+            <motion.div
+              className="absolute inset-0 bg-white opacity-10"
+              initial={{ x: "-100%" }}
+              animate={{ x: isHovered ? "100%" : "-100%" }}
+              transition={{ duration: 1, ease: "easeInOut" }}
+            />
+            <span className="flex items-center text-lg font-medium">
+              <ShoppingBag className="mr-2 h-5 w-5" />
+              Open our Beauty Products-usage
+              <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
+                <ChevronRight className="ml-2 h-5 w-5" />
+              </motion.div>
+            </span>
+            <motion.div
+              className="absolute -top-1 -right-1"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Sparkles className="h-5 w-5 text-yellow-300" />
             </motion.div>
-          </span>
-          <motion.div
-            className="absolute -top-1 -right-1"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
+          </Button>
+        </Link>
+      </div>
+      {/*some beauty shop logic*/}
+      <div className="flex justify-center my-8">
+        <Link href="/beauty-and-massage/shop/beauty-shop">
+          <Button
+            size="lg"
+            className="group relative overflow-hidden bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
           >
-            <Sparkles className="h-5 w-5 text-yellow-300" />
-          </motion.div>
-        </Button>
-      </Link>
-    </div>
+            <motion.div
+              className="absolute inset-0 bg-white opacity-10"
+              initial={{ x: "-100%" }}
+              animate={{ x: isHovered ? "100%" : "-100%" }}
+              transition={{ duration: 1, ease: "easeInOut" }}
+            />
+            <span className="flex items-center text-lg font-medium">
+              <ShoppingBag className="mr-2 h-5 w-5" />
+              Open our Beauty Shop
+              <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
+                <ChevronRight className="ml-2 h-5 w-5" />
+              </motion.div>
+            </span>
+            <motion.div
+              className="absolute -top-1 -right-1"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Sparkles className="h-5 w-5 text-yellow-300" />
+            </motion.div>
+          </Button>
+        </Link>
+      </div>
 
       {/* Search and filters */}
       <div className="container mx-auto px-4 py-6">
@@ -1349,6 +1354,12 @@ useEffect(() => {
               <span>Filters</span>
               <ChevronDown
                 className={`h-4 w-4 text-pink-500 transition-transform ${showFilters ? "rotate-180" : ""}`}
+              />
+            </Button>
+          </div>
+        </div>
+
+        {/* Filters section" : ""}`}
               />
             </Button>
           </div>
@@ -1583,10 +1594,16 @@ useEffect(() => {
                 </div>
               </div>
 
-              {/* Products grid with infinite scroll */}
-              {visibleProducts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {visibleProducts.map((product) => {
+              {/* Products grid with skeleton loading */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {loadingProducts ? (
+                  // Show skeletons while loading
+                  Array(8)
+                    .fill(0)
+                    .map((_, index) => <ProductSkeleton key={`skeleton-${index}`} />)
+                ) : displayProducts.length > 0 ? (
+                  // Show actual products
+                  displayProducts.map((product) => {
                     const vendor = getVendorForProduct(product.vendorId)
                     return (
                       <motion.div
@@ -1682,12 +1699,13 @@ useEffect(() => {
                                     {vendor.name.substring(0, 2).toUpperCase()}
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-medium text-gray-700 truncate">{vendor.name}
-                                    {vendor.verified && (
-                               <div className="absolute -bottom-1 -right-1 bg-pink-500 text-white rounded-full p-1">
-                               <Check className="h-3 w-3" />
-                                 </div>
-                                   )}
+                                    <p className="text-xs font-medium text-gray-700 truncate">
+                                      {vendor.name}
+                                      {vendor.verified && (
+                                        <div className="absolute -bottom-1 -right-1 bg-pink-500 text-white rounded-full p-1">
+                                          <Check className="h-3 w-3" />
+                                        </div>
+                                      )}
                                     </p>
                                     <p className="text-xs text-gray-500 flex items-center">
                                       <MapPin className="h-3 w-3 mr-1" />
@@ -1754,41 +1772,42 @@ useEffect(() => {
                         </Card>
                       </motion.div>
                     )
-                  })}
-                </div>
-              ) : isLoading && page === 1 ? (
-                <div className="flex justify-center items-center py-12">
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 border-4 border-pink-300 border-t-pink-500 rounded-full animate-spin mb-3"></div>
-                    <p className="text-pink-500 font-medium">Loading products...</p>
+                  })
+                ) : (
+                  // No products found
+                  <div className="col-span-full text-center py-12">
+                    <div className="mx-auto w-16 h-16 mb-4 bg-pink-100 rounded-full flex items-center justify-center">
+                      <Search className="h-8 w-8 text-pink-500" />
+                    </div>
+                    <h3 className="text-xl font-medium text-gray-800 mb-2">No products found</h3>
+                    <p className="text-gray-600 max-w-md mx-auto">
+                      We couldn't find any products matching your criteria. Try adjusting your filters or search term.
+                    </p>
                   </div>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <div className="mx-auto w-16 h-16 mb-4 bg-pink-100 rounded-full flex items-center justify-center">
-                    <Search className="h-8 w-8 text-pink-500" />
-                  </div>
-                  <h3 className="text-xl font-medium text-gray-800 mb-2">No products found</h3>
-                  <p className="text-gray-600 max-w-md mx-auto">
-                    We couldn't find any products matching your criteria. Try adjusting your filters or search term.
-                  </p>
+                )}
+              </div>
+
+              {/* Load more button */}
+              {!loadingProducts && displayProducts.length > 0 && displayProducts.length < filteredProducts.length && (
+                <div className="flex justify-center mt-8">
+                  <Button onClick={handleLoadMore} className="bg-pink-500 hover:bg-pink-600 text-white" size="lg">
+                    Load More Products
+                  </Button>
                 </div>
               )}
 
-              {/* Infinite scroll loader */}
-              {hasMore && (
-                <div ref={loaderRef} className="flex justify-center items-center py-8">
-                  {isLoading && (
-                    <div className="flex flex-col items-center">
-                      <div className="w-10 h-10 border-4 border-pink-300 border-t-pink-500 rounded-full animate-spin mb-2"></div>
-                      <p className="text-pink-500 text-sm">Loading more products...</p>
-                    </div>
-                  )}
+              {/* Loading indicator for load more */}
+              {loadingProducts && displayProducts.length > 0 && (
+                <div className="flex justify-center items-center py-8">
+                  <div className="flex flex-col items-center">
+                    <div className="w-10 h-10 border-4 border-pink-300 border-t-pink-500 rounded-full animate-spin mb-2"></div>
+                    <p className="text-pink-500 text-sm">Loading more products...</p>
+                  </div>
                 </div>
               )}
 
               {/* End of results message */}
-              {!hasMore && visibleProducts.length > 0 && (
+              {!loadingProducts && displayProducts.length > 0 && displayProducts.length >= filteredProducts.length && (
                 <div className="text-center py-8 border-t border-pink-100 mt-8">
                   <p className="text-gray-600">You've reached the end of the results</p>
                 </div>
@@ -2078,4 +2097,3 @@ useEffect(() => {
     </div>
   )
 }
-
