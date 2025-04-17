@@ -14,7 +14,7 @@ export default function AboutPage() {
           </div>
           <div className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">Our Focus</h2>
-            <p className="text-gray-700">This platform is purely for goods and services being offered on Discount. For any enquiries or complains ,feedback email us via ctech75@yahoo.com or blackdavidd24@gmail.com</p>
+            <p className="text-gray-700">This platform is purely for goods and services being offered on Discount. For any enquiries or complains ,feedback email us via waikwa1@yahoo.com or blackdavidd24@gmail.com</p>
           </div>
           <div>
             <h2 className="text-2xl font-semibold mb-4">Disclaimer</h2>
