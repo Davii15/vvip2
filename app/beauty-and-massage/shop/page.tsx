@@ -1077,6 +1077,14 @@ const beautyColorScheme = {
     }, 800)
   }, [filteredProducts, hasMore, isLoading, page, productsPerPage])
 
+  
+//newly added feature for triggering loading pages
+useEffect(() => {
+  loadMoreProducts()
+}, [])
+
+  
+  
   // Intersection observer for infinite scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
