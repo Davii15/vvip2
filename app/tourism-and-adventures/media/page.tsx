@@ -81,6 +81,7 @@ export default function TourismMediaShowcase() {
   const [hasMore, setHasMore] = useState(true)
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [showInfo, setShowInfo] = useState<Record<string, boolean>>({})
+  const [showFilters, setShowFilters] = useState(true)
 
   // Refs
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
@@ -307,9 +308,27 @@ export default function TourismMediaShowcase() {
               <p className="text-amber-200 text-sm md:text-base">
                 Discover breathtaking destinations and unforgettable experiences across Africa
               </p>
+               <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowFilters(!showFilters)}
+                className="text-purple-100 hover:bg-purple-800/50"
+              >
+                {showFilters ? "Hide Filters" : "Show Filters"}
+              </Button>
             </div>
 
             {/* Category filters */}
+            <AnimatePresence>
+              {showFilters && (
+                <motion.div 
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full overflow-hidden"
+                >
+            
             <div className="flex flex-wrap justify-center md:justify-end gap-2">
               <Button
                 variant={activeCategory === null ? "default" : "outline"}
@@ -343,6 +362,9 @@ export default function TourismMediaShowcase() {
                 </Button>
               ))}
             </div>
+                  </motion.div>
+      )}
+              </AnimatePresence>
           </div>
         </div>
       </div>
