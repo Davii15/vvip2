@@ -1562,7 +1562,7 @@ export default function ConstructionMaterialsPage() {
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex items-center justify-between">
             <div>
-              <Link href="/construction" className="flex items-center text-white mb-4 hover:underline">
+              <Link href="/construction-materials" className="flex items-center text-white mb-4 hover:underline">
                 <ChevronRight className="h-4 w-4 mr-1" />
                 Back to Construction
               </Link>
