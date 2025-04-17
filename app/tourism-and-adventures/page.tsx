@@ -454,7 +454,18 @@ const hotTourismDeals = tourismProducts.filter(product =>
   colorScheme="green"
   maxProducts={4}
 />
-<HotTimeDeals 
+
+ {/* Trending and Popular Section */}
+ <TrendingPopularSection
+        trendingProducts={trendingProducts}
+        popularProducts={popularProducts}
+        colorScheme={tourismColorScheme}
+        title="Safari Highlights"
+        subtitle="Discover trending and most popular adventure options"
+      />
+        </div>
+        
+  <HotTimeDeals 
   deals={hotTourismDeals}
   colorScheme="green"
   title="Adventure Flash Deals"
@@ -466,16 +477,6 @@ const hotTourismDeals = tourismProducts.filter(product =>
         allAdventures={tourismProducts}
         currentMonth={new Date().getMonth() + 1} // Current month (1-12)
       />
-
- {/* Trending and Popular Section */}
- <TrendingPopularSection
-        trendingProducts={trendingProducts}
-        popularProducts={popularProducts}
-        colorScheme={tourismColorScheme}
-        title="Safari Highlights"
-        subtitle="Discover trending and most popular adventure options"
-      />
-        </div>
 
         {/* Safari-themed search bar */}
         <div className="mb-10">
