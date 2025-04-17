@@ -736,16 +736,6 @@ export default function AgricultureDeals() {
   colorScheme="green"
   maxProducts={4}
 />
-<HotTimeDeals 
-  deals={hotAgricultureDeals}
-  colorScheme="green"
-  title="Agriculture Special Offers"
-  subtitle="Limited-time deals on agricultural products and equipment!"
-/>
-
-
-
- 
 
  {/* Trending and Popular Section */}
  <TrendingPopularSection
@@ -775,7 +765,13 @@ export default function AgricultureDeals() {
             </div>
           </div>
         </div>
-
+        
+<HotTimeDeals 
+  deals={hotAgricultureDeals}
+  colorScheme="green"
+  title="Agriculture Special Offers"
+  subtitle="Limited-time deals on agricultural products and equipment!"
+/>
 
 {/* Add the recommendations component */}
 <AgricultureRecommendations allProducts={agricultureProducts} />
