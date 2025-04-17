@@ -167,7 +167,7 @@ const vendors: Vendor[] = [
   {
     id: "v1",
     name: "Glow & Shine",
-    logo: "/placeholder.svg?height=60&width=60",
+    logo: "/placeholder.svg",
     location: "Nairobi, Kenya",
     rating: 4.8,
     reviewCount: 342,
@@ -177,7 +177,7 @@ const vendors: Vendor[] = [
   {
     id: "v2",
     name: "Natural Beauty",
-    logo: "/placeholder.svg?height=60&width=60",
+    logo: "/placeholder.svg",
     location: "Mombasa, Kenya",
     rating: 4.7,
     reviewCount: 256,
@@ -187,7 +187,7 @@ const vendors: Vendor[] = [
   {
     id: "v3",
     name: "Elegance Cosmetics",
-    logo: "/placeholder.svg?height=60&width=60",
+    logo: "/placeholder.svg",
     location: "Kisumu, Kenya",
     rating: 4.9,
     reviewCount: 189,
@@ -197,7 +197,7 @@ const vendors: Vendor[] = [
   {
     id: "v4",
     name: "Pure Essence",
-    logo: "/placeholder.svg?height=60&width=60",
+    logo: "/placeholder.svg",
     location: "Nakuru, Kenya",
     rating: 4.6,
     reviewCount: 127,
@@ -212,11 +212,11 @@ const products: BeautyProduct[] = [
   {
     id: "mp1",
     name: "Gentleman's Face Wash with Activated Charcoal",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 1200, currency: "KSH" },
     originalPrice: { amount: 1500, currency: "KSH" },
@@ -242,11 +242,11 @@ const products: BeautyProduct[] = [
   {
     id: "mp2",
     name: "Men's Anti-Aging Moisturizer with SPF 30",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+     "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 2200, currency: "KSH" },
     originalPrice: { amount: 2800, currency: "KSH" },
@@ -274,11 +274,11 @@ const products: BeautyProduct[] = [
   {
     id: "mo1",
     name: "Beard Growth Oil with Argan & Jojoba",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+     "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 1800, currency: "KSH" },
     originalPrice: { amount: 2200, currency: "KSH" },
@@ -305,11 +305,10 @@ const products: BeautyProduct[] = [
   {
     id: "mo2",
     name: "Men's Hair Styling Pomade",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 950, currency: "KSH" },
     originalPrice: { amount: 1200, currency: "KSH" },
@@ -336,11 +335,11 @@ const products: BeautyProduct[] = [
   {
     id: "mf1",
     name: "Midnight Essence Eau de Parfum for Men",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+     "/placeholder.svg",
+     "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 4500, currency: "KSH" },
     originalPrice: { amount: 5800, currency: "KSH" },
@@ -365,11 +364,10 @@ const products: BeautyProduct[] = [
   {
     id: "mf2",
     name: "Ocean Breeze Cologne for Men",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 3200, currency: "KSH" },
     originalPrice: { amount: 3800, currency: "KSH" },
@@ -396,11 +394,11 @@ const products: BeautyProduct[] = [
   {
     id: "wf1",
     name: "Vitamin C Brightening Serum",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl:"/placeholder.svg"
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 2800, currency: "KSH" },
     originalPrice: { amount: 3500, currency: "KSH" },
@@ -427,11 +425,11 @@ const products: BeautyProduct[] = [
   {
     id: "wf2",
     name: "Hydrating Rose Water Facial Toner",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+     "/placeholder.svg",
+     "/placeholder.svg",
+     "/placeholder.svg",
     ],
     currentPrice: { amount: 1200, currency: "KSH" },
     originalPrice: { amount: 1500, currency: "KSH" },
@@ -459,11 +457,11 @@ const products: BeautyProduct[] = [
   {
     id: "wh1",
     name: "Argan Oil Hair Mask Treatment",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 1800, currency: "KSH" },
     originalPrice: { amount: 2200, currency: "KSH" },
@@ -490,11 +488,11 @@ const products: BeautyProduct[] = [
   {
     id: "wh2",
     name: "Curl Defining Cream with Coconut Oil",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 1500, currency: "KSH" },
     originalPrice: { amount: 1800, currency: "KSH" },
@@ -522,11 +520,11 @@ const products: BeautyProduct[] = [
   {
     id: "ww1",
     name: "Brazilian Body Wave Human Hair Wig",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+     "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 12000, currency: "KSH" },
     originalPrice: { amount: 15000, currency: "KSH" },
@@ -551,11 +549,11 @@ const products: BeautyProduct[] = [
   {
     id: "ww2",
     name: "Kinky Curly Clip-In Hair Extensions",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 8500, currency: "KSH" },
     originalPrice: { amount: 10000, currency: "KSH" },
@@ -582,11 +580,11 @@ const products: BeautyProduct[] = [
   {
     id: "wn1",
     name: "Gel Polish Starter Kit with LED Lamp",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 4500, currency: "KSH" },
     originalPrice: { amount: 5800, currency: "KSH" },
@@ -612,11 +610,11 @@ const products: BeautyProduct[] = [
   {
     id: "wn2",
     name: "Press-On Nails Set - Nude Collection",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 1200, currency: "KSH" },
     originalPrice: { amount: 1500, currency: "KSH" },
@@ -643,11 +641,11 @@ const products: BeautyProduct[] = [
   {
     id: "wo1",
     name: "Shea Butter & Cocoa Body Butter",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+     "/placeholder.svg",
+      "/placeholder.svg",
+     "/placeholder.svg",
     ],
     currentPrice: { amount: 1800, currency: "KSH" },
     originalPrice: { amount: 2200, currency: "KSH" },
@@ -674,11 +672,11 @@ const products: BeautyProduct[] = [
   {
     id: "wo2",
     name: "Lavender & Rosemary Massage Oil",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 1500, currency: "KSH" },
     originalPrice: { amount: 1800, currency: "KSH" },
@@ -706,11 +704,11 @@ const products: BeautyProduct[] = [
   {
     id: "wp1",
     name: "Floral Elegance Eau de Parfum",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+     "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 5500, currency: "KSH" },
     originalPrice: { amount: 6800, currency: "KSH" },
@@ -736,11 +734,10 @@ const products: BeautyProduct[] = [
   {
     id: "wp2",
     name: "Citrus Breeze Eau de Toilette",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 3200, currency: "KSH" },
     originalPrice: { amount: 3800, currency: "KSH" },
@@ -767,11 +764,11 @@ const products: BeautyProduct[] = [
   {
     id: "wm1",
     name: "24-Hour Wear Matte Liquid Lipstick",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+     "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 1500, currency: "KSH" },
     originalPrice: { amount: 1800, currency: "KSH" },
@@ -796,11 +793,10 @@ const products: BeautyProduct[] = [
   {
     id: "wm2",
     name: "Waterproof Volumizing Mascara",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+     "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 1200, currency: "KSH" },
     originalPrice: { amount: 1500, currency: "KSH" },
@@ -827,11 +823,11 @@ const products: BeautyProduct[] = [
   {
     id: "wfd1",
     name: "24-Hour Full Coverage Foundation with SPF 30",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      "/placeholder.svg",
+     "/placeholder.svg",
     ],
     currentPrice: { amount: 2800, currency: "KSH" },
     originalPrice: { amount: 3500, currency: "KSH" },
@@ -856,11 +852,11 @@ const products: BeautyProduct[] = [
   {
     id: "wfd2",
     name: "Hydrating BB Cream with Hyaluronic Acid",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+    "/placeholder.svg",
+     "/placeholder.svg",
     ],
     currentPrice: { amount: 1800, currency: "KSH" },
     originalPrice: { amount: 2200, currency: "KSH" },
