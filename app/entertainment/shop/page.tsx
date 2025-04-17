@@ -219,7 +219,7 @@ const vendors: Vendor[] = [
   {
     id: "v1",
     name: "SoundMaster Pro",
-    logo: "/placeholder.svg?height=60&width=60",
+    logo: "/placeholder.svg",
     location: "Nairobi, Kenya",
     rating: 4.8,
     reviewCount: 342,
@@ -228,7 +228,7 @@ const vendors: Vendor[] = [
   {
     id: "v2",
     name: "Sports Elite",
-    logo: "/placeholder.svg?height=60&width=60",
+    logo: "/placeholder.svg",
     location: "Mombasa, Kenya",
     rating: 4.7,
     reviewCount: 256,
@@ -237,7 +237,7 @@ const vendors: Vendor[] = [
   {
     id: "v3",
     name: "Entertainment Hub",
-    logo: "/placeholder.svg?height=60&width=60",
+    logo: "/placeholder.svg",
     location: "Kisumu, Kenya",
     rating: 4.9,
     reviewCount: 189,
@@ -246,7 +246,7 @@ const vendors: Vendor[] = [
   {
     id: "v4",
     name: "Formula Fanatics",
-    logo: "/placeholder.svg?height=60&width=60",
+    logo: "/placeholder.svg",
     location: "Nakuru, Kenya",
     rating: 4.6,
     reviewCount: 127,
@@ -255,7 +255,7 @@ const vendors: Vendor[] = [
   {
     id: "v5",
     name: "Music World",
-    logo: "/placeholder.svg?height=60&width=60",
+    logo: "/placeholder.svg",
     location: "Eldoret, Kenya",
     rating: 4.5,
     reviewCount: 156,
@@ -269,11 +269,11 @@ const products: EntertainmentProduct[] = [
   {
     id: "sa1",
     name: "Premium Running Shorts - Moisture Wicking",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      "/placeholder.svg",
+     "/placeholder.svg",
     ],
     currentPrice: { amount: 2500, currency: "KSH" },
     originalPrice: { amount: 3200, currency: "KSH" },
@@ -309,11 +309,11 @@ const products: EntertainmentProduct[] = [
   {
     id: "sa2",
     name: "Professional Basketball Jersey - Team Edition",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+     "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 3800, currency: "KSH" },
     originalPrice: { amount: 4500, currency: "KSH" },
@@ -351,11 +351,11 @@ const products: EntertainmentProduct[] = [
   {
     id: "sf1",
     name: "Professional Soccer Cleats - Firm Ground",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 8500, currency: "KSH" },
     originalPrice: { amount: 12000, currency: "KSH" },
@@ -391,11 +391,11 @@ const products: EntertainmentProduct[] = [
   {
     id: "sf2",
     name: "Official Team Football Jersey - Home Kit",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+     "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 4500, currency: "KSH" },
     originalPrice: { amount: 5500, currency: "KSH" },
@@ -432,11 +432,11 @@ const products: EntertainmentProduct[] = [
   {
     id: "sf1h",
     name: "Official F1 Team Cap - Limited Edition",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 3200, currency: "KSH" },
     originalPrice: { amount: 4000, currency: "KSH" },
@@ -471,11 +471,11 @@ const products: EntertainmentProduct[] = [
   {
     id: "sf2s",
     name: "Premium F1 Racing Team Polo Shirt",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg",
     ],
     currentPrice: { amount: 5800, currency: "KSH" },
     originalPrice: { amount: 7500, currency: "KSH" },
@@ -511,11 +511,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "sea1",
     name: "Professional Resistance Bands Set",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+     
     ],
     currentPrice: { amount: 3500, currency: "KSH" },
     originalPrice: { amount: 4200, currency: "KSH" },
@@ -554,8 +553,7 @@ const products: EntertainmentProduct[] = [
     imageUrl: "/placeholder.svg?height=300&width=300",
     images: [
       "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+     
     ],
     currentPrice: { amount: 2800, currency: "KSH" },
     originalPrice: { amount: 3500, currency: "KSH" },
@@ -593,11 +591,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "sef1",
     name: "Professional Match Football - FIFA Approved",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+    
     ],
     currentPrice: { amount: 7500, currency: "KSH" },
     originalPrice: { amount: 9000, currency: "KSH" },
@@ -633,11 +630,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "sef2",
     name: "Portable Football Training Goal Set",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+     "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 12000, currency: "KSH" },
     originalPrice: { amount: 15000, currency: "KSH" },
@@ -674,11 +670,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "sef1e",
     name: "F1 Racing Simulator Steering Wheel",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+     "/placeholder.svg",
+     
     ],
     currentPrice: { amount: 35000, currency: "KSH" },
     originalPrice: { amount: 45000, currency: "KSH" },
@@ -714,11 +709,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "sef2e",
     name: "F1 Team Garage Scale Model Kit",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 18000, currency: "KSH" },
     originalPrice: { amount: 22000, currency: "KSH" },
@@ -755,11 +749,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "ea1",
     name: "Professional DJ Controller with Built-in Mixer",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 85000, currency: "KSH" },
     originalPrice: { amount: 110000, currency: "KSH" },
@@ -797,11 +790,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "ea2",
     name: "Premium Bluetooth Party Speaker System",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+     "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 45000, currency: "KSH" },
     originalPrice: { amount: 55000, currency: "KSH" },
@@ -841,11 +833,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "em1",
     name: "Professional 16-Channel Audio Mixer",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+     "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 75000, currency: "KSH" },
     originalPrice: { amount: 95000, currency: "KSH" },
@@ -883,11 +874,11 @@ const products: EntertainmentProduct[] = [
   {
     id: "em2",
     name: "Compact 8-Channel Digital Mixer with Wi-Fi",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      "/placeholder.svg",
+     
     ],
     currentPrice: { amount: 48000, currency: "KSH" },
     originalPrice: { amount: 60000, currency: "KSH" },
@@ -927,11 +918,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "ep1",
     name: "Motorized Projection Screen - 120 inch",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 35000, currency: "KSH" },
     originalPrice: { amount: 45000, currency: "KSH" },
@@ -969,11 +959,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "ep2",
     name: "Portable Tripod Projection Screen - 100 inch",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 18000, currency: "KSH" },
     originalPrice: { amount: 22000, currency: "KSH" },
@@ -1012,11 +1001,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "emg1",
     name: "Professional Electric Guitar - Sunburst Finish",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 45000, currency: "KSH" },
     originalPrice: { amount: 55000, currency: "KSH" },
@@ -1055,11 +1043,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "emg2",
     name: "Acoustic-Electric Guitar with Cutaway",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+     
     ],
     currentPrice: { amount: 28000, currency: "KSH" },
     originalPrice: { amount: 35000, currency: "KSH" },
@@ -1100,11 +1087,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "emp1",
     name: "Digital Grand Piano with Bench",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+     "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 180000, currency: "KSH" },
     originalPrice: { amount: 220000, currency: "KSH" },
@@ -1143,11 +1129,9 @@ const products: EntertainmentProduct[] = [
   {
     id: "emp2",
     name: "Portable 88-Key Digital Piano",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg"
     ],
     currentPrice: { amount: 65000, currency: "KSH" },
     originalPrice: { amount: 80000, currency: "KSH" },
@@ -1187,11 +1171,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "ems1",
     name: "Professional Powered PA Speaker - 15 inch",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 55000, currency: "KSH" },
     originalPrice: { amount: 68000, currency: "KSH" },
@@ -1230,11 +1213,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "ems2",
     name: "Compact 10-inch Active Subwoofer",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+     "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 42000, currency: "KSH" },
     originalPrice: { amount: 52000, currency: "KSH" },
@@ -1275,11 +1257,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "emm1",
     name: "Professional Wireless Microphone System",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+     
     ],
     currentPrice: { amount: 38000, currency: "KSH" },
     originalPrice: { amount: 48000, currency: "KSH" },
@@ -1318,11 +1299,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "emm2",
     name: "Adjustable Microphone Stand with Boom Arm",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 5500, currency: "KSH" },
     originalPrice: { amount: 7000, currency: "KSH" },
@@ -1362,11 +1342,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "bmc1",
     name: "Limited Edition Band Tour Hoodie",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+     
     ],
     currentPrice: { amount: 3500, currency: "KSH" },
     originalPrice: { amount: 4500, currency: "KSH" },
@@ -1401,11 +1380,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "bmc2",
     name: "Official Sports Team Jersey - Home Kit",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 4800, currency: "KSH" },
     originalPrice: { amount: 6000, currency: "KSH" },
@@ -1442,11 +1420,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "bma1",
     name: "Premium Festival Branded Backpack",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+      
     ],
     currentPrice: { amount: 3200, currency: "KSH" },
     originalPrice: { amount: 4000, currency: "KSH" },
@@ -1481,11 +1458,10 @@ const products: EntertainmentProduct[] = [
   {
     id: "bma2",
     name: "Limited Edition Artist Collaboration Water Bottle",
-    imageUrl: "/placeholder.svg?height=300&width=300",
+    imageUrl: "/placeholder.svg",
     images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg",
+     
     ],
     currentPrice: { amount: 1800, currency: "KSH" },
     originalPrice: { amount: 2500, currency: "KSH" },
