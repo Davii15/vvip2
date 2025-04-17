@@ -1732,14 +1732,18 @@ export default function EntertainmentShopPage() {
     }, 800)
   }, [filteredProducts, hasMore, isLoading, page, productsPerPage])
 
-  
-//added new feature to controll loading of pages
+
+  // Add this useEffect right after your other useEffect hooks
 useEffect(() => {
-  loadMoreProducts()
-}, [])
+  // Force initial data load when component mounts
+  if (visibleProducts.length === 0 && filteredProducts.length > 0) {
+    const initialProducts = filteredProducts.slice(0, productsPerPage);
+    setVisibleProducts(initialProducts);
+    setPage(2); // Set to 2 since we've loaded the first page
+  }
+}, [filteredProducts, productsPerPage])
+  
 
-
-    
   // Intersection observer for infinite scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
