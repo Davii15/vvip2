@@ -118,13 +118,13 @@ export const beautyTutorials = [
           id: "p7",
           name: "Hyaluronic Acid Serum",
           price: "KSH 2,800",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "p8",
           name: "Oil-Free Moisturizer",
           price: "KSH 2,200",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
       ],
       steps: [
@@ -149,7 +149,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "SkincareFanatic",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
           },
           text: "I've been following this routine for a month and my skin has never looked better!",
           timeAgo: "2 days ago",
@@ -157,7 +157,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "CombinationSkinProblems",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
           },
           text: "Finally a routine that addresses both my oily T-zone and dry cheeks. Game changer!",
           timeAgo: "1 week ago",
@@ -169,15 +169,15 @@ export const beautyTutorials = [
       title: "Protective Hairstyles for Natural Hair",
       description:
         "Learn how to create beautiful protective hairstyles that promote hair growth and health for natural hair.",
-      thumbnailUrl: "/placeholder.svg?height=400&width=600",
-      videoUrl: "/placeholder.svg?height=400&width=600",
+      thumbnailUrl: "/placeholder.svg",
+      videoUrl: "/placeholder.svg",
       duration: "22:15",
       category: "haircare",
       views: "320K",
       publishedAt: "1 month ago",
       creator: {
         name: "Natural Hair Queen",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
         followers: "1.5M",
       },
       products: [
@@ -185,19 +185,19 @@ export const beautyTutorials = [
           id: "p9",
           name: "Moisturizing Hair Butter",
           price: "KSH 1,800",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "p10",
           name: "Edge Control Gel",
           price: "KSH 950",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl:"/placeholder.svg",
         },
         {
           id: "p11",
           name: "Scalp Oil Treatment",
           price: "KSH 1,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
       ],
       steps: [
@@ -227,7 +227,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "NaturalHairJourney",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
           },
           text: "This style lasted me 3 weeks and my hair grew so much! Thank you for the detailed tutorial.",
           timeAgo: "2 weeks ago",
@@ -235,7 +235,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "BeginnerNatural",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
           },
           text: "I've been struggling with protective styles but your breakdown made it so easy to follow!",
           timeAgo: "3 weeks ago",
@@ -246,15 +246,15 @@ export const beautyTutorials = [
       id: "bt4",
       title: "DIY Manicure: Gel Polish at Home",
       description: "Professional-looking gel manicure at home - learn the techniques for long-lasting, chip-free nails.",
-      thumbnailUrl: "/placeholder.svg?height=400&width=600",
-      videoUrl: "/placeholder.svg?height=400&width=600",
+      thumbnailUrl: "/placeholder.svg",
+      videoUrl: "/placeholder.svg",
       duration: "18:42",
       category: "nailcare",
       views: "175K",
       publishedAt: "2 months ago",
       creator: {
         name: "Nail Art Pro",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
         followers: "780K",
       },
       products: [
@@ -262,25 +262,25 @@ export const beautyTutorials = [
           id: "p12",
           name: "LED Nail Lamp",
           price: "KSH 4,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "p13",
           name: "Gel Base & Top Coat Set",
           price: "KSH 2,200",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "p14",
           name: "Gel Polish Collection",
           price: "KSH 3,800",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "p15",
           name: "Cuticle Oil",
           price: "KSH 850",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
       ],
       steps: [
@@ -309,7 +309,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "NailEnthusiast",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
           },
           text: "I've saved so much money doing my own gel nails at home! This tutorial is so detailed and helpful.",
           timeAgo: "1 month ago",
@@ -317,7 +317,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "BeautyOnBudget",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
           },
           text: "My first attempt came out perfect thanks to your step-by-step instructions!",
           timeAgo: "6 weeks ago",
@@ -329,15 +329,15 @@ export const beautyTutorials = [
       title: "Exfoliating Body Scrub Routine for Glowing Skin",
       description:
         "Transform dull, dry skin with this luxurious body scrub routine that leaves skin soft, smooth, and radiant.",
-      thumbnailUrl: "/placeholder.svg?height=400&width=600",
-      videoUrl: "/placeholder.svg?height=400&width=600",
+      thumbnailUrl: "/placeholder.svg",
+      videoUrl: "/placeholder.svg",
       duration: "12:18",
       category: "bodycare",
       views: "132K",
       publishedAt: "3 months ago",
       creator: {
         name: "Glow Goddess",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
         followers: "620K",
       },
       products: [
@@ -345,19 +345,19 @@ export const beautyTutorials = [
           id: "p16",
           name: "Coffee & Sugar Body Scrub",
           price: "KSH 1,800",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "p17",
           name: "Exfoliating Gloves",
           price: "KSH 650",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "p18",
           name: "Body Oil Elixir",
           price: "KSH 2,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
       ],
       steps: [
@@ -383,7 +383,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "SmoothSkinGoals",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
           },
           text: "My skin has never felt so soft! The coffee scrub smells amazing too.",
           timeAgo: "2 months ago",
@@ -391,7 +391,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "SelfCareSunday",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
           },
           text: "This has become my weekly ritual. So relaxing and my skin is glowing!",
           timeAgo: "10 weeks ago",
@@ -402,15 +402,15 @@ export const beautyTutorials = [
       id: "bt6",
       title: "Evening Glam Makeup for Special Occasions",
       description: "Create a stunning evening makeup look that's perfect for special events, parties, and celebrations.",
-      thumbnailUrl: "/placeholder.svg?height=400&width=600",
-      videoUrl: "/placeholder.svg?height=400&width=600",
+      thumbnailUrl: "/placeholder.svg",
+      videoUrl: "/placeholder.svg",
       duration: "25:36",
       category: "makeup",
       views: "290K",
       publishedAt: "1 month ago",
       creator: {
         name: "Glam Master",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
         followers: "1.8M",
       },
       products: [
@@ -418,25 +418,25 @@ export const beautyTutorials = [
           id: "p19",
           name: "Full Coverage Foundation",
           price: "KSH 3,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "p20",
           name: "Shimmer Eyeshadow Palette",
           price: "KSH 4,200",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl:"/placeholder.svg",
         },
         {
           id: "p21",
           name: "Volumizing False Lashes",
           price: "KSH 950",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "p22",
           name: "Long-Wear Lipstick",
           price: "KSH 1,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
       ],
       steps: [
@@ -465,7 +465,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "PartyReady",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
           },
           text: "Used this tutorial for my friend's wedding and got so many compliments!",
           timeAgo: "2 weeks ago",
@@ -473,7 +473,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "MakeupObsessed",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
           },
           text: "The eye technique is genius! My hooded eyes look amazing with this method.",
           timeAgo: "3 weeks ago",
@@ -489,33 +489,33 @@ export const beautyTutorials = [
       title: "Live Skincare Masterclass: Addressing Hyperpigmentation",
       description:
         "Join our expert dermatologist as she demonstrates effective treatments and products for hyperpigmentation and dark spots.",
-      thumbnailUrl: "/placeholder.svg?height=400&width=600",
-      streamUrl: "/placeholder.svg?height=400&width=600",
+      thumbnailUrl: "/placeholder.svg",
+      streamUrl: "/placeholder.svg",
       isLive: true,
       viewerCount: 1245,
       host: {
         name: "Dr. Michelle Skin",
         role: "Dermatologist",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
       },
       products: [
         {
           id: "lp1",
           name: "Vitamin C Brightening Serum",
           price: "KSH 3,200",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "lp2",
           name: "Niacinamide Treatment",
           price: "KSH 2,800",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "lp3",
           name: "Dark Spot Corrector",
           price: "KSH 3,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
       ],
       agenda: [
@@ -529,7 +529,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "SkincareLover",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
             isHost: false,
           },
           text: "I've been struggling with dark spots for years! So excited for this stream.",
@@ -537,7 +537,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "Dr. Michelle Skin",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
             isHost: true,
           },
           text: "Welcome everyone! We'll be starting with the causes of hyperpigmentation and then move into treatments.",
@@ -545,7 +545,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "BeautyEnthusiast",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
             isHost: false,
           },
           text: "Does the Vitamin C Serum work for sensitive skin too?",
@@ -553,7 +553,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "GlowingGoals",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
             isHost: false,
           },
           text: "Just ordered the Dark Spot Corrector! Can't wait to try it.",
@@ -564,39 +564,39 @@ export const beautyTutorials = [
       id: "ls2",
       title: "Live Hair Styling: Perfect Blowout Techniques",
       description: "Learn professional blowout techniques to achieve salon-quality hair at home with our expert stylist.",
-      thumbnailUrl: "/placeholder.svg?height=400&width=600",
-      streamUrl: "/placeholder.svg?height=400&width=600",
+      thumbnailUrl: "/placeholder.svg",
+      streamUrl: "/placeholder.svg",
       isLive: true,
       viewerCount: 876,
       host: {
         name: "Andre Hair Pro",
         role: "Celebrity Hair Stylist",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
       },
       products: [
         {
           id: "lp4",
           name: "Professional Blow Dryer",
           price: "KSH 8,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "lp5",
           name: "Round Brush Set",
           price: "KSH 3,200",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "lp6",
           name: "Heat Protectant Spray",
           price: "KSH 1,800",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "lp7",
           name: "Finishing Hair Oil",
           price: "KSH 2,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
       ],
       agenda: [
@@ -610,7 +610,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "HairGoals",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
             isHost: false,
           },
           text: "My blowouts always fall flat after an hour. Hope to learn some tips!",
@@ -618,7 +618,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "Andre Hair Pro",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
             isHost: true,
           },
           text: "The key to a long-lasting blowout is in the preparation and cooling. I'll show you exactly how to do it!",
@@ -626,7 +626,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "CurlyHairProblems",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
             isHost: false,
           },
           text: "Will these techniques work for very curly hair too?",
@@ -634,7 +634,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "SalonOwner",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
             isHost: false,
           },
           text: "That round brush technique is genius! Going to use that on my clients.",
@@ -645,32 +645,32 @@ export const beautyTutorials = [
       id: "ls3",
       title: "Upcoming: Natural Makeup for Mature Skin",
       description: "Join makeup artist Lisa for techniques and products specifically designed to enhance mature skin.",
-      thumbnailUrl: "/placeholder.svg?height=400&width=600",
+      thumbnailUrl: "/placeholder.svg",
       isLive: false,
       scheduledFor: "Tomorrow, 3:00 PM",
       host: {
         name: "Lisa Beauty",
         role: "Makeup Artist",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
       },
       products: [
         {
           id: "lp8",
           name: "Hydrating Primer",
           price: "KSH 2,200",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "lp9",
           name: "Luminous Foundation for Mature Skin",
           price: "KSH 3,800",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "lp10",
           name: "Cream Blush & Highlighter Duo",
           price: "KSH 2,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
       ],
     },
@@ -678,32 +678,32 @@ export const beautyTutorials = [
       id: "ls4",
       title: "Upcoming: DIY Facial at Home",
       description: "Learn how to give yourself a professional-quality facial at home with esthetician Sarah.",
-      thumbnailUrl: "/placeholder.svg?height=400&width=600",
+      thumbnailUrl: "/placeholder.svg",
       isLive: false,
       scheduledFor: "Saturday, 11:00 AM",
       host: {
         name: "Sarah Skin",
         role: "Licensed Esthetician",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
       },
       products: [
         {
           id: "lp11",
           name: "Facial Steamer",
           price: "KSH 5,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "lp12",
           name: "Enzyme Exfoliating Mask",
           price: "KSH 2,800",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "lp13",
           name: "Facial Massage Tools Set",
           price: "KSH 3,200",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
       ],
     },
@@ -715,8 +715,8 @@ export const beautyTutorials = [
       id: "cr1",
       name: "Laurah Nyon'go",
       profession: "Actress & Producer",
-      avatarUrl: "/placeholder.svg?height=200&width=200",
-      coverImageUrl: "/placeholder.svg?height=600&width=800",
+      avatarUrl: "/placeholder.svg",
+      coverImageUrl: "/placeholder.svg",
       isVerified: true,
       bio: "Award-winning actress known for her roles in 'Winning Hearts' and 'The Fighter', sharing her authentic beauty routine focused on enhancing natural features and caring for melanin-rich skin.",
       beautyPhilosophy:
@@ -732,28 +732,28 @@ export const beautyTutorials = [
           id: "cp1",
           name: "Vitamin C Brightening Serum",
           price: "KSH 3,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
           description: "Helps even skin tone and adds radiance to melanin-rich skin.",
         },
         {
           id: "cp2",
           name: "Hydrating Face Oil",
           price: "KSH 4,200",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
           description: "Nourishes skin with essential fatty acids and antioxidants.",
         },
         {
           id: "cp3",
           name: "Tinted Moisturizer with SPF 30",
           price: "KSH 2,800",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
           description: "Provides light coverage while protecting skin from sun damage.",
         },
         {
           id: "cp4",
           name: "Shea Butter Hair Treatment",
           price: "KSH 1,800",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
           description: "Deep conditioning treatment that nourishes natural hair.",
         },
       ],
@@ -789,17 +789,17 @@ export const beautyTutorials = [
       tutorials: [
         {
           title: "My 5-Minute Everyday Makeup Routine",
-          thumbnailUrl: "/placeholder.svg?height=200&width=300",
+          thumbnailUrl: "/placeholder.svg",
           duration: "12:45",
         },
         {
           title: "Protective Styling for Natural Hair Growth",
-          thumbnailUrl: "/placeholder.svg?height=200&width=300",
+          thumbnailUrl: "/placeholder.svg",
           duration: "18:30",
         },
         {
           title: "Evening Skincare Ritual for Glowing Skin",
-          thumbnailUrl: "/placeholder.svg?height=200&width=300",
+          thumbnailUrl: "/placeholder.svg",
           duration: "15:20",
         },
       ],
@@ -808,8 +808,8 @@ export const beautyTutorials = [
       id: "cr2",
       name: "Wahu Nguhi",
       profession: "Singer & Entrepreneur",
-      avatarUrl: "/placeholder.svg?height=200&width=200",
-      coverImageUrl: "/placeholder.svg?height=600&width=800",
+      avatarUrl: "/placeholder.svg",
+      coverImageUrl: "/placeholder.svg",
       isVerified: true,
       bio: "Kenyan singer, songwriter, and beauty entrepreneur sharing her secrets to maintaining youthful, radiant skin while balancing a busy career and motherhood.",
       beautyPhilosophy:
@@ -825,28 +825,28 @@ export const beautyTutorials = [
           id: "cp5",
           name: "Anti-Aging Night Cream",
           price: "KSH 4,800",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
           description: "Rich night treatment with peptides and retinol for youthful skin.",
         },
         {
           id: "cp6",
           name: "Color-Protecting Hair Mask",
           price: "KSH 2,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl:"/placeholder.svg",
           description: "Preserves hair color vibrancy while deeply conditioning.",
         },
         {
           id: "cp7",
           name: "Multitasking BB Cream",
           price: "KSH 3,200",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
           description: "All-in-one makeup product for busy mornings.",
         },
         {
           id: "cp8",
           name: "Hydrating Lip Oil",
           price: "KSH 1,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
           description: "Nourishing lip treatment with a hint of color.",
         },
       ],
@@ -882,17 +882,17 @@ export const beautyTutorials = [
       tutorials: [
         {
           title: "5-Minute Makeup for Busy Moms",
-          thumbnailUrl: "/placeholder.svg?height=200&width=300",
+          thumbnailUrl: "/placeholder.svg",
           duration: "08:15",
         },
         {
           title: "My Anti-Aging Skincare Secrets",
-          thumbnailUrl: "/placeholder.svg?height=200&width=300",
+          thumbnailUrl: "/placeholder.svg",
           duration: "14:30",
         },
         {
           title: "How I Maintain Vibrant Hair Color",
-          thumbnailUrl: "/placeholder.svg?height=200&width=300",
+          thumbnailUrl: "/placeholder.svg",
           duration: "11:45",
         },
       ],
@@ -901,8 +901,8 @@ export const beautyTutorials = [
       id: "cr3",
       name: "Tamasha Donaj",
       profession: "Singer & Model",
-      avatarUrl: "/placeholder.svg?height=200&width=200",
-      coverImageUrl: "/placeholder.svg?height=600&width=800",
+      avatarUrl: "/placeholder.svg",
+      coverImageUrl: "/placeholder.svg",
       isVerified: true,
       bio: "Kenyan singer, model, and influencer known for her bold style and glamorous looks, sharing her beauty secrets for stage-ready skin and statement makeup.",
       beautyPhilosophy:
@@ -918,28 +918,28 @@ export const beautyTutorials = [
           id: "cp9",
           name: "Long-Wear Foundation",
           price: "KSH 4,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
           description: "Full coverage, sweat-resistant foundation perfect for performances.",
         },
         {
           id: "cp10",
           name: "Illuminating Body Oil",
           price: "KSH 3,800",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
           description: "Adds a subtle shimmer and glow to the skin.",
         },
         {
           id: "cp11",
           name: "Matte Liquid Lipstick",
           price: "KSH 2,200",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
           description: "Bold, long-lasting color that doesn't transfer.",
         },
         {
           id: "cp12",
           name: "Wig Care Kit",
           price: "KSH 5,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
           description: "Everything needed to maintain wigs and extensions.",
         },
       ],
@@ -976,17 +976,17 @@ export const beautyTutorials = [
       tutorials: [
         {
           title: "My Stage Makeup Transformation",
-          thumbnailUrl: "/placeholder.svg?height=200&width=300",
+          thumbnailUrl: "/placeholder.svg",
           duration: "22:10",
         },
         {
           title: "How I Apply and Maintain My Wigs",
-          thumbnailUrl: "/placeholder.svg?height=200&width=300",
+          thumbnailUrl: "/placeholder.svg",
           duration: "18:45",
         },
         {
           title: "Body Glow Routine for Music Videos",
-          thumbnailUrl: "/placeholder.svg?height=200&width=300",
+          thumbnailUrl: "/placeholder.svg",
           duration: "15:30",
         },
       ],
@@ -999,84 +999,84 @@ export const beautyTutorials = [
       id: "pt1",
       title: "French Manicure with a Modern Twist",
       description: "Update the classic French manicure with contemporary colors and designs.",
-      thumbnailUrl: "/placeholder.svg?height=300&width=400",
+      thumbnailUrl: "/placeholder.svg",
       duration: "14:22",
       category: "nailcare",
       views: "98K",
       publishedAt: "4 months ago",
       creator: {
         name: "Nail Art Pro",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
       },
     },
     {
       id: "pt2",
       title: "Acne-Fighting Skincare Routine",
       description: "Effective products and techniques to combat acne and prevent breakouts.",
-      thumbnailUrl: "/placeholder.svg?height=300&width=400",
+      thumbnailUrl: "/placeholder.svg",
       duration: "18:45",
       category: "skincare",
       views: "215K",
       publishedAt: "5 months ago",
       creator: {
         name: "Dr. Skin Expert",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
       },
     },
     {
       id: "pt3",
       title: "Heatless Curls Overnight Method",
       description: "Wake up to beautiful curls without heat damage using this overnight technique.",
-      thumbnailUrl: "/placeholder.svg?height=300&width=400",
+      thumbnailUrl: "/placeholder.svg",
       duration: "12:18",
       category: "haircare",
       views: "187K",
       publishedAt: "6 months ago",
       creator: {
         name: "Hair Guru",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
       },
     },
     {
       id: "pt4",
       title: "5-Minute Contouring for Beginners",
       description: "Quick and easy contouring technique for defined features in just 5 minutes.",
-      thumbnailUrl: "/placeholder.svg?height=300&width=400",
+      thumbnailUrl: "/placeholder.svg",
       duration: "08:32",
       category: "makeup",
       views: "276K",
       publishedAt: "7 months ago",
       creator: {
         name: "Makeup Simplified",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
       },
     },
     {
       id: "pt5",
       title: "DIY Coffee Body Scrub",
       description: "Make your own exfoliating coffee scrub at home with simple ingredients.",
-      thumbnailUrl: "/placeholder.svg?height=300&width=400",
+      thumbnailUrl: "/placeholder.svg",
       duration: "10:15",
       category: "bodycare",
       views: "124K",
       publishedAt: "8 months ago",
       creator: {
         name: "Glow Goddess",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
       },
     },
     {
       id: "pt6",
       title: "Eyebrow Lamination at Home",
       description: "Professional-looking eyebrow lamination you can do yourself for fluffy, defined brows.",
-      thumbnailUrl: "/placeholder.svg?height=300&width=400",
+      thumbnailUrl: "/placeholder.svg",
       duration: "16:40",
       category: "makeup",
       views: "156K",
       publishedAt: "9 months ago",
       creator: {
         name: "Brow Expert",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
       },
     },
   ]
