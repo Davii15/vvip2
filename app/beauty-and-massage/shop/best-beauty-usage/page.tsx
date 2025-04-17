@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
@@ -34,7 +34,8 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
-import { beautyTutorials, celebrityRoutines, liveBeautyStreams, previousTutorials } from "./mock-data.ts"
+import { beautyTutorials, celebrityRoutines, liveBeautyStreams, previousTutorials } from "./mock-data"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function BestBeautyUsagePage() {
   const router = useRouter()
@@ -47,7 +48,13 @@ export default function BestBeautyUsagePage() {
   const [selectedCelebrity, setSelectedCelebrity] = useState<any>(null)
   const [isLiveModalOpen, setIsLiveModalOpen] = useState(false)
   const [selectedLiveStream, setSelectedLiveStream] = useState<any>(null)
-  const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
+  const videoRefs = useState<Record<string, HTMLVideoElement | null>>({})
+
+  // Skeleton loading state
+  const [loadingTutorials, setLoadingTutorials] = useState(true)
+  const [displayTutorials, setDisplayTutorials] = useState<any[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const tutorialsPerPage = 6
 
   // Filter tutorials based on search query and category
   const filteredTutorials = beautyTutorials.filter((tutorial) => {
@@ -60,6 +67,37 @@ export default function BestBeautyUsagePage() {
 
     return matchesSearch && matchesCategory
   })
+
+  // Load tutorials with simulated delay
+  const loadTutorials = () => {
+    setLoadingTutorials(true)
+
+    // Simulate API fetch delay
+    setTimeout(() => {
+      const startIndex = (currentPage - 1) * tutorialsPerPage
+      const endIndex = startIndex + tutorialsPerPage
+      const newTutorials = filteredTutorials.slice(0, endIndex)
+
+      setDisplayTutorials(newTutorials)
+      setLoadingTutorials(false)
+    }, 800)
+  }
+
+  // Handle load more button click
+  const handleLoadMore = () => {
+    setCurrentPage((prev) => prev + 1)
+  }
+
+  // Effect to load tutorials on initial render and when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+    loadTutorials()
+  }, [searchQuery, activeCategory])
+
+  // Effect to load more tutorials when page changes
+  useEffect(() => {
+    loadTutorials()
+  }, [currentPage])
 
   // Handle video play/pause
   const togglePlay = (id: string) => {
@@ -100,6 +138,44 @@ export default function BestBeautyUsagePage() {
     { id: "nailcare", name: "Nail Care" },
     { id: "bodycare", name: "Body Care" },
   ]
+
+  // Tutorial skeleton component
+  const TutorialSkeleton = () => (
+    <div className="h-full">
+      <Card className="h-full overflow-hidden border-pink-100">
+        <div className="relative h-64 bg-pink-50">
+          <Skeleton className="h-full w-full" />
+        </div>
+        <CardContent className="p-4">
+          <div className="flex items-center mb-2">
+            <Skeleton className="h-8 w-8 rounded-full mr-2" />
+            <div className="space-y-1">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+          </div>
+          <Skeleton className="h-5 w-full mb-1" />
+          <Skeleton className="h-5 w-3/4 mb-3" />
+          <div className="mb-3">
+            <Skeleton className="h-3 w-32 mb-1" />
+            <div className="flex flex-wrap gap-1">
+              <Skeleton className="h-5 w-16 rounded-full" />
+              <Skeleton className="h-5 w-20 rounded-full" />
+              <Skeleton className="h-5 w-14 rounded-full" />
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-3 w-16" />
+            <Skeleton className="h-3 w-20" />
+          </div>
+        </CardContent>
+        <CardFooter className="p-4 pt-0 flex justify-between">
+          <Skeleton className="h-9 w-20" />
+          <Skeleton className="h-9 w-28" />
+        </CardFooter>
+      </Card>
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
@@ -221,7 +297,8 @@ export default function BestBeautyUsagePage() {
           {/* Featured Tutorials Tab */}
           <TabsContent value="featured" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredTutorials.map((tutorial) => (
+              {/* Display loaded tutorials */}
+              {displayTutorials.map((tutorial) => (
                 <motion.div
                   key={tutorial.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -281,7 +358,10 @@ export default function BestBeautyUsagePage() {
                     <CardContent className="p-4">
                       <div className="flex items-center mb-2">
                         <Avatar className="h-8 w-8 mr-2">
-                          <AvatarImage src={tutorial.creator.avatarUrl} alt={tutorial.creator.name} />
+                          <AvatarImage
+                            src={tutorial.creator.avatarUrl || "/placeholder.svg"}
+                            alt={tutorial.creator.name}
+                          />
                           <AvatarFallback>{tutorial.creator.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div>
@@ -347,9 +427,33 @@ export default function BestBeautyUsagePage() {
                   </Card>
                 </motion.div>
               ))}
+
+              {/* Skeleton loaders */}
+              {loadingTutorials && (
+                <>
+                  {Array(3)
+                    .fill(0)
+                    .map((_, index) => (
+                      <TutorialSkeleton key={`skeleton-${index}`} />
+                    ))}
+                </>
+              )}
             </div>
 
-            {filteredTutorials.length === 0 && (
+            {/* Load more button */}
+            {displayTutorials.length > 0 && displayTutorials.length < filteredTutorials.length && (
+              <div className="flex justify-center mt-8">
+                <Button
+                  onClick={handleLoadMore}
+                  disabled={loadingTutorials}
+                  className="bg-pink-500 hover:bg-pink-600 text-white"
+                >
+                  {loadingTutorials ? "Loading..." : "Load More Tutorials"}
+                </Button>
+              </div>
+            )}
+
+            {filteredTutorials.length === 0 && !loadingTutorials && (
               <div className="text-center py-12">
                 <div className="mx-auto w-16 h-16 mb-4 bg-pink-100 rounded-full flex items-center justify-center">
                   <Search className="h-8 w-8 text-pink-500" />
@@ -422,7 +526,7 @@ export default function BestBeautyUsagePage() {
                         <CardContent className="p-4">
                           <div className="flex items-center mb-2">
                             <Avatar className="h-8 w-8 mr-2">
-                              <AvatarImage src={stream.host.avatarUrl} alt={stream.host.name} />
+                              <AvatarImage src={stream.host.avatarUrl || "/placeholder.svg"} alt={stream.host.name} />
                               <AvatarFallback>{stream.host.name.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div>
@@ -515,7 +619,7 @@ export default function BestBeautyUsagePage() {
                         <CardContent className="p-4">
                           <div className="flex items-center mb-2">
                             <Avatar className="h-8 w-8 mr-2">
-                              <AvatarImage src={stream.host.avatarUrl} alt={stream.host.name} />
+                              <AvatarImage src={stream.host.avatarUrl || "/placeholder.svg"} alt={stream.host.name} />
                               <AvatarFallback>{stream.host.name.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div>
@@ -597,7 +701,7 @@ export default function BestBeautyUsagePage() {
                       <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
                         <div className="flex items-center mb-2">
                           <Avatar className="h-12 w-12 border-2 border-white">
-                            <AvatarImage src={celebrity.avatarUrl} alt={celebrity.name} />
+                            <AvatarImage src={celebrity.avatarUrl || "/placeholder.svg"} alt={celebrity.name} />
                             <AvatarFallback>{celebrity.name.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div className="ml-3">
@@ -716,7 +820,10 @@ export default function BestBeautyUsagePage() {
                     <CardContent className="p-4">
                       <div className="flex items-center mb-2">
                         <Avatar className="h-6 w-6 mr-2">
-                          <AvatarImage src={tutorial.creator.avatarUrl} alt={tutorial.creator.name} />
+                          <AvatarImage
+                            src={tutorial.creator.avatarUrl || "/placeholder.svg"}
+                            alt={tutorial.creator.name}
+                          />
                           <AvatarFallback>{tutorial.creator.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <p className="text-xs font-medium text-gray-800">{tutorial.creator.name}</p>
@@ -790,7 +897,10 @@ export default function BestBeautyUsagePage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <Avatar className="h-10 w-10 mr-3">
-                      <AvatarImage src={selectedTutorial.creator.avatarUrl} alt={selectedTutorial.creator.name} />
+                      <AvatarImage
+                        src={selectedTutorial.creator.avatarUrl || "/placeholder.svg"}
+                        alt={selectedTutorial.creator.name}
+                      />
                       <AvatarFallback>{selectedTutorial.creator.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -880,7 +990,7 @@ export default function BestBeautyUsagePage() {
                       selectedTutorial.comments.map((comment, index) => (
                         <div key={index} className="flex">
                           <Avatar className="h-8 w-8 mr-3">
-                            <AvatarImage src={comment.user.avatarUrl} alt={comment.user.name} />
+                            <AvatarImage src={comment.user.avatarUrl || "/placeholder.svg"} alt={comment.user.name} />
                             <AvatarFallback>{comment.user.name.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div>
@@ -918,7 +1028,10 @@ export default function BestBeautyUsagePage() {
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                   <div className="flex items-center">
                     <Avatar className="h-16 w-16 border-2 border-white">
-                      <AvatarImage src={selectedCelebrity.avatarUrl} alt={selectedCelebrity.name} />
+                      <AvatarImage
+                        src={selectedCelebrity.avatarUrl || "/placeholder.svg"}
+                        alt={selectedCelebrity.name}
+                      />
                       <AvatarFallback>{selectedCelebrity.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div className="ml-4">
@@ -1068,7 +1181,10 @@ export default function BestBeautyUsagePage() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
                     <Avatar className="h-12 w-12 mr-3">
-                      <AvatarImage src={selectedLiveStream.host.avatarUrl} alt={selectedLiveStream.host.name} />
+                      <AvatarImage
+                        src={selectedLiveStream.host.avatarUrl || "/placeholder.svg"}
+                        alt={selectedLiveStream.host.name}
+                      />
                       <AvatarFallback>{selectedLiveStream.host.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -1103,7 +1219,10 @@ export default function BestBeautyUsagePage() {
                           selectedLiveStream.chat.map((message, index) => (
                             <div key={index} className="flex items-start">
                               <Avatar className="h-6 w-6 mr-2">
-                                <AvatarImage src={message.user.avatarUrl} alt={message.user.name} />
+                                <AvatarImage
+                                  src={message.user.avatarUrl || "/placeholder.svg"}
+                                  alt={message.user.name}
+                                />
                                 <AvatarFallback>{message.user.name.charAt(0)}</AvatarFallback>
                               </Avatar>
                               <div>
@@ -1186,4 +1305,3 @@ export default function BestBeautyUsagePage() {
     </div>
   )
 }
-
