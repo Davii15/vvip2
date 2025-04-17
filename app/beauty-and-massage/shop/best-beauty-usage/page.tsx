@@ -34,7 +34,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
-import { beautyTutorials, celebrityRoutines, liveBeautyStreams, previousTutorials } from "./best-beauty-usage/mock-data.ts"
+import { beautyTutorials, celebrityRoutines, liveBeautyStreams, previousTutorials } from "./shop/best-beauty-usage/mock-data.ts"
 
 export default function BestBeautyUsagePage() {
   const router = useRouter()
