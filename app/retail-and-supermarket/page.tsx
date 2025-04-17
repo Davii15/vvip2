@@ -1599,7 +1599,7 @@ export default function RetailAndSupermarketPage() {
               <Link href="/retail-and-supermarket/shop">
                 <Button
                   size="lg"
-                  className="bg-white text-green-600 hover:bg-gray-100 transition-transform hover:scale-105"
+                  className="bg-amber text-green-600 hover:bg-gray-100 transition-transform hover:scale-105"
                 >
                   Shop Now in our Village Markets!
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -1611,7 +1611,7 @@ export default function RetailAndSupermarketPage() {
               <Link href="/retail-and-supermarket/flour">
                 <Button
                   size="lg"
-                  className="bg-white text-green-600 hover:bg-gray-100 transition-transform hover:scale-105"
+                  className="bg-amber text-green-600 hover:bg-gray-100 transition-transform hover:scale-105"
                 >
                   Shop Now in our Flour Markets!
                   <ArrowRight className="ml-2 h-5 w-5" />
