@@ -7,15 +7,15 @@ export const beautyTutorials = [
       title: "10-Minute Natural Everyday Makeup Tutorial",
       description:
         "Learn how to create a fresh, natural makeup look that's perfect for everyday wear in just 10 minutes.",
-      thumbnailUrl: "/placeholder.svg?height=400&width=600",
-      videoUrl: "/placeholder.svg?height=400&width=600",
+      thumbnailUrl: "/placeholder.svg",
+      videoUrl: "/placeholder.svg",
       duration: "10:24",
       category: "makeup",
       views: "245K",
       publishedAt: "2 weeks ago",
       creator: {
         name: "Sophia Beauty",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
         followers: "1.2M",
       },
       products: [
@@ -23,25 +23,25 @@ export const beautyTutorials = [
           id: "p1",
           name: "Dewy Skin Tint",
           price: "KSH 1,800",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "p2",
           name: "Cream Blush in 'Peach'",
           price: "KSH 1,200",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "p3",
           name: "Volumizing Mascara",
           price: "KSH 950",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "p4",
           name: "Hydrating Lip Gloss",
           price: "KSH 850",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
       ],
       steps: [
@@ -70,7 +70,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "BeautyLover22",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
           },
           text: "This tutorial changed my morning routine! So quick and easy but looks so put together.",
           timeAgo: "3 days ago",
@@ -78,7 +78,7 @@ export const beautyTutorials = [
         {
           user: {
             name: "MakeupNewbie",
-            avatarUrl: "/placeholder.svg?height=50&width=50",
+            avatarUrl: "/placeholder.svg",
           },
           text: "I've been struggling with makeup for years and this is the first tutorial that actually made sense to me. Thank you!",
           timeAgo: "1 week ago",
@@ -90,15 +90,15 @@ export const beautyTutorials = [
       title: "Complete Skincare Routine for Combination Skin",
       description:
         "The perfect skincare routine for combination skin - addressing both oily and dry areas for balanced, glowing skin.",
-      thumbnailUrl: "/placeholder.svg?height=400&width=600",
-      videoUrl: "/placeholder.svg?height=400&width=600",
+      thumbnailUrl: "/placeholder.svg",
+      videoUrl: "/placeholder.svg",
       duration: "15:37",
       category: "skincare",
       views: "189K",
       publishedAt: "3 weeks ago",
       creator: {
         name: "Dr. Skin Expert",
-        avatarUrl: "/placeholder.svg?height=100&width=100",
+        avatarUrl: "/placeholder.svg",
         followers: "950K",
       },
       products: [
@@ -106,13 +106,13 @@ export const beautyTutorials = [
           id: "p5",
           name: "Gentle Foaming Cleanser",
           price: "KSH 1,500",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "p6",
           name: "Balancing Toner",
           price: "KSH 1,200",
-          imageUrl: "/placeholder.svg?height=100&width=100",
+          imageUrl: "/placeholder.svg",
         },
         {
           id: "p7",
