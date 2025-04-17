@@ -394,7 +394,7 @@ const products: BeautyProduct[] = [
   {
     id: "wf1",
     name: "Vitamin C Brightening Serum",
-    imageUrl:"/placeholder.svg"
+    imageUrl:"/placeholder.svg",
     images: [
       "/placeholder.svg",
       "/placeholder.svg",
