@@ -13,7 +13,7 @@ export default function CategoriesPage() {
     { name: "Tourist Travel & Adventure Deals", icon: "Compass", imageSrc: "/images/tourism.png" },
     { name: "Travelling Companies Deals", icon: "Plane", imageSrc: "/images/Travel.png" },
     { name: "Health Facility Services Deals", icon: "Stethoscope", imageSrc: "/images/health.png" },
-    { name: "Car Deals", icon: "Car", imageSrc: "/images/cars.png" },
+    {/* { name: "Car Deals", icon: "Car", imageSrc: "/images/cars.png" },*/}
     { name: "Insurance Covers Product Deals", icon: "Shield", imageSrc: "/images/insurance.png" },
     { name: "Beauty & Massage Product Deals", icon: "Sparkles", imageSrc: "/images/beauty.png" },
     { name: "Entertainment Deals", icon: "Music", imageSrc: "/images/enjoyment.png" },
