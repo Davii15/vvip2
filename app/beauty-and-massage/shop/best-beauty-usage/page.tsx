@@ -316,68 +316,51 @@ export default function BeautyShopUsagePage() {
 
       {/* Main content */}
       <div className="container mx-auto px-4 py-6">
-        <Tabs defaultValue="featured" value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="bg-white p-1 rounded-xl mb-6 flex flex-nowrap overflow-x-auto hide-scrollbar border border-pink-100 shadow-sm">
-            <TabsTrigger
-              value="featured"
-              className={`flex items-center gap-1.5 px-6 py-2 rounded-lg text-sm font-medium transition-all ${
-                activeTab === "featured" ? "bg-pink-500 text-white shadow-sm" : "text-gray-700 hover:bg-pink-50"
-              }`}
-            >
-              <Sparkles className="h-4 w-4" />
-              <span>Featured Tutorials</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="live"
-              className={`flex items-center gap-1.5 px-6 py-2 rounded-lg text-sm font-medium transition-all ${
-                activeTab === "live" ? "bg-pink-500 text-white shadow-sm" : "text-gray-700 hover:bg-pink-50"
-              }`}
-            >
-              <Play className="h-4 w-4" />
-              <span>Live Demonstrations</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="celebrity"
-              className={`flex items-center gap-1.5 px-6 py-2 rounded-lg text-sm font-medium transition-all ${
-                activeTab === "celebrity" ? "bg-pink-500 text-white shadow-sm" : "text-gray-700 hover:bg-pink-50"
-              }`}
-            >
-              <Star className="h-4 w-4" />
-              <span>Celebrity Routines</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="previous"
-              className={`flex items-center gap-1.5 px-6 py-2 rounded-lg text-sm font-medium transition-all ${
-                activeTab === "previous" ? "bg-pink-500 text-white shadow-sm" : "text-gray-700 hover:bg-pink-50"
-              }`}
-            >
-              <Clock className="h-4 w-4" />
-              <span>Previous Tutorials</span>
-            </TabsTrigger>
-          </TabsList>
+<Tabs defaultValue="featured" value={activeTab} onValueChange={setActiveTab} className="w-full">
+  <TabsList className="bg-white p-1 rounded-xl mb-6 flex flex-nowrap overflow-x-auto hide-scrollbar border border-pink-100 shadow-sm">
+    <TabsTrigger
+      value="featured"
+      className={`flex items-center gap-1.5 px-6 py-2 rounded-lg text-sm font-medium transition-all ${
+        activeTab === "featured" ? "bg-pink-500 text-white shadow-sm" : "text-gray-700 hover:bg-pink-50"
+      }`}
+    >
+      <Sparkles className="h-4 w-4" />
+      <span>Featured Tutorials</span>
+    </TabsTrigger>
+    <TabsTrigger
+      value="live"
+      className={`flex items-center gap-1.5 px-6 py-2 rounded-lg text-sm font-medium transition-all ${
+        activeTab === "live" ? "bg-pink-500 text-white shadow-sm" : "text-gray-700 hover:bg-pink-50"
+      }`}
+    >
+      <Play className="h-4 w-4" />
+      <span>Live Demonstrations</span>
+    </TabsTrigger>
+    <TabsTrigger
+      value="celebrity"
+      className={`flex items-center gap-1.5 px-6 py-2 rounded-lg text-sm font-medium transition-all ${
+        activeTab === "celebrity" ? "bg-pink-500 text-white shadow-sm" : "text-gray-700 hover:bg-pink-50"
+      }`}
+    >
+      <Star className="h-4 w-4" />
+      <span>Celebrity Routines</span>
+    </TabsTrigger>
+    <TabsTrigger
+      value="previous"
+      className={`flex items-center gap-1.5 px-6 py-2 rounded-lg text-sm font-medium transition-all ${
+        activeTab === "previous" ? "bg-pink-500 text-white shadow-sm" : "text-gray-700 hover:bg-pink-50"
+      }`}
+    >
+      <Clock className="h-4 w-4" />
+      <span>Previous Tutorials</span>
+    </TabsTrigger>
+  </TabsList>
 
-          {/* Featured Tutorials Tab */}
-          <TabsContent value="featured" className="mt-0">
-            {loadingError ? (
-              <div className="text-center py-12">
-                <div className="mx-auto w-16 h-16 mb-4 bg-red-100 rounded-full flex items-center justify-center">
-                  <X className="h-8 w-8 text-red-500" />
-                </div>
-                <h3 className="text-xl font-medium text-gray-800 mb-2">Error Loading Tutorials</h3>
-                <p className="text-gray-600 max-w-md mx-auto mb-6">{loadingError}</p>
-                <Button
-                  onClick={() => {
-                    setLoadingError(null)
-                    resetPagination()
-                    loadMoreTutorials()
-                  }}
-                  className="bg-pink-500 hover:bg-pink-600 text-white"
-                >
-                  Try Again
-                </Button>
-              </div>
-            ) : isLoading && visibleTutorials.length === 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <TabsContent value={activeTab}>
+    {activeTab === "featured" && (
+      // 🔁 Paste your full "Featured Tutorials Tab" JSX content here (you already have it).
+      // Starts with: <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, index) => (
                   <Card key={index} className="overflow-hidden border-pink-100">
                     <div className="h-64 bg-pink-50">
@@ -582,10 +565,18 @@ export default function BeautyShopUsagePage() {
                 )}
               </>
             )}
-          </TabsContent>
+         
 
-          {/* Live Demonstrations Tab */}
-          <TabsContent value="live" className="mt-0">
+      // Ends with: closing </TabsContent>
+      // ✅ Include filteredTutorials rendering as before
+    <>
+        {/* Your existing "featured" tab content goes here */}
+      </>
+    )}
+
+    {activeTab === "live" && (
+      <>
+        {/* 🔁 Paste your full "Live Demonstrations Tab" JSX content here */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
                 <div className="w-3 h-3 bg-red-500 rounded-full mr-2 animate-pulse"></div>
@@ -787,10 +778,12 @@ export default function BeautyShopUsagePage() {
                   ))}
               </div>
             </div>
-          </TabsContent>
+      </>
+    )}
 
-          {/* Celebrity Routines Tab */}
-          <TabsContent value="celebrity" className="mt-0">
+    {activeTab === "celebrity" && (
+      <>
+        {/* 🔁 Paste your full "Celebrity Routines Tab" JSX content here */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {celebrityRoutines.map((celebrity) => (
                 <motion.div
@@ -887,12 +880,14 @@ export default function BeautyShopUsagePage() {
                   </Card>
                 </motion.div>
               ))}
-            </div>
-          </TabsContent>
+            </div>     
+      </>
+    )}
 
-          {/* Previous Tutorials Tab */}
-          <TabsContent value="previous" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {activeTab === "previous" && (
+      <>
+        {/* 🔁 Paste your full "Previous Tutorials Tab" JSX content here */}
+ <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {previousTutorials.map((tutorial) => (
                 <motion.div
                   key={tutorial.id}
@@ -975,11 +970,12 @@ export default function BeautyShopUsagePage() {
                   </Card>
                 </motion.div>
               ))}
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-
+            </div>  
+      </>
+    )}
+  </TabsContent>
+</Tabs>
+</div>
       {/* Tutorial Detail Modal */}
       <Dialog open={!!selectedTutorial} onOpenChange={(open) => !open && setSelectedTutorial(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
