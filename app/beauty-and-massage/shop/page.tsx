@@ -1743,278 +1743,239 @@ export default function BeautyDiscountShop() {
         </AnimatePresence>
       </div>
 
-      {/* Categories and products */}
-      <div className="container mx-auto px-4 py-6">
-        <Tabs defaultValue="women" value={activeCategory} onValueChange={handleCategoryChange} className="w-full">
-          <TabsList className="bg-white p-1 rounded-xl mb-6 flex flex-nowrap overflow-x-auto hide-scrollbar border border-rose-100 shadow-sm">
-            {categories.map((category) => (
-              <TabsTrigger
-                key={category.id}
-                value={category.id}
-                className={`flex items-center gap-1.5 px-6 py-2 rounded-lg text-sm font-medium transition-all ${
-                  activeCategory === category.id ? "bg-rose-500 text-white shadow-sm" : "text-gray-700 hover:bg-rose-50"
+      
+     {/* Categories and Products Section */}
+<div className="container mx-auto px-4 py-6">
+  <Tabs defaultValue="women" value={activeCategory} onValueChange={handleCategoryChange} className="w-full">
+    {/* Category Tabs */}
+    <TabsList className="bg-white p-1 rounded-xl mb-6 flex flex-nowrap overflow-x-auto hide-scrollbar border border-pink-100 shadow-sm">
+      {categories.map((category) => (
+        <TabsTrigger
+          key={category.id}
+          value={category.id}
+          className={`flex items-center gap-1.5 px-6 py-2 rounded-lg text-sm font-medium transition-all ${
+            activeCategory === category.id
+              ? "bg-pink-500 text-white shadow-sm"
+              : "text-gray-700 hover:bg-pink-50"
+          }`}
+        >
+          <span>{category.name}</span>
+        </TabsTrigger>
+      ))}
+    </TabsList>
+
+    {/* Subcategory Filters */}
+    <TabsContent value={activeCategory}>
+      <div className="mb-8 overflow-x-auto hide-scrollbar">
+        <div className="flex space-x-2 pb-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className={`rounded-full whitespace-nowrap ${
+              activeSubcategory === ""
+                ? "bg-pink-100 border-pink-300 text-pink-700"
+                : "border-pink-200 text-gray-700 hover:bg-pink-50"
+            }`}
+            onClick={() => handleSubcategoryChange("")}
+          >
+            All {categories.find((c) => c.id === activeCategory)?.name}
+          </Button>
+          {categories
+            .find((cat) => cat.id === activeCategory)
+            ?.subcategories.map((subcategory) => (
+              <Button
+                key={subcategory.id}
+                variant="outline"
+                size="sm"
+                className={`rounded-full whitespace-nowrap ${
+                  activeSubcategory === subcategory.id
+                    ? "bg-pink-100 border-pink-300 text-pink-700"
+                    : "border-pink-200 text-gray-700 hover:bg-pink-50"
                 }`}
+                onClick={() => handleSubcategoryChange(subcategory.id)}
               >
-                <span>{category.name}</span>
-              </TabsTrigger>
+                {subcategory.name} ({subcategory.productCount})
+              </Button>
             ))}
-          </TabsList>
-
-          {categories.map((category) => (
-            <TabsContent key={category.id} value={category.id} className="mt-0">
-              {/* Subcategories */}
-              <div className="mb-8 overflow-x-auto hide-scrollbar">
-                <div className="flex space-x-2 pb-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className={`rounded-full whitespace-nowrap ${
-                      activeSubcategory === ""
-                        ? "bg-rose-100 border-rose-300 text-rose-700"
-                        : "border-rose-200 text-gray-700 hover:bg-rose-50"
-                    }`}
-                    onClick={() => handleSubcategoryChange("")}
-                  >
-                    All {category.name}
-                  </Button>
-                  {category.subcategories.map((subcategory) => (
-                    <Button
-                      key={subcategory.id}
-                      variant="outline"
-                      size="sm"
-                      className={`rounded-full whitespace-nowrap ${
-                        activeSubcategory === subcategory.id
-                          ? "bg-rose-100 border-rose-300 text-rose-700"
-                          : "border-rose-200 text-gray-700 hover:bg-rose-50"
-                      }`}
-                      onClick={() => handleSubcategoryChange(subcategory.id)}
-                    >
-                      {subcategory.name} ({subcategory.productCount})
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Products grid with infinite scroll */}
-              {visibleProducts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {visibleProducts.map((product) => {
-                    const vendor = getVendorForProduct(product.vendorId)
-                    return (
-                      <motion.div
-                        key={product.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                        whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                        className="h-full"
-                      >
-                        <Card className="h-full overflow-hidden border-rose-100 hover:border-rose-300 hover:shadow-md transition-all duration-300">
-                          <div className="cursor-pointer" onClick={() => handleProductClick(product)}>
-                            {/* Product image */}
-                            <div className="relative h-64 bg-rose-50">
-                              <Image
-                                src={product.imageUrl || "/placeholder.svg"}
-                                alt={product.name}
-                                layout="fill"
-                                objectFit="cover"
-                                className="transition-transform duration-300 hover:scale-105"
-                              />
-
-                              {/* Badges */}
-                              <div className="absolute top-2 left-2 flex flex-col gap-2">
-                                {product.isNew && (
-                                  <Badge className="bg-blue-500 hover:bg-blue-600 text-white">New</Badge>
-                                )}
-                                {product.isBestSeller && (
-                                  <Badge className="bg-amber-500 hover:bg-amber-600 text-white flex items-center gap-1">
-                                    <Flame className="h-3 w-3" />
-                                    <span>Best Seller</span>
-                                  </Badge>
-                                )}
-                                {product.isOrganic && (
-                                  <Badge className="bg-green-500 hover:bg-green-600 text-white">Organic</Badge>
-                                )}
-                              </div>
-
-                              {/* Discount badge */}
-                              {product.discount && product.discount > 0 && (
-                                <div className="absolute top-2 right-2">
-                                  <Badge
-                                    className={`${
-                                      product.discount >= 40
-                                        ? "bg-yellow-500 hover:bg-yellow-600 animate-pulse"
-                                        : "bg-rose-500 hover:bg-rose-600"
-                                    } text-white font-bold`}
-                                  >
-                                    {product.discount}% OFF
-                                  </Badge>
-                                </div>
-                              )}
-
-                              {/* Time remaining */}
-                              {product.discountEnds && (
-                                <div className="absolute bottom-2 left-2">
-                                  <Badge className="bg-fuchsia-500 text-white flex items-center gap-1">
-                                    <Clock className="h-3 w-3" />
-                                    {getTimeRemaining(product.discountEnds)}
-                                  </Badge>
-                                </div>
-                              )}
-
-                              {/* Wishlist button */}
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="absolute bottom-2 right-2 h-8 w-8 rounded-full bg-white/80 hover:bg-white text-rose-500 hover:text-rose-600"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  // Add to wishlist functionality
-                                }}
-                              >
-                                <Heart className="h-4 w-4" />
-                              </Button>
-                            </div>
-
-                            <CardContent className="p-4">
-                              <div className="mb-2 flex items-center justify-between">
-                                <Badge variant="outline" className="text-xs border-rose-200 text-rose-700">
-                                  {
-                                    categories
-                                      .find((c) => c.id === product.category)
-                                      ?.subcategories.find((s) => s.id === product.subcategory)?.name
-                                  }
-                                </Badge>
-                                <span className="text-xs text-gray-600">{product.brand}</span>
-                              </div>
-
-                              <h3 className="font-semibold text-gray-800 mb-1 line-clamp-1">{product.name}</h3>
-                              <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
-
-                              {/* Vendor info */}
-                              {vendor && (
-                                <div className="flex items-center mb-3 bg-rose-50 p-2 rounded-md">
-                                  <div className="w-8 h-8 rounded-full bg-rose-200 flex items-center justify-center text-rose-700 font-bold text-xs mr-2">
-                                    {vendor.name.substring(0, 2).toUpperCase()}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-medium text-gray-700 truncate flex items-center">
-                                      {vendor.name}
-                                      {vendor.verified && <Check className="h-3 w-3 ml-1 text-rose-500" />}
-                                    </p>
-                                    <p className="text-xs text-gray-500 flex items-center">
-                                      <MapPin className="h-3 w-3 mr-1" />
-                                      <span className="truncate">{vendor.location}</span>
-                                    </p>
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Rating */}
-                              {product.rating && (
-                                <div className="flex items-center mb-3">
-                                  <div className="flex">
-                                    {[...Array(5)].map((_, i) => (
-                                      <Star
-                                        key={i}
-                                        className={`h-4 w-4 ${
-                                          i < Math.floor(product.rating || 0)
-                                            ? "text-yellow-400 fill-yellow-400"
-                                            : "text-gray-300"
-                                        }`}
-                                      />
-                                    ))}
-                                  </div>
-                                  <span className="ml-1 text-xs text-gray-600">({product.reviewCount})</span>
-                                </div>
-                              )}
-
-                              {/* Price */}
-                              <div className="flex items-end justify-between mb-3">
-                                <div>
-                                  <div className="text-lg font-bold text-gray-800">
-                                    {formatPrice(product.currentPrice)}
-                                  </div>
-                                  {product.originalPrice.amount !== product.currentPrice.amount && (
-                                    <div className="text-sm text-gray-500 line-through">
-                                      {formatPrice(product.originalPrice)}
-                                    </div>
-                                  )}
-                                </div>
-                                {product.discount && product.discount >= 30 && (
-                                  <Badge className="bg-yellow-500 text-white">Great Deal!</Badge>
-                                )}
-                              </div>
-                            </CardContent>
-                          </div>
-
-                          {/* Action buttons */}
-                          <CardFooter className="p-4 pt-0 grid grid-cols-2 gap-2">
-                            <Button
-                              variant="outline"
-                              className="border-rose-200 text-rose-600 hover:bg-rose-50 flex items-center justify-center gap-1"
-                              onClick={() => handleProductClick(product)}
-                            >
-                              <Sparkles className="h-4 w-4" />
-                              <span>Details</span>
-                            </Button>
-
-                            <Button
-                              className="bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center gap-1"
-                              disabled={product.stockStatus === "Out of Stock"}
-                            >
-                              <ShoppingBag className="h-4 w-4" />
-                              <span>Add to Bag</span>
-                            </Button>
-                          </CardFooter>
-                        </Card>
-                      </motion.div>
-                    )
-                  })}
-                </div>
-              ) : isLoading && page === 1 ? (
-                <div className="flex justify-center items-center py-12">
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin mb-3"></div>
-                    <p className="text-rose-500 font-medium">Loading products...</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <div className="mx-auto w-16 h-16 mb-4 bg-rose-100 rounded-full flex items-center justify-center">
-                    <Search className="h-8 w-8 text-rose-500" />
-                  </div>
-                  <h3 className="text-xl font-medium text-gray-800 mb-2">No products found</h3>
-                  <p className="text-gray-600 max-w-md mx-auto">
-                    We couldn't find any discounted products matching your criteria. Try adjusting your filters or
-                    search term.
-                  </p>
-                </div>
-              )}
-
-              {/* Infinite scroll loader */}
-              {hasMore && (
-                <div ref={loaderRef} className="flex justify-center items-center py-8">
-                  {isLoading && (
-                    <div className="flex flex-col items-center">
-                      <div className="w-10 h-10 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin mb-2"></div>
-                      <p className="text-rose-500 text-sm">Loading more products...</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* End of results message */}
-              {!hasMore && visibleProducts.length > 0 && (
-                <div className="text-center py-8 border-t border-rose-100 mt-8">
-                  <p className="text-gray-600">You've reached the end of the results</p>
-                </div>
-              )}
-            </TabsContent>
-          ))}
-        </Tabs>
+        </div>
       </div>
 
+      {/* Products Grid */}
+      {visibleProducts.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {visibleProducts.map((product) => {
+            const vendor = getVendorForProduct(product.vendorId)
+            return (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                className="h-full"
+              >
+                <Card className="h-full overflow-hidden border-pink-100 hover:border-pink-300 hover:shadow-md transition-all duration-300">
+                  <div className="cursor-pointer" onClick={() => handleProductClick(product)}>
+                    {/* Image Section */}
+                    <div className="relative h-64 bg-pink-50">
+                      <Image
+                        src={product.imageUrl || "/placeholder.svg"}
+                        alt={product.name}
+                        layout="fill"
+                        objectFit="cover"
+                        className="transition-transform duration-300 hover:scale-105"
+                      />
+                      {/* Top Left Badges */}
+                      <div className="absolute top-2 left-2 flex flex-col gap-2">
+                        {product.isNew && <Badge className="bg-blue-500 text-white">New</Badge>}
+                        {product.isBestSeller && (
+                          <Badge className="bg-amber-500 text-white flex items-center gap-1">
+                            <Flame className="h-3 w-3" />
+                            <span>Best Seller</span>
+                          </Badge>
+                        )}
+                        {product.isOrganic && <Badge className="bg-green-500 text-white">Organic</Badge>}
+                      </div>
+                      {/* Top Right Discount */}
+                      {product.discount && product.discount > 0 && (
+                        <div className="absolute top-2 right-2">
+                          <Badge className="bg-pink-500 text-white">{product.discount}% OFF</Badge>
+                        </div>
+                      )}
+                      {/* Bottom Left Stock Status */}
+                      {product.stockStatus === "Low Stock" && (
+                        <div className="absolute bottom-2 left-2">
+                          <Badge className="bg-amber-500 text-white">Low Stock</Badge>
+                        </div>
+                      )}
+                      {product.stockStatus === "Out of Stock" && (
+                        <div className="absolute bottom-2 left-2">
+                          <Badge className="bg-red-500 text-white">Out of Stock</Badge>
+                        </div>
+                      )}
+                      {/* Wishlist Button */}
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="absolute bottom-2 right-2 h-8 w-8 rounded-full bg-white/80 hover:bg-white text-pink-500 hover:text-pink-600"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          // TODO: Wishlist logic
+                        }}
+                      >
+                        <Heart className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    {/* Product Info */}
+                    <CardContent className="p-4">
+                      <div className="mb-2 flex items-center justify-between">
+                        <Badge variant="outline" className="text-xs border-pink-200 text-pink-700">
+                          {
+                            categories
+                              .find((c) => c.id === product.category)
+                              ?.subcategories.find((s) => s.id === product.subcategory)?.name
+                          }
+                        </Badge>
+                        <span className="text-xs text-gray-600">{product.brand}</span>
+                      </div>
+
+                      <h3 className="font-semibold text-gray-800 mb-1 line-clamp-1">{product.name}</h3>
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
+
+                      {vendor && (
+                        <div className="flex items-center mb-3 bg-pink-50 p-2 rounded-md">
+                          <div className="w-8 h-8 rounded-full bg-pink-200 flex items-center justify-center text-pink-700 font-bold text-xs mr-2">
+                            {vendor.name.substring(0, 2).toUpperCase()}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-gray-700 truncate">
+                              {vendor.name}
+                              {vendor.verified && (
+                                <span className="ml-1 text-pink-500" title="Verified">
+                                  <Check className="inline-block h-3 w-3" />
+                                </span>
+                              )}
+                            </p>
+                            <p className="text-xs text-gray-500 flex items-center">
+                              <MapPin className="h-3 w-3 mr-1" />
+                              <span className="truncate">{vendor.location}</span>
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+
+                    {/* Price and Actions */}
+                    <CardFooter className="p-4 pt-0 grid grid-cols-2 gap-2">
+                      <Button
+                        variant="outline"
+                        className="border-pink-200 text-pink-600 hover:bg-pink-50 flex items-center justify-center gap-1"
+                        onClick={() => handleProductClick(product)}
+                      >
+                        <Sparkles className="h-4 w-4" />
+                        <span>Details</span>
+                      </Button>
+
+                      <Button
+                        className="bg-pink-500 hover:bg-pink-600 text-white flex items-center justify-center gap-1"
+                        disabled={product.stockStatus === "Out of Stock"}
+                      >
+                        <ShoppingBag className="h-4 w-4" />
+                        <span>Add to Bag</span>
+                      </Button>
+                    </CardFooter>
+                  </div>
+                </Card>
+              </motion.div>
+            )
+          })}
+        </div>
+      ) : isLoading && page === 1 ? (
+        <div className="flex justify-center items-center py-12">
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 border-4 border-pink-300 border-t-pink-500 rounded-full animate-spin mb-3"></div>
+            <p className="text-pink-500 font-medium">Loading products...</p>
+          </div>
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <div className="mx-auto w-16 h-16 mb-4 bg-pink-100 rounded-full flex items-center justify-center">
+            <Search className="h-8 w-8 text-pink-500" />
+          </div>
+          <h3 className="text-xl font-medium text-gray-800 mb-2">No products found</h3>
+          <p className="text-gray-600 max-w-md mx-auto">
+            We couldn't find any products matching your criteria. Try adjusting your filters or search term.
+          </p>
+        </div>
+      )}
+
+      {/* Infinite scroll loader */}
+      {hasMore && (
+        <div ref={loaderRef} className="flex justify-center items-center py-8">
+          {isLoading && (
+            <div className="flex flex-col items-center">
+              <div className="w-10 h-10 border-4 border-pink-300 border-t-pink-500 rounded-full animate-spin mb-2"></div>
+              <p className="text-pink-500 text-sm">Loading more products...</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* End of results message */}
+      {!hasMore && visibleProducts.length > 0 && (
+        <div className="text-center py-8 border-t border-pink-100 mt-8">
+          <p className="text-gray-600">You've reached the end of the results</p>
+        </div>
+      )}
+    </TabsContent>
+  </Tabs>
+</div>
+
+
+
+
+  
       {/* Product detail modal */}
       <Dialog open={!!selectedProduct} onOpenChange={(open) => !open && closeProductModal()}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
