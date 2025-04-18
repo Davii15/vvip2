@@ -1695,6 +1695,7 @@ export default function EntertainmentShopPage() {
     setHasMore(true)
   }
 
+
   // Load more products for infinite scroll
   const loadMoreProducts = useCallback(() => {
     if (!hasMore || isLoading) return
@@ -1776,7 +1777,12 @@ export default function EntertainmentShopPage() {
       return () => clearTimeout(timer)
     }
   }, [])
-
+  
+  useEffect(() => {
+  if (visibleProducts.length === 0) {
+    loadMoreProducts()
+  }
+}, [])
   // Get hot deals
   const hotDeals = useMemo(() => {
     return transformForHotDeals(products)
