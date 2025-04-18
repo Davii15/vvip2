@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
@@ -25,6 +25,10 @@ import {
   Eye,
   Calendar,
   User,
+  ChevronDown,
+  X,
+  CheckCircle,
+  Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -33,11 +37,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { cn } from "@/lib/utils"
-import { beautyTutorials, celebrityRoutines, liveBeautyStreams, previousTutorials } from "./mock-data"
 import { Skeleton } from "@/components/ui/skeleton"
+import { cn } from "@/lib/utils"
+import { beautyTutorials, celebrityRoutines, liveBeautyStreams, previousTutorials } from "./beauty-usage-data"
 
-export default function BestBeautyUsagePage() {
+export default function BeautyShopUsagePage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("featured")
   const [searchQuery, setSearchQuery] = useState("")
@@ -48,56 +52,32 @@ export default function BestBeautyUsagePage() {
   const [selectedCelebrity, setSelectedCelebrity] = useState<any>(null)
   const [isLiveModalOpen, setIsLiveModalOpen] = useState(false)
   const [selectedLiveStream, setSelectedLiveStream] = useState<any>(null)
-  const videoRefs = useState<Record<string, HTMLVideoElement | null>>({})
+  const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
 
-  // Skeleton loading state
-  const [loadingTutorials, setLoadingTutorials] = useState(true)
-  const [displayTutorials, setDisplayTutorials] = useState<any[]>([])
-  const [currentPage, setCurrentPage] = useState(1)
+  // Loading states
+  const [isLoading, setIsLoading] = useState(true)
+  const [loadingError, setLoadingError] = useState<string | null>(null)
+
+  // Pagination states for infinite scrolling
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [visibleTutorials, setVisibleTutorials] = useState<any[]>([])
+  const loaderRef = useRef<HTMLDivElement>(null)
   const tutorialsPerPage = 6
 
   // Filter tutorials based on search query and category
-  const filteredTutorials = beautyTutorials.filter((tutorial) => {
-    const matchesSearch =
-      tutorial.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tutorial.creator.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tutorial.products.some((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredTutorials = useCallback(() => {
+    return beautyTutorials.filter((tutorial) => {
+      const matchesSearch =
+        tutorial.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        tutorial.creator.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        tutorial.products.some((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
-    const matchesCategory = activeCategory === "all" || tutorial.category === activeCategory
+      const matchesCategory = activeCategory === "all" || tutorial.category === activeCategory
 
-    return matchesSearch && matchesCategory
-  })
-
-  // Load tutorials with simulated delay
-  const loadTutorials = () => {
-    setLoadingTutorials(true)
-
-    // Simulate API fetch delay
-    setTimeout(() => {
-      const startIndex = (currentPage - 1) * tutorialsPerPage
-      const endIndex = startIndex + tutorialsPerPage
-      const newTutorials = filteredTutorials.slice(0, endIndex)
-
-      setDisplayTutorials(newTutorials)
-      setLoadingTutorials(false)
-    }, 800)
-  }
-
-  // Handle load more button click
-  const handleLoadMore = () => {
-    setCurrentPage((prev) => prev + 1)
-  }
-
-  // Effect to load tutorials on initial render and when filters change
-  useEffect(() => {
-    setCurrentPage(1)
-    loadTutorials()
+      return matchesSearch && matchesCategory
+    })
   }, [searchQuery, activeCategory])
-
-  // Effect to load more tutorials when page changes
-  useEffect(() => {
-    loadTutorials()
-  }, [currentPage])
 
   // Handle video play/pause
   const togglePlay = (id: string) => {
@@ -105,8 +85,24 @@ export default function BestBeautyUsagePage() {
     if (!videoElement) return
 
     if (videoElement.paused) {
-      videoElement.play()
-      setIsPlaying((prev) => ({ ...prev, [id]: true }))
+      // Pause all other videos first
+      Object.keys(videoRefs.current).forEach((videoId) => {
+        if (videoId !== id && videoRefs.current[videoId]) {
+          videoRefs.current[videoId]?.pause()
+          setIsPlaying((prev) => ({ ...prev, [videoId]: false }))
+        }
+      })
+
+      // Play the selected video
+      videoElement
+        .play()
+        .then(() => {
+          setIsPlaying((prev) => ({ ...prev, [id]: true }))
+        })
+        .catch((error) => {
+          console.error("Error playing video:", error)
+          setIsPlaying((prev) => ({ ...prev, [id]: false }))
+        })
     } else {
       videoElement.pause()
       setIsPlaying((prev) => ({ ...prev, [id]: false }))
@@ -129,6 +125,91 @@ export default function BestBeautyUsagePage() {
     setIsLiveModalOpen(true)
   }
 
+  // Load more tutorials for infinite scroll
+  const loadMoreTutorials = useCallback(() => {
+    if (!hasMore || isLoading) return
+
+    setIsLoading(true)
+
+    // Simulate API call with setTimeout
+    setTimeout(() => {
+      const filtered = filteredTutorials()
+      const startIndex = (page - 1) * tutorialsPerPage
+      const endIndex = startIndex + tutorialsPerPage
+      const newTutorials = filtered.slice(startIndex, endIndex)
+
+      if (newTutorials.length > 0) {
+        setVisibleTutorials((prev) => [...prev, ...newTutorials])
+        setPage((prev) => prev + 1)
+        setHasMore(endIndex < filtered.length)
+      } else {
+        setHasMore(false)
+      }
+
+      setIsLoading(false)
+    }, 800)
+  }, [filteredTutorials, hasMore, isLoading, page, tutorialsPerPage])
+
+  // Reset pagination when filters change
+  const resetPagination = useCallback(() => {
+    setPage(1)
+    setVisibleTutorials([])
+    setHasMore(true)
+  }, [])
+
+  // Initial data loading
+  useEffect(() => {
+    setIsLoading(true)
+
+    // Simulate API call
+    const timer = setTimeout(() => {
+      try {
+        // Check if data is available
+        if (beautyTutorials.length > 0) {
+          resetPagination()
+          loadMoreTutorials()
+        } else {
+          setLoadingError("Failed to load tutorials. Please try again later.")
+        }
+      } catch (error) {
+        console.error("Error loading data:", error)
+        setLoadingError("An unexpected error occurred. Please try again later.")
+      } finally {
+        setIsLoading(false)
+      }
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    resetPagination()
+    loadMoreTutorials()
+  }, [searchQuery, activeCategory, resetPagination, loadMoreTutorials])
+
+  // Intersection observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoading) {
+          loadMoreTutorials()
+        }
+      },
+      { threshold: 0.1 },
+    )
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current)
+    }
+
+    return () => {
+      if (loaderRef.current) {
+        observer.unobserve(loaderRef.current)
+      }
+    }
+  }, [hasMore, isLoading, loadMoreTutorials])
+
   // Categories for filtering
   const categories = [
     { id: "all", name: "All Tutorials" },
@@ -139,43 +220,14 @@ export default function BestBeautyUsagePage() {
     { id: "bodycare", name: "Body Care" },
   ]
 
-  // Tutorial skeleton component
-  const TutorialSkeleton = () => (
-    <div className="h-full">
-      <Card className="h-full overflow-hidden border-pink-100">
-        <div className="relative h-64 bg-pink-50">
-          <Skeleton className="h-full w-full" />
-        </div>
-        <CardContent className="p-4">
-          <div className="flex items-center mb-2">
-            <Skeleton className="h-8 w-8 rounded-full mr-2" />
-            <div className="space-y-1">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-3 w-16" />
-            </div>
-          </div>
-          <Skeleton className="h-5 w-full mb-1" />
-          <Skeleton className="h-5 w-3/4 mb-3" />
-          <div className="mb-3">
-            <Skeleton className="h-3 w-32 mb-1" />
-            <div className="flex flex-wrap gap-1">
-              <Skeleton className="h-5 w-16 rounded-full" />
-              <Skeleton className="h-5 w-20 rounded-full" />
-              <Skeleton className="h-5 w-14 rounded-full" />
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <Skeleton className="h-3 w-16" />
-            <Skeleton className="h-3 w-20" />
-          </div>
-        </CardContent>
-        <CardFooter className="p-4 pt-0 flex justify-between">
-          <Skeleton className="h-9 w-20" />
-          <Skeleton className="h-9 w-28" />
-        </CardFooter>
-      </Card>
-    </div>
-  )
+  // Handle tab change
+  const handleTabChange = (value: string) => {
+    setActiveTab(value)
+    // Reset filters when changing tabs
+    setSearchQuery("")
+    setActiveCategory("all")
+    resetPagination()
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
@@ -211,6 +263,14 @@ export default function BestBeautyUsagePage() {
               className="pl-10 pr-4 py-2 rounded-full border-pink-200 focus:border-pink-500 focus:ring-pink-500"
             />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-pink-400" />
+            {searchQuery && (
+              <button
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                onClick={() => setSearchQuery("")}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
           <Button
             onClick={() => setShowFilters(!showFilters)}
@@ -219,6 +279,7 @@ export default function BestBeautyUsagePage() {
           >
             <Filter className="h-4 w-4 text-pink-500" />
             <span>Categories</span>
+            <ChevronDown className={`h-4 w-4 text-pink-500 transition-transform ${showFilters ? "rotate-180" : ""}`} />
           </Button>
         </div>
 
@@ -229,6 +290,7 @@ export default function BestBeautyUsagePage() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
               className="overflow-hidden mt-4"
             >
               <div className="flex flex-wrap gap-2 py-4">
@@ -254,7 +316,7 @@ export default function BestBeautyUsagePage() {
 
       {/* Main content */}
       <div className="container mx-auto px-4 py-6">
-        <Tabs defaultValue="featured" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs defaultValue="featured" value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="bg-white p-1 rounded-xl mb-6 flex flex-nowrap overflow-x-auto hide-scrollbar border border-pink-100 shadow-sm">
             <TabsTrigger
               value="featured"
@@ -296,173 +358,229 @@ export default function BestBeautyUsagePage() {
 
           {/* Featured Tutorials Tab */}
           <TabsContent value="featured" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Display loaded tutorials */}
-              {displayTutorials.map((tutorial) => (
-                <motion.div
-                  key={tutorial.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                  className="h-full"
-                >
-                  <Card className="h-full overflow-hidden border-pink-100 hover:border-pink-300 hover:shadow-md transition-all duration-300">
-                    <div
-                      className="relative h-64 bg-pink-50 cursor-pointer"
-                      onClick={() => handleTutorialClick(tutorial)}
-                    >
-                      <div className="absolute inset-0 overflow-hidden">
-                        <video
-                          ref={(el) => (videoRefs.current[tutorial.id] = el)}
-                          src={tutorial.videoUrl}
-                          poster={tutorial.thumbnailUrl}
-                          className="w-full h-full object-cover"
-                          loop
-                          muted
-                          playsInline
-                          onEnded={() => setIsPlaying((prev) => ({ ...prev, [tutorial.id]: false }))}
-                        />
-                      </div>
-
-                      {/* Play/Pause button */}
-                      <div
-                        className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 hover:bg-opacity-30 transition-all duration-300"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          togglePlay(tutorial.id)
-                        }}
-                      >
-                        <div className="w-14 h-14 rounded-full bg-white bg-opacity-80 flex items-center justify-center">
-                          {isPlaying[tutorial.id] ? (
-                            <Pause className="h-6 w-6 text-pink-600" />
-                          ) : (
-                            <Play className="h-6 w-6 text-pink-600 ml-1" />
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Duration badge */}
-                      <div className="absolute bottom-2 right-2">
-                        <Badge className="bg-black bg-opacity-70 text-white border-0">{tutorial.duration}</Badge>
-                      </div>
-
-                      {/* Category badge */}
-                      <div className="absolute top-2 left-2">
-                        <Badge className="bg-pink-500 hover:bg-pink-600 text-white">
-                          {tutorial.category.charAt(0).toUpperCase() + tutorial.category.slice(1)}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <CardContent className="p-4">
-                      <div className="flex items-center mb-2">
-                        <Avatar className="h-8 w-8 mr-2">
-                          <AvatarImage
-                            src={tutorial.creator.avatarUrl || "/placeholder.svg"}
-                            alt={tutorial.creator.name}
-                          />
-                          <AvatarFallback>{tutorial.creator.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-medium text-gray-800">{tutorial.creator.name}</p>
-                          <p className="text-xs text-gray-500">{tutorial.creator.followers} followers</p>
-                        </div>
-                      </div>
-
-                      <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2">{tutorial.title}</h3>
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{tutorial.description}</p>
-
-                      {/* Featured products */}
-                      {tutorial.products.length > 0 && (
-                        <div className="mb-3">
-                          <p className="text-xs font-medium text-gray-700 mb-1">Featured Products:</p>
-                          <div className="flex flex-wrap gap-1">
-                            {tutorial.products.slice(0, 3).map((product) => (
-                              <Badge
-                                key={product.id}
-                                variant="outline"
-                                className="text-xs border-pink-200 text-pink-700"
-                              >
-                                {product.name}
-                              </Badge>
-                            ))}
-                            {tutorial.products.length > 3 && (
-                              <Badge variant="outline" className="text-xs border-pink-200 text-pink-700">
-                                +{tutorial.products.length - 3} more
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Stats */}
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <div className="flex items-center">
-                          <Eye className="h-3 w-3 mr-1" />
-                          <span>{tutorial.views} views</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          <span>{tutorial.publishedAt}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-
-                    <CardFooter className="p-4 pt-0 flex justify-between">
-                      <Button variant="outline" size="sm" className="border-pink-200 text-pink-600 hover:bg-pink-50">
-                        <Heart className="h-4 w-4 mr-1" />
-                        <span>Save</span>
-                      </Button>
-
-                      <Button
-                        size="sm"
-                        className="bg-pink-500 hover:bg-pink-600 text-white"
-                        onClick={() => handleTutorialClick(tutorial)}
-                      >
-                        <Play className="h-4 w-4 mr-1" />
-                        <span>Watch Now</span>
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </motion.div>
-              ))}
-
-              {/* Skeleton loaders */}
-              {loadingTutorials && (
-                <>
-                  {Array(3)
-                    .fill(0)
-                    .map((_, index) => (
-                      <TutorialSkeleton key={`skeleton-${index}`} />
-                    ))}
-                </>
-              )}
-            </div>
-
-            {/* Load more button */}
-            {displayTutorials.length > 0 && displayTutorials.length < filteredTutorials.length && (
-              <div className="flex justify-center mt-8">
+            {loadingError ? (
+              <div className="text-center py-12">
+                <div className="mx-auto w-16 h-16 mb-4 bg-red-100 rounded-full flex items-center justify-center">
+                  <X className="h-8 w-8 text-red-500" />
+                </div>
+                <h3 className="text-xl font-medium text-gray-800 mb-2">Error Loading Tutorials</h3>
+                <p className="text-gray-600 max-w-md mx-auto mb-6">{loadingError}</p>
                 <Button
-                  onClick={handleLoadMore}
-                  disabled={loadingTutorials}
+                  onClick={() => {
+                    setLoadingError(null)
+                    resetPagination()
+                    loadMoreTutorials()
+                  }}
                   className="bg-pink-500 hover:bg-pink-600 text-white"
                 >
-                  {loadingTutorials ? "Loading..." : "Load More Tutorials"}
+                  Try Again
                 </Button>
               </div>
-            )}
-
-            {filteredTutorials.length === 0 && !loadingTutorials && (
-              <div className="text-center py-12">
-                <div className="mx-auto w-16 h-16 mb-4 bg-pink-100 rounded-full flex items-center justify-center">
-                  <Search className="h-8 w-8 text-pink-500" />
-                </div>
-                <h3 className="text-xl font-medium text-gray-800 mb-2">No tutorials found</h3>
-                <p className="text-gray-600 max-w-md mx-auto">
-                  We couldn't find any tutorials matching your criteria. Try adjusting your filters or search term.
-                </p>
+            ) : isLoading && visibleTutorials.length === 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, index) => (
+                  <Card key={index} className="overflow-hidden border-pink-100">
+                    <div className="h-64 bg-pink-50">
+                      <Skeleton className="h-full w-full" />
+                    </div>
+                    <CardContent className="p-4">
+                      <div className="flex items-center mb-2">
+                        <Skeleton className="h-8 w-8 rounded-full mr-2" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-3 w-24" />
+                        </div>
+                      </div>
+                      <Skeleton className="h-5 w-full mb-2" />
+                      <Skeleton className="h-4 w-full mb-2" />
+                      <Skeleton className="h-4 w-3/4 mb-3" />
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        <Skeleton className="h-6 w-16 rounded-full" />
+                        <Skeleton className="h-6 w-20 rounded-full" />
+                        <Skeleton className="h-6 w-14 rounded-full" />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                    </CardContent>
+                    <CardFooter className="p-4 pt-0 flex justify-between">
+                      <Skeleton className="h-9 w-24 rounded-md" />
+                      <Skeleton className="h-9 w-28 rounded-md" />
+                    </CardFooter>
+                  </Card>
+                ))}
               </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {visibleTutorials.map((tutorial) => (
+                    <motion.div
+                      key={tutorial.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                      className="h-full"
+                    >
+                      <Card className="h-full overflow-hidden border-pink-100 hover:border-pink-300 hover:shadow-md transition-all duration-300">
+                        <div
+                          className="relative h-64 bg-pink-50 cursor-pointer"
+                          onClick={() => handleTutorialClick(tutorial)}
+                        >
+                          <div className="absolute inset-0 overflow-hidden">
+                            <video
+                              ref={(el) => (videoRefs.current[tutorial.id] = el)}
+                              src={tutorial.videoUrl}
+                              poster={tutorial.thumbnailUrl}
+                              className="w-full h-full object-cover"
+                              loop
+                              muted
+                              playsInline
+                              onEnded={() => setIsPlaying((prev) => ({ ...prev, [tutorial.id]: false }))}
+                            />
+                          </div>
+
+                          {/* Play/Pause button */}
+                          <div
+                            className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 hover:bg-opacity-30 transition-all duration-300"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              togglePlay(tutorial.id)
+                            }}
+                          >
+                            <div className="w-14 h-14 rounded-full bg-white bg-opacity-80 flex items-center justify-center">
+                              {isPlaying[tutorial.id] ? (
+                                <Pause className="h-6 w-6 text-pink-600" />
+                              ) : (
+                                <Play className="h-6 w-6 text-pink-600 ml-1" />
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Duration badge */}
+                          <div className="absolute bottom-2 right-2">
+                            <Badge className="bg-black bg-opacity-70 text-white border-0">{tutorial.duration}</Badge>
+                          </div>
+
+                          {/* Category badge */}
+                          <div className="absolute top-2 left-2">
+                            <Badge className="bg-pink-500 hover:bg-pink-600 text-white">
+                              {tutorial.category.charAt(0).toUpperCase() + tutorial.category.slice(1)}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        <CardContent className="p-4">
+                          <div className="flex items-center mb-2">
+                            <Avatar className="h-8 w-8 mr-2">
+                              <AvatarImage
+                                src={tutorial.creator.avatarUrl || "/placeholder.svg"}
+                                alt={tutorial.creator.name}
+                              />
+                              <AvatarFallback>{tutorial.creator.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="text-sm font-medium text-gray-800">{tutorial.creator.name}</p>
+                              <p className="text-xs text-gray-500">{tutorial.creator.followers} followers</p>
+                            </div>
+                          </div>
+
+                          <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2">{tutorial.title}</h3>
+                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{tutorial.description}</p>
+
+                          {/* Featured products */}
+                          {tutorial.products.length > 0 && (
+                            <div className="mb-3">
+                              <p className="text-xs font-medium text-gray-700 mb-1">Featured Products:</p>
+                              <div className="flex flex-wrap gap-1">
+                                {tutorial.products.slice(0, 3).map((product) => (
+                                  <Badge
+                                    key={product.id}
+                                    variant="outline"
+                                    className="text-xs border-pink-200 text-pink-700"
+                                  >
+                                    {product.name}
+                                  </Badge>
+                                ))}
+                                {tutorial.products.length > 3 && (
+                                  <Badge variant="outline" className="text-xs border-pink-200 text-pink-700">
+                                    +{tutorial.products.length - 3} more
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Stats */}
+                          <div className="flex items-center justify-between text-xs text-gray-500">
+                            <div className="flex items-center">
+                              <Eye className="h-3 w-3 mr-1" />
+                              <span>{tutorial.views} views</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Calendar className="h-3 w-3 mr-1" />
+                              <span>{tutorial.publishedAt}</span>
+                            </div>
+                          </div>
+                        </CardContent>
+
+                        <CardFooter className="p-4 pt-0 flex justify-between">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-pink-200 text-pink-600 hover:bg-pink-50"
+                          >
+                            <Heart className="h-4 w-4 mr-1" />
+                            <span>Save</span>
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            className="bg-pink-500 hover:bg-pink-600 text-white"
+                            onClick={() => handleTutorialClick(tutorial)}
+                          >
+                            <Play className="h-4 w-4 mr-1" />
+                            <span>Watch Now</span>
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Infinite scroll loader */}
+                {hasMore && (
+                  <div ref={loaderRef} className="flex justify-center items-center py-8">
+                    {isLoading && (
+                      <div className="flex flex-col items-center">
+                        <Loader2 className="h-8 w-8 text-pink-500 animate-spin mb-2" />
+                        <p className="text-pink-500 text-sm">Loading more tutorials...</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* End of results message */}
+                {!hasMore && visibleTutorials.length > 0 && (
+                  <div className="text-center py-8 border-t border-pink-100 mt-8">
+                    <CheckCircle className="h-8 w-8 text-pink-500 mx-auto mb-2" />
+                    <p className="text-gray-600">You've reached the end of the results</p>
+                  </div>
+                )}
+
+                {visibleTutorials.length === 0 && (
+                  <div className="text-center py-12">
+                    <div className="mx-auto w-16 h-16 mb-4 bg-pink-100 rounded-full flex items-center justify-center">
+                      <Search className="h-8 w-8 text-pink-500" />
+                    </div>
+                    <h3 className="text-xl font-medium text-gray-800 mb-2">No tutorials found</h3>
+                    <p className="text-gray-600 max-w-md mx-auto">
+                      We couldn't find any tutorials matching your criteria. Try adjusting your filters or search term.
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </TabsContent>
 
