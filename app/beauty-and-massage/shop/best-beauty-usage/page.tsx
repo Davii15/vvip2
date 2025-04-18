@@ -358,8 +358,7 @@ export default function BeautyShopUsagePage() {
 
   <TabsContent value={activeTab}>
     {activeTab === "featured" && (
-      // 🔁 Paste your full "Featured Tutorials Tab" JSX content here (you already have it).
-      // Starts with: <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+ <> 
      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, index) => (
                   <Card key={index} className="overflow-hidden border-pink-100">
@@ -565,14 +564,12 @@ export default function BeautyShopUsagePage() {
                 )}
               </>
             )}
-         
+          </>
+     
 
       // Ends with: closing </TabsContent>
       // ✅ Include filteredTutorials rendering as before
-    <>
-        {/* Your existing "featured" tab content goes here */}
-      </>
-    )}
+   
 
     {activeTab === "live" && (
       <>
