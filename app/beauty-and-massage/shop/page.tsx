@@ -1,6 +1,7 @@
 "use client"
 
-import { useMemo, useState, useEffect } from "react"
+import { useMemo, useRef, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
@@ -21,8 +22,10 @@ import {
   Store,
   MapPin,
   Flame,
-  Bell,
   ArrowUpRight,
+  Clock,
+  TrendingUp,
+  Scissors,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -38,9 +41,8 @@ import { cn } from "@/lib/utils"
 import CountdownTimer from "@/components/CountdownTimer"
 import HotTimeDeals from "@/components/HotTimeDeals"
 import TrendingPopularSection from "@/components/TrendingPopularSection"
-import { trendingProducts, popularProducts } from "../trending-data"
+import { trendingProducts, popularProducts } from "./trending-data"
 import { TimeBasedRecommendations } from "@/components/TimeBasedRecommendations"
-import { Skeleton } from "@/components/ui/skeleton"
 
 // Types
 interface Price {
@@ -74,6 +76,7 @@ interface BeautyProduct {
   vendorId: string
   tags?: string[]
   dateAdded?: string
+  discountEnds?: string
 }
 
 interface Vendor {
@@ -111,7 +114,7 @@ const formatPrice = (price: Price): string => {
 // Helper function to transform data for hot deals
 const transformForHotDeals = (products: BeautyProduct[]) => {
   return products
-    .filter((product) => product.discount && product.discount >= 15)
+    .filter((product) => product.discount && product.discount >= 20)
     .map((product) => ({
       id: product.id,
       name: product.name,
@@ -119,7 +122,7 @@ const transformForHotDeals = (products: BeautyProduct[]) => {
       currentPrice: product.currentPrice,
       originalPrice: product.originalPrice,
       category: product.subcategory,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      expiresAt: product.discountEnds || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       description: product.description,
       discount: product.discount,
     }))
@@ -135,29 +138,50 @@ const isNewProduct = (dateAdded?: string): boolean => {
   return diffDays <= 7
 }
 
+// Helper function to calculate time remaining for discount
+const getTimeRemaining = (discountEnds?: string): string => {
+  if (!discountEnds) return "Limited time"
+
+  const endDate = new Date(discountEnds)
+  const now = new Date()
+
+  if (now > endDate) return "Expired"
+
+  const diffTime = Math.abs(endDate.getTime() - now.getTime())
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+  const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+
+  if (diffDays > 0) {
+    return `${diffDays}d ${diffHours}h left`
+  } else {
+    const diffMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60))
+    return `${diffHours}h ${diffMinutes}m left`
+  }
+}
+
 // Mock data for categories
 const categories: Category[] = [
   {
     id: "men",
     name: "Men Products",
     subcategories: [
-      { id: "men-facial", name: "Facial Products", productCount: 24 },
-      { id: "men-oils", name: "Oils and Jellies", productCount: 18 },
-      { id: "men-perfumes", name: "Perfumes", productCount: 32 },
+      { id: "men-facial", name: "Facial Products", productCount: 18 },
+      { id: "men-oils", name: "Oils and Jellies", productCount: 14 },
+      { id: "men-perfumes", name: "Perfumes", productCount: 22 },
     ],
   },
   {
     id: "women",
     name: "Women Products",
     subcategories: [
-      { id: "women-facial", name: "Facial Products", productCount: 42 },
-      { id: "women-hair", name: "Hair Products", productCount: 38 },
-      { id: "women-weaves", name: "Weaves & Wigs", productCount: 27 },
-      { id: "women-nails", name: "Nail Products", productCount: 19 },
-      { id: "women-oils", name: "Oils and Jellies", productCount: 23 },
-      { id: "women-perfumes", name: "Perfumes", productCount: 45 },
-      { id: "women-makeup", name: "Makeups", productCount: 56 },
-      { id: "women-foundations", name: "Foundations", productCount: 31 },
+      { id: "women-facial", name: "Facial Products", productCount: 32 },
+      { id: "women-hair", name: "Hair Products", productCount: 28 },
+      { id: "women-weaves", name: "Weaves & Wigs", productCount: 19 },
+      { id: "women-nails", name: "Nail Products", productCount: 15 },
+      { id: "women-oils", name: "Oils and Jellies", productCount: 17 },
+      { id: "women-perfumes", name: "Perfumes", productCount: 35 },
+      { id: "women-makeup", name: "Makeups", productCount: 42 },
+      { id: "women-foundations", name: "Foundations", productCount: 24 },
     ],
   },
 ]
@@ -204,9 +228,19 @@ const vendors: Vendor[] = [
     verified: true,
     website: "https://puressence.co.ke",
   },
+  {
+    id: "v5",
+    name: "Luxury Beauty",
+    logo: "/placeholder.svg?height=60&width=60",
+    location: "Eldoret, Kenya",
+    rating: 4.5,
+    reviewCount: 98,
+    verified: true,
+    website: "https://luxurybeauty.co.ke",
+  },
 ]
 
-// Mock data for products
+// Mock data for products - all with discounts
 const products: BeautyProduct[] = [
   // Men's Facial Products
   {
@@ -238,6 +272,7 @@ const products: BeautyProduct[] = [
     vendorId: "v1",
     tags: ["Charcoal", "Deep Cleansing", "Oil Control"],
     dateAdded: "2025-03-25T10:30:00Z",
+    discountEnds: "2025-05-25T23:59:59Z",
   },
   {
     id: "mp2",
@@ -268,6 +303,7 @@ const products: BeautyProduct[] = [
     vendorId: "v3",
     tags: ["Anti-Aging", "SPF", "Moisturizer"],
     dateAdded: "2025-02-15T10:30:00Z",
+    discountEnds: "2025-05-15T23:59:59Z",
   },
 
   // Men's Oils and Jellies
@@ -301,6 +337,7 @@ const products: BeautyProduct[] = [
     vendorId: "v2",
     tags: ["Beard Care", "Organic", "Growth"],
     dateAdded: "2025-01-20T10:30:00Z",
+    discountEnds: "2025-04-20T23:59:59Z",
   },
   {
     id: "mo2",
@@ -330,6 +367,7 @@ const products: BeautyProduct[] = [
     vendorId: "v1",
     tags: ["Hair Styling", "Pomade", "Medium Hold"],
     dateAdded: "2025-02-05T10:30:00Z",
+    discountEnds: "2025-05-05T23:59:59Z",
   },
 
   // Men's Perfumes
@@ -361,6 +399,7 @@ const products: BeautyProduct[] = [
     vendorId: "v3",
     tags: ["Luxury", "Evening", "Woody"],
     dateAdded: "2025-01-15T10:30:00Z",
+    discountEnds: "2025-04-15T23:59:59Z",
   },
   {
     id: "mf2",
@@ -390,6 +429,7 @@ const products: BeautyProduct[] = [
     vendorId: "v4",
     tags: ["Fresh", "Daytime", "Citrus"],
     dateAdded: "2025-03-28T10:30:00Z",
+    discountEnds: "2025-05-28T23:59:59Z",
   },
 
   // Women's Facial Products
@@ -423,6 +463,7 @@ const products: BeautyProduct[] = [
     vendorId: "v1",
     tags: ["Vitamin C", "Brightening", "Anti-aging"],
     dateAdded: "2025-02-10T10:30:00Z",
+    discountEnds: "2025-05-10T23:59:59Z",
   },
   {
     id: "wf2",
@@ -453,6 +494,7 @@ const products: BeautyProduct[] = [
     vendorId: "v2",
     tags: ["Rose", "Hydrating", "Alcohol-free"],
     dateAdded: "2025-01-25T10:30:00Z",
+    discountEnds: "2025-04-25T23:59:59Z",
   },
 
   // Women's Hair Products
@@ -486,6 +528,7 @@ const products: BeautyProduct[] = [
     vendorId: "v3",
     tags: ["Hair Mask", "Argan Oil", "Repair"],
     dateAdded: "2025-02-18T10:30:00Z",
+    discountEnds: "2025-05-18T23:59:59Z",
   },
   {
     id: "wh2",
@@ -516,6 +559,7 @@ const products: BeautyProduct[] = [
     vendorId: "v2",
     tags: ["Curly Hair", "Defining", "Moisturizing"],
     dateAdded: "2025-03-26T10:30:00Z",
+    discountEnds: "2025-05-26T23:59:59Z",
   },
 
   // Women's Weaves & Wigs
@@ -547,6 +591,7 @@ const products: BeautyProduct[] = [
     vendorId: "v1",
     tags: ["Human Hair", "Lace Front", "Body Wave"],
     dateAdded: "2025-02-05T10:30:00Z",
+    discountEnds: "2025-05-05T23:59:59Z",
   },
   {
     id: "ww2",
@@ -576,6 +621,7 @@ const products: BeautyProduct[] = [
     vendorId: "v4",
     tags: ["Clip-In", "Kinky Curly", "Extensions"],
     dateAdded: "2025-03-29T10:30:00Z",
+    discountEnds: "2025-05-29T23:59:59Z",
   },
 
   // Women's Nail Products
@@ -608,6 +654,7 @@ const products: BeautyProduct[] = [
     vendorId: "v3",
     tags: ["Gel Polish", "Kit", "LED Lamp"],
     dateAdded: "2025-01-30T10:30:00Z",
+    discountEnds: "2025-04-30T23:59:59Z",
   },
   {
     id: "wn2",
@@ -637,6 +684,7 @@ const products: BeautyProduct[] = [
     vendorId: "v2",
     tags: ["Press-On", "Nude", "Reusable"],
     dateAdded: "2025-03-27T10:30:00Z",
+    discountEnds: "2025-05-27T23:59:59Z",
   },
 
   // Women's Oils and Jellies
@@ -670,6 +718,7 @@ const products: BeautyProduct[] = [
     vendorId: "v2",
     tags: ["Body Butter", "Moisturizer", "Organic"],
     dateAdded: "2025-02-12T10:30:00Z",
+    discountEnds: "2025-05-12T23:59:59Z",
   },
   {
     id: "wo2",
@@ -700,6 +749,7 @@ const products: BeautyProduct[] = [
     vendorId: "v4",
     tags: ["Massage Oil", "Relaxation", "Aromatherapy"],
     dateAdded: "2025-02-22T10:30:00Z",
+    discountEnds: "2025-05-22T23:59:59Z",
   },
 
   // Women's Perfumes
@@ -732,6 +782,7 @@ const products: BeautyProduct[] = [
     vendorId: "v3",
     tags: ["Floral", "Luxury", "Evening"],
     dateAdded: "2025-01-18T10:30:00Z",
+    discountEnds: "2025-04-18T23:59:59Z",
   },
   {
     id: "wp2",
@@ -761,6 +812,7 @@ const products: BeautyProduct[] = [
     vendorId: "v1",
     tags: ["Citrus", "Fresh", "Daytime"],
     dateAdded: "2025-03-30T10:30:00Z",
+    discountEnds: "2025-05-30T23:59:59Z",
   },
 
   // Women's Makeup
@@ -792,6 +844,7 @@ const products: BeautyProduct[] = [
     vendorId: "v3",
     tags: ["Lipstick", "Matte", "Long-lasting"],
     dateAdded: "2025-02-08T10:30:00Z",
+    discountEnds: "2025-05-08T23:59:59Z",
   },
   {
     id: "wm2",
@@ -821,6 +874,7 @@ const products: BeautyProduct[] = [
     vendorId: "v1",
     tags: ["Mascara", "Waterproof", "Volumizing"],
     dateAdded: "2025-03-24T10:30:00Z",
+    discountEnds: "2025-05-24T23:59:59Z",
   },
 
   // Women's Foundations
@@ -852,6 +906,7 @@ const products: BeautyProduct[] = [
     vendorId: "v3",
     tags: ["Foundation", "Full Coverage", "SPF"],
     dateAdded: "2025-02-15T10:30:00Z",
+    discountEnds: "2025-05-15T23:59:59Z",
   },
   {
     id: "wfd2",
@@ -881,10 +936,75 @@ const products: BeautyProduct[] = [
     vendorId: "v2",
     tags: ["BB Cream", "Hydrating", "Light Coverage"],
     dateAdded: "2025-03-22T10:30:00Z",
+    discountEnds: "2025-05-22T23:59:59Z",
+  },
+
+  // Flash Sale Products
+  {
+    id: "fs1",
+    name: "Limited Edition Luxury Skincare Set",
+    imageUrl: "/placeholder.svg?height=300&width=300",
+    images: [
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+    ],
+    currentPrice: { amount: 5900, currency: "KSH" },
+    originalPrice: { amount: 9800, currency: "KSH" },
+    category: "women",
+    subcategory: "women-facial",
+    brand: "Luxury Beauty",
+    description:
+      "Complete luxury skincare set with cleanser, toner, serum, moisturizer, and eye cream in gift packaging.",
+    rating: 4.9,
+    reviewCount: 78,
+    stockStatus: "Low Stock",
+    stockCount: 8,
+    discount: 40,
+    isBestSeller: true,
+    isOrganic: true,
+    ingredients: ["Hyaluronic Acid", "Retinol", "Vitamin C", "Peptides"],
+    suitableFor: ["All Skin Types", "Anti-Aging"],
+    howToUse: "Follow included regimen guide for morning and evening routines.",
+    benefits: ["Complete skincare", "Anti-aging", "Hydration", "Brightening"],
+    vendorId: "v5",
+    tags: ["Gift Set", "Luxury", "Complete Regimen"],
+    dateAdded: "2025-03-15T10:30:00Z",
+    discountEnds: "2025-04-15T23:59:59Z",
+  },
+  {
+    id: "fs2",
+    name: "Premium Men's Grooming Kit",
+    imageUrl: "/placeholder.svg?height=300&width=300",
+    images: [
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+      "/placeholder.svg?height=600&width=600",
+    ],
+    currentPrice: { amount: 3500, currency: "KSH" },
+    originalPrice: { amount: 7000, currency: "KSH" },
+    category: "men",
+    subcategory: "men-facial",
+    brand: "ManCare",
+    description: "Complete men's grooming kit with facial cleanser, moisturizer, beard oil, and styling products.",
+    rating: 4.8,
+    reviewCount: 65,
+    stockStatus: "In Stock",
+    stockCount: 15,
+    discount: 50,
+    isBestSeller: true,
+    ingredients: ["Natural Oils", "Vitamin E", "Aloe Vera", "Shea Butter"],
+    suitableFor: ["All Skin Types", "Bearded Men"],
+    howToUse: "Follow included guide for complete grooming routine.",
+    benefits: ["Complete grooming", "Skin health", "Beard maintenance", "Hair styling"],
+    vendorId: "v1",
+    tags: ["Gift Set", "Grooming", "Men's Care"],
+    dateAdded: "2025-03-10T10:30:00Z",
+    discountEnds: "2025-04-10T23:59:59Z",
   },
 ]
 
-export default function BeautyShopPage() {
+export default function BeautyDiscountShop() {
   const router = useRouter()
   const [activeCategory, setActiveCategory] = useState<string>("women")
   const [activeSubcategory, setActiveSubcategory] = useState<string>("")
@@ -892,30 +1012,33 @@ export default function BeautyShopPage() {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000])
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [showFilters, setShowFilters] = useState(false)
-  const [sortOrder, setSortOrder] = useState("default")
+  const [sortOrder, setSortOrder] = useState("discount")
   const [selectedProduct, setSelectedProduct] = useState<BeautyProduct | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [showOnlyDiscounted, setShowOnlyDiscounted] = useState(false)
+  const [showOnlyHighDiscount, setShowOnlyHighDiscount] = useState(false)
   const [showOnlyOrganic, setShowOnlyOrganic] = useState(false)
   const [showOnlyBestSellers, setShowOnlyBestSellers] = useState(false)
   const [showOnlyNewArrivals, setShowOnlyNewArrivals] = useState(false)
+  const [showOnlyFlashSales, setShowOnlyFlashSales] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   // New product alert state
-  const [newProductAlert, setNewProductAlert] = useState<BeautyProduct | null>(null)
+  const [discountAlert, setDiscountAlert] = useState<BeautyProduct | null>(null)
 
-  // Custom color scheme for beauty and massage
+  // Custom color scheme for beauty discount shop
   const beautyColorScheme = {
-    primary: "from-pink-500 to-rose-700",
-    secondary: "bg-pink-100",
-    accent: "bg-rose-600",
-    text: "text-rose-900",
-    background: "bg-pink-50",
+    primary: "from-rose-500 to-fuchsia-700",
+    secondary: "bg-rose-100",
+    accent: "bg-fuchsia-600",
+    text: "text-fuchsia-900",
+    background: "bg-rose-50",
   }
 
-  // State for products display with skeleton loading
-  const [displayProducts, setDisplayProducts] = useState<BeautyProduct[]>([])
-  const [loadingProducts, setLoadingProducts] = useState(true)
-  const productsPerPage = 12
+  // Infinite scroll states
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [visibleProducts, setVisibleProducts] = useState<BeautyProduct[]>([])
+  const loaderRef = useRef<HTMLDivElement>(null)
+  const productsPerPage = 8
 
   // Get all available brands
   const allBrands = useMemo(() => {
@@ -958,9 +1081,9 @@ export default function BeautyShopPage() {
       results = results.filter((product) => selectedBrands.includes(product.brand))
     }
 
-    // Filter by discount
-    if (showOnlyDiscounted) {
-      results = results.filter((product) => product.discount && product.discount > 0)
+    // Filter by high discount (25% or more)
+    if (showOnlyHighDiscount) {
+      results = results.filter((product) => product.discount && product.discount >= 25)
     }
 
     // Filter by organic
@@ -978,6 +1101,11 @@ export default function BeautyShopPage() {
       results = results.filter((product) => product.isNew)
     }
 
+    // Filter by flash sales (40% or more discount)
+    if (showOnlyFlashSales) {
+      results = results.filter((product) => product.discount && product.discount >= 40)
+    }
+
     // Sort results
     if (sortOrder === "price-asc") {
       results.sort((a, b) => a.currentPrice.amount - b.currentPrice.amount)
@@ -987,6 +1115,12 @@ export default function BeautyShopPage() {
       results.sort((a, b) => (b.rating || 0) - (a.rating || 0))
     } else if (sortOrder === "discount") {
       results.sort((a, b) => (b.discount || 0) - (a.discount || 0))
+    } else if (sortOrder === "ending-soon") {
+      results.sort((a, b) => {
+        if (!a.discountEnds) return 1
+        if (!b.discountEnds) return -1
+        return new Date(a.discountEnds).getTime() - new Date(b.discountEnds).getTime()
+      })
     }
 
     return results
@@ -998,10 +1132,11 @@ export default function BeautyShopPage() {
     priceRange,
     selectedBrands,
     sortOrder,
-    showOnlyDiscounted,
+    showOnlyHighDiscount,
     showOnlyOrganic,
     showOnlyBestSellers,
     showOnlyNewArrivals,
+    showOnlyFlashSales,
   ])
 
   // Get vendor for a product
@@ -1012,17 +1147,17 @@ export default function BeautyShopPage() {
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category)
     setActiveSubcategory("")
-    loadProducts()
+    resetPagination()
   }
 
   const handleSubcategoryChange = (subcategory: string) => {
     setActiveSubcategory(subcategory)
-    loadProducts()
+    resetPagination()
   }
 
   const handlePriceRangeChange = (value: number[]) => {
     setPriceRange(value as [number, number])
-    loadProducts()
+    resetPagination()
   }
 
   const handleBrandToggle = (brand: string) => {
@@ -1030,7 +1165,7 @@ export default function BeautyShopPage() {
       const newBrands = prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
       return newBrands
     })
-    loadProducts()
+    resetPagination()
   }
 
   const handleProductClick = (product: BeautyProduct) => {
@@ -1041,68 +1176,83 @@ export default function BeautyShopPage() {
     setSelectedProduct(null)
   }
 
-  const closeNewProductAlert = () => {
-    setNewProductAlert(null)
+  const closeDiscountAlert = () => {
+    setDiscountAlert(null)
   }
 
-  // Load products with skeleton loading
-  const loadProducts = () => {
-    setLoadingProducts(true)
+  const resetPagination = () => {
+    setPage(1)
+    setVisibleProducts([])
+    setHasMore(true)
+  }
 
-    // Simulate API call delay
+  // Load more products for infinite scroll
+  const loadMoreProducts = useCallback(() => {
+    if (!hasMore || isLoading) return
+
+    setIsLoading(true)
+
+    // Simulate API call with setTimeout
     setTimeout(() => {
-      setDisplayProducts(filteredProducts.slice(0, productsPerPage))
-      setLoadingProducts(false)
-    }, 1000)
-  }
+      const startIndex = (page - 1) * productsPerPage
+      const endIndex = startIndex + productsPerPage
+      const newProducts = filteredProducts.slice(startIndex, endIndex)
 
-  // Load more products when user clicks "Load More"
-  const handleLoadMore = () => {
-    setLoadingProducts(true)
+      if (newProducts.length > 0) {
+        setVisibleProducts((prev) => [...prev, ...newProducts])
+        setPage((prev) => prev + 1)
+        setHasMore(endIndex < filteredProducts.length)
+      } else {
+        setHasMore(false)
+      }
 
-    // Simulate API call delay
-    setTimeout(() => {
-      const currentCount = displayProducts.length
-      const newProducts = filteredProducts.slice(currentCount, currentCount + productsPerPage)
-      setDisplayProducts((prev) => [...prev, ...newProducts])
-      setLoadingProducts(false)
-    }, 1000)
-  }
+      setIsLoading(false)
+    }, 800)
+  }, [filteredProducts, hasMore, isLoading, page, productsPerPage])
 
-  // Reset filters and reload products
+  // Intersection observer for infinite scroll
   useEffect(() => {
-    loadProducts()
-  }, [filteredProducts.length]) // eslint-disable-line react-hooks/exhaustive-deps
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoading) {
+          loadMoreProducts()
+        }
+      },
+      { threshold: 0.1 },
+    )
 
-  // Initial load
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current)
+    }
+
+    return () => {
+      if (loaderRef.current) {
+        observer.unobserve(loaderRef.current)
+      }
+    }
+  }, [hasMore, isLoading, loadMoreProducts])
+
+  // Reset pagination when filters change
   useEffect(() => {
-    loadProducts()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    resetPagination()
+    loadMoreProducts()
+  }, [filteredProducts]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Show new product alert
+  // Show discount alert for flash sales
   useEffect(() => {
-    // Find the newest product (added in the last 3 days)
-    const newestProducts = products.filter((product) => {
-      if (!product.dateAdded) return false
-      const productDate = new Date(product.dateAdded)
-      const now = new Date()
-      const diffTime = Math.abs(now.getTime() - productDate.getTime())
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-      return diffDays <= 3
-    })
+    // Find products with highest discounts
+    const flashSaleProducts = products.filter((product) => product.discount && product.discount >= 40)
 
-    if (newestProducts.length > 0) {
-      // Sort by date to get the newest one
-      const newestProduct = newestProducts.sort(
-        (a, b) => new Date(b.dateAdded || "").getTime() - new Date(a.dateAdded || "").getTime(),
-      )[0]
+    if (flashSaleProducts.length > 0) {
+      // Sort by discount to get the highest one
+      const highestDiscountProduct = flashSaleProducts.sort((a, b) => (b.discount || 0) - (a.discount || 0))[0]
 
-      // Set as new product alert
-      setNewProductAlert(newestProduct)
+      // Set as discount alert
+      setDiscountAlert(highestDiscountProduct)
 
       // Auto-dismiss after 15 seconds
       const timer = setTimeout(() => {
-        setNewProductAlert(null)
+        setDiscountAlert(null)
       }, 15000)
 
       return () => clearTimeout(timer)
@@ -1114,54 +1264,14 @@ export default function BeautyShopPage() {
     return transformForHotDeals(products)
   }, [])
 
-  // Product Skeleton component
-  const ProductSkeleton = () => (
-    <div className="h-full">
-      <Card className="h-full overflow-hidden border-pink-100 hover:shadow-md transition-all duration-300">
-        <div className="relative h-64 bg-pink-50">
-          <Skeleton className="h-full w-full" />
-        </div>
-        <CardContent className="p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <Skeleton className="h-5 w-20" />
-            <Skeleton className="h-4 w-16" />
-          </div>
-          <Skeleton className="h-6 w-full mb-1" />
-          <Skeleton className="h-4 w-full mb-1" />
-          <Skeleton className="h-4 w-3/4 mb-3" />
-
-          <div className="flex items-center mb-3 bg-pink-50 p-2 rounded-md">
-            <Skeleton className="w-8 h-8 rounded-full mr-2" />
-            <div className="flex-1 min-w-0">
-              <Skeleton className="h-4 w-24 mb-1" />
-              <Skeleton className="h-3 w-32" />
-            </div>
-          </div>
-
-          <div className="flex items-center mb-3">
-            <Skeleton className="h-4 w-24" />
-          </div>
-
-          <div className="flex items-end justify-between mb-3">
-            <Skeleton className="h-6 w-20" />
-          </div>
-        </CardContent>
-        <CardFooter className="p-4 pt-0 grid grid-cols-2 gap-2">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </CardFooter>
-      </Card>
-    </div>
-  )
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-b from-rose-50 to-fuchsia-50">
       {/* Header */}
-      <div className="relative bg-gradient-to-r from-pink-400 to-purple-500 py-12">
+      <div className="relative bg-gradient-to-r from-rose-500 to-fuchsia-600 py-12">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-pattern opacity-10"></div>
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-pink-300 rounded-full filter blur-3xl opacity-30"></div>
-          <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-purple-300 rounded-full filter blur-3xl opacity-30"></div>
+          <div className="absolute -top-24 -right-24 w-64 h-64 bg-rose-300 rounded-full filter blur-3xl opacity-30"></div>
+          <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-fuchsia-300 rounded-full filter blur-3xl opacity-30"></div>
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
@@ -1171,10 +1281,10 @@ export default function BeautyShopPage() {
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 Back to Beauty & Massage
               </Link>
-              <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">Beauty Shop</h1>
-              <p className="text-pink-100 max-w-2xl">
-                Discover premium beauty products for men and women. From skincare to makeup, find everything you need to
-                look and feel your best.
+              <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">Beauty Discount Shop</h1>
+              <p className="text-rose-100 max-w-2xl">
+                Discover amazing deals on premium beauty products. Save big on your favorite brands with discounts up to
+                50% off!
               </p>
             </div>
             <div className="hidden md:block">
@@ -1185,9 +1295,9 @@ export default function BeautyShopPage() {
                 className="bg-white/20 backdrop-blur-md p-4 rounded-lg shadow-lg"
               >
                 <div className="text-white text-center">
-                  <Sparkles className="h-8 w-8 mx-auto mb-2" />
-                  <p className="font-medium">Special Offers</p>
-                  <p className="text-sm">Up to 25% off</p>
+                  <Percent className="h-8 w-8 mx-auto mb-2" />
+                  <p className="font-medium">Exclusive Discounts</p>
+                  <p className="text-sm">Up to 50% off</p>
                 </div>
               </motion.div>
             </div>
@@ -1200,7 +1310,55 @@ export default function BeautyShopPage() {
         <CountdownTimer targetDate="2025-05-31T23:59:59" startDate="2025-03-01T00:00:00" />
       </div>
 
-      {/*Inside your component's return statement*/}
+      {/* Flash Sale Banner */}
+      <div className="container mx-auto px-4 mb-8">
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-rose-600 to-fuchsia-600 p-6 shadow-lg">
+          <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-yellow-300 opacity-50 blur-2xl"></div>
+          <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-rose-300 opacity-50 blur-2xl"></div>
+
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between">
+            <div className="mb-6 md:mb-0 text-center md:text-left">
+              <Badge className="mb-2 bg-yellow-500 text-white px-3 py-1 text-xs font-semibold uppercase tracking-wide">
+                Limited Time Offer
+              </Badge>
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Flash Sale: Up to 50% Off</h2>
+              <p className="text-rose-100 max-w-md">
+                Hurry! These incredible deals on premium beauty products won't last long. Shop now before they're gone!
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <div className="bg-white/90 rounded-lg p-3 text-center">
+                  <span className="text-2xl font-bold text-rose-600">24</span>
+                  <span className="text-xs text-gray-600 block">Hours</span>
+                </div>
+                <div className="bg-white/90 rounded-lg p-3 text-center">
+                  <span className="text-2xl font-bold text-rose-600">12</span>
+                  <span className="text-xs text-gray-600 block">Minutes</span>
+                </div>
+                <div className="bg-white/90 rounded-lg p-3 text-center">
+                  <span className="text-2xl font-bold text-rose-600">36</span>
+                  <span className="text-xs text-gray-600 block">Seconds</span>
+                </div>
+                <div className="bg-white/90 rounded-lg p-3 text-center">
+                  <span className="text-2xl font-bold text-rose-600">99</span>
+                  <span className="text-xs text-gray-600 block">Items</span>
+                </div>
+              </div>
+              <Button
+                size="lg"
+                className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-8 py-3 rounded-full shadow-lg animate-pulse"
+                onClick={() => setShowOnlyFlashSales(!showOnlyFlashSales)}
+              >
+                Shop Flash Sale Now
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Time-Based Recommendations */}
       <div className="container mx-auto px-4">
         <TimeBasedRecommendations
           products={products.map((product) => {
@@ -1215,6 +1373,7 @@ export default function BeautyShopPage() {
               category: product.subcategory,
               vendorName: vendor?.name,
               vendorLocation: vendor?.location,
+              discount: product.discount,
               recommendedTimes:
                 product.subcategory?.toLowerCase().includes("cleanser") && !product.name.toLowerCase().includes("night")
                   ? ["morning"]
@@ -1226,18 +1385,19 @@ export default function BeautyShopPage() {
                       : undefined,
             }
           })}
-          title="Skincare Recommendations For Now"
-          subtitle="Products ideal for your current skincare routine"
-          colorScheme="pink"
+          title="Discounted Products For Your Routine"
+          subtitle="Save on products perfect for your current skincare needs"
+          colorScheme="rose"
           maxProducts={4}
         />
       </div>
+
       {/* Hot Time Deals Section */}
       {hotDeals.length > 0 && (
         <div className="container mx-auto px-4">
           <HotTimeDeals
             deals={hotDeals}
-            colorScheme="amber"
+            colorScheme="rose"
             title="Limited Time Beauty Deals"
             subtitle="Grab these exclusive beauty offers before they're gone!"
           />
@@ -1249,15 +1409,16 @@ export default function BeautyShopPage() {
         trendingProducts={trendingProducts}
         popularProducts={popularProducts}
         colorScheme={beautyColorScheme}
-        title="Beauty Favorites"
-        subtitle="Discover trending and most popular beauty products"
+        title="Trending Discounted Products"
+        subtitle="Discover trending and most popular discounted beauty products"
       />
-      {/*some beauty shop logic*/}
+
+      {/* Beauty Shop Navigation */}
       <div className="flex justify-center my-8">
-        <Link href="/beauty-and-massage/shop/best-beauty-usage">
+        <Link href="/beauty-and-massage">
           <Button
             size="lg"
-            className="group relative overflow-hidden bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
+            className="group relative overflow-hidden bg-gradient-to-r from-rose-500 to-fuchsia-600 hover:from-rose-600 hover:to-fuchsia-700 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
@@ -1268,41 +1429,8 @@ export default function BeautyShopPage() {
               transition={{ duration: 1, ease: "easeInOut" }}
             />
             <span className="flex items-center text-lg font-medium">
-              <ShoppingBag className="mr-2 h-5 w-5" />
-              Open our Beauty Products-usage
-              <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
-                <ChevronRight className="ml-2 h-5 w-5" />
-              </motion.div>
-            </span>
-            <motion.div
-              className="absolute -top-1 -right-1"
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Sparkles className="h-5 w-5 text-yellow-300" />
-            </motion.div>
-          </Button>
-        </Link>
-      </div>
-      {/*some beauty shop logic*/}
-      <div className="flex justify-center my-8">
-        <Link href="/beauty-and-massage/shop/beauty-shop">
-          <Button
-            size="lg"
-            className="group relative overflow-hidden bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <motion.div
-              className="absolute inset-0 bg-white opacity-10"
-              initial={{ x: "-100%" }}
-              animate={{ x: isHovered ? "100%" : "-100%" }}
-              transition={{ duration: 1, ease: "easeInOut" }}
-            />
-            <span className="flex items-center text-lg font-medium">
-              <ShoppingBag className="mr-2 h-5 w-5" />
-              Open our Beauty Shop
+              <Scissors className="mr-2 h-5 w-5" />
+              Visit Beauty & Massage Services
               <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
                 <ChevronRight className="ml-2 h-5 w-5" />
               </motion.div>
@@ -1325,41 +1453,35 @@ export default function BeautyShopPage() {
           <div className="relative flex-1">
             <Input
               type="text"
-              placeholder="Search products, brands, or categories..."
+              placeholder="Search discounted products, brands, or categories..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 rounded-full border-pink-200 focus:border-pink-500 focus:ring-pink-500"
+              className="pl-10 pr-4 py-2 rounded-full border-rose-200 focus:border-rose-500 focus:ring-rose-500"
             />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-pink-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-rose-400" />
           </div>
           <div className="flex items-center gap-3">
             <Select value={sortOrder} onValueChange={setSortOrder}>
-              <SelectTrigger className="w-[180px] border-pink-200">
+              <SelectTrigger className="w-[180px] border-rose-200">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="default">Default</SelectItem>
+                <SelectItem value="discount">Biggest Discount</SelectItem>
+                <SelectItem value="ending-soon">Ending Soon</SelectItem>
                 <SelectItem value="price-asc">Price: Low to High</SelectItem>
                 <SelectItem value="price-desc">Price: High to Low</SelectItem>
                 <SelectItem value="rating">Highest Rated</SelectItem>
-                <SelectItem value="discount">Biggest Discount</SelectItem>
               </SelectContent>
             </Select>
             <Button
               onClick={() => setShowFilters(!showFilters)}
               variant="outline"
-              className="flex items-center gap-2 border-pink-200 hover:bg-pink-50"
+              className="flex items-center gap-2 border-rose-200 hover:bg-rose-50"
             >
-              <Filter className="h-4 w-4 text-pink-500" />
+              <Filter className="h-4 w-4 text-rose-500" />
               <span>Filters</span>
               <ChevronDown
-                className={`h-4 w-4 text-pink-500 transition-transform ${showFilters ? "rotate-180" : ""}`}
-              />
-            </Button>
-          </div>
-        </div>
-
-        {/* Filters section" : ""}`}
+                className={`h-4 w-4 text-rose-500 transition-transform ${showFilters ? "rotate-180" : ""}`}
               />
             </Button>
           </div>
@@ -1374,7 +1496,7 @@ export default function BeautyShopPage() {
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden mt-4"
             >
-              <div className="bg-white p-6 rounded-xl border border-pink-100 shadow-sm">
+              <div className="bg-white p-6 rounded-xl border border-rose-100 shadow-sm">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {/* Price range filter */}
                   <div>
@@ -1405,7 +1527,7 @@ export default function BeautyShopPage() {
                             id={`brand-${brand}`}
                             checked={selectedBrands.includes(brand)}
                             onCheckedChange={() => handleBrandToggle(brand)}
-                            className="border-pink-300 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
+                            className="border-rose-300 data-[state=checked]:bg-rose-500 data-[state=checked]:border-rose-500"
                           />
                           <Label
                             htmlFor={`brand-${brand}`}
@@ -1424,16 +1546,30 @@ export default function BeautyShopPage() {
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
                         <Checkbox
-                          id="discounted"
-                          checked={showOnlyDiscounted}
-                          onCheckedChange={() => setShowOnlyDiscounted(!showOnlyDiscounted)}
-                          className="border-pink-300 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
+                          id="highDiscount"
+                          checked={showOnlyHighDiscount}
+                          onCheckedChange={() => setShowOnlyHighDiscount(!showOnlyHighDiscount)}
+                          className="border-rose-300 data-[state=checked]:bg-rose-500 data-[state=checked]:border-rose-500"
                         />
                         <Label
-                          htmlFor="discounted"
+                          htmlFor="highDiscount"
                           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700"
                         >
-                          On Sale
+                          High Discount (25%+)
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="flashSales"
+                          checked={showOnlyFlashSales}
+                          onCheckedChange={() => setShowOnlyFlashSales(!showOnlyFlashSales)}
+                          className="border-rose-300 data-[state=checked]:bg-rose-500 data-[state=checked]:border-rose-500"
+                        />
+                        <Label
+                          htmlFor="flashSales"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700"
+                        >
+                          Flash Sales (40%+)
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -1441,7 +1577,7 @@ export default function BeautyShopPage() {
                           id="organic"
                           checked={showOnlyOrganic}
                           onCheckedChange={() => setShowOnlyOrganic(!showOnlyOrganic)}
-                          className="border-pink-300 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
+                          className="border-rose-300 data-[state=checked]:bg-rose-500 data-[state=checked]:border-rose-500"
                         />
                         <Label
                           htmlFor="organic"
@@ -1455,7 +1591,7 @@ export default function BeautyShopPage() {
                           id="bestsellers"
                           checked={showOnlyBestSellers}
                           onCheckedChange={() => setShowOnlyBestSellers(!showOnlyBestSellers)}
-                          className="border-pink-300 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
+                          className="border-rose-300 data-[state=checked]:bg-rose-500 data-[state=checked]:border-rose-500"
                         />
                         <Label
                           htmlFor="bestsellers"
@@ -1469,7 +1605,7 @@ export default function BeautyShopPage() {
                           id="newarrivals"
                           checked={showOnlyNewArrivals}
                           onCheckedChange={() => setShowOnlyNewArrivals(!showOnlyNewArrivals)}
-                          className="border-pink-300 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
+                          className="border-rose-300 data-[state=checked]:bg-rose-500 data-[state=checked]:border-rose-500"
                         />
                         <Label
                           htmlFor="newarrivals"
@@ -1489,49 +1625,49 @@ export default function BeautyShopPage() {
                         variant="outline"
                         size="sm"
                         className={cn(
-                          "rounded-full border-pink-200 hover:bg-pink-50",
-                          showOnlyDiscounted && "bg-pink-100 border-pink-300",
+                          "rounded-full border-rose-200 hover:bg-rose-50",
+                          showOnlyHighDiscount && "bg-rose-100 border-rose-300",
                         )}
-                        onClick={() => setShowOnlyDiscounted(!showOnlyDiscounted)}
+                        onClick={() => setShowOnlyHighDiscount(!showOnlyHighDiscount)}
                       >
-                        <Percent className="h-3 w-3 mr-1 text-pink-500" />
-                        On Sale
+                        <Percent className="h-3 w-3 mr-1 text-rose-500" />
+                        25%+ Off
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         className={cn(
-                          "rounded-full border-pink-200 hover:bg-pink-50",
-                          showOnlyBestSellers && "bg-pink-100 border-pink-300",
+                          "rounded-full border-rose-200 hover:bg-rose-50",
+                          showOnlyFlashSales && "bg-rose-100 border-rose-300",
+                        )}
+                        onClick={() => setShowOnlyFlashSales(!showOnlyFlashSales)}
+                      >
+                        <Flame className="h-3 w-3 mr-1 text-rose-500" />
+                        Flash Sales
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={cn(
+                          "rounded-full border-rose-200 hover:bg-rose-50",
+                          showOnlyBestSellers && "bg-rose-100 border-rose-300",
                         )}
                         onClick={() => setShowOnlyBestSellers(!showOnlyBestSellers)}
                       >
-                        <Flame className="h-3 w-3 mr-1 text-pink-500" />
+                        <TrendingUp className="h-3 w-3 mr-1 text-rose-500" />
                         Best Sellers
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         className={cn(
-                          "rounded-full border-pink-200 hover:bg-pink-50",
-                          showOnlyNewArrivals && "bg-pink-100 border-pink-300",
+                          "rounded-full border-rose-200 hover:bg-rose-50",
+                          showOnlyNewArrivals && "bg-rose-100 border-rose-300",
                         )}
                         onClick={() => setShowOnlyNewArrivals(!showOnlyNewArrivals)}
                       >
-                        <Sparkles className="h-3 w-3 mr-1 text-pink-500" />
+                        <Sparkles className="h-3 w-3 mr-1 text-rose-500" />
                         New Arrivals
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={cn(
-                          "rounded-full border-pink-200 hover:bg-pink-50",
-                          showOnlyOrganic && "bg-pink-100 border-pink-300",
-                        )}
-                        onClick={() => setShowOnlyOrganic(!showOnlyOrganic)}
-                      >
-                        <Check className="h-3 w-3 mr-1 text-pink-500" />
-                        Organic
                       </Button>
                     </div>
                   </div>
@@ -1545,13 +1681,13 @@ export default function BeautyShopPage() {
       {/* Categories and products */}
       <div className="container mx-auto px-4 py-6">
         <Tabs defaultValue="women" value={activeCategory} onValueChange={handleCategoryChange} className="w-full">
-          <TabsList className="bg-white p-1 rounded-xl mb-6 flex flex-nowrap overflow-x-auto hide-scrollbar border border-pink-100 shadow-sm">
+          <TabsList className="bg-white p-1 rounded-xl mb-6 flex flex-nowrap overflow-x-auto hide-scrollbar border border-rose-100 shadow-sm">
             {categories.map((category) => (
               <TabsTrigger
                 key={category.id}
                 value={category.id}
                 className={`flex items-center gap-1.5 px-6 py-2 rounded-lg text-sm font-medium transition-all ${
-                  activeCategory === category.id ? "bg-pink-500 text-white shadow-sm" : "text-gray-700 hover:bg-pink-50"
+                  activeCategory === category.id ? "bg-rose-500 text-white shadow-sm" : "text-gray-700 hover:bg-rose-50"
                 }`}
               >
                 <span>{category.name}</span>
@@ -1569,8 +1705,8 @@ export default function BeautyShopPage() {
                     size="sm"
                     className={`rounded-full whitespace-nowrap ${
                       activeSubcategory === ""
-                        ? "bg-pink-100 border-pink-300 text-pink-700"
-                        : "border-pink-200 text-gray-700 hover:bg-pink-50"
+                        ? "bg-rose-100 border-rose-300 text-rose-700"
+                        : "border-rose-200 text-gray-700 hover:bg-rose-50"
                     }`}
                     onClick={() => handleSubcategoryChange("")}
                   >
@@ -1583,8 +1719,8 @@ export default function BeautyShopPage() {
                       size="sm"
                       className={`rounded-full whitespace-nowrap ${
                         activeSubcategory === subcategory.id
-                          ? "bg-pink-100 border-pink-300 text-pink-700"
-                          : "border-pink-200 text-gray-700 hover:bg-pink-50"
+                          ? "bg-rose-100 border-rose-300 text-rose-700"
+                          : "border-rose-200 text-gray-700 hover:bg-rose-50"
                       }`}
                       onClick={() => handleSubcategoryChange(subcategory.id)}
                     >
@@ -1594,16 +1730,10 @@ export default function BeautyShopPage() {
                 </div>
               </div>
 
-              {/* Products grid with skeleton loading */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {loadingProducts ? (
-                  // Show skeletons while loading
-                  Array(8)
-                    .fill(0)
-                    .map((_, index) => <ProductSkeleton key={`skeleton-${index}`} />)
-                ) : displayProducts.length > 0 ? (
-                  // Show actual products
-                  displayProducts.map((product) => {
+              {/* Products grid with infinite scroll */}
+              {visibleProducts.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {visibleProducts.map((product) => {
                     const vendor = getVendorForProduct(product.vendorId)
                     return (
                       <motion.div
@@ -1614,10 +1744,10 @@ export default function BeautyShopPage() {
                         whileHover={{ y: -5, transition: { duration: 0.2 } }}
                         className="h-full"
                       >
-                        <Card className="h-full overflow-hidden border-pink-100 hover:border-pink-300 hover:shadow-md transition-all duration-300">
+                        <Card className="h-full overflow-hidden border-rose-100 hover:border-rose-300 hover:shadow-md transition-all duration-300">
                           <div className="cursor-pointer" onClick={() => handleProductClick(product)}>
                             {/* Product image */}
-                            <div className="relative h-64 bg-pink-50">
+                            <div className="relative h-64 bg-rose-50">
                               <Image
                                 src={product.imageUrl || "/placeholder.svg"}
                                 alt={product.name}
@@ -1645,21 +1775,25 @@ export default function BeautyShopPage() {
                               {/* Discount badge */}
                               {product.discount && product.discount > 0 && (
                                 <div className="absolute top-2 right-2">
-                                  <Badge className="bg-pink-500 hover:bg-pink-600 text-white">
+                                  <Badge
+                                    className={`${
+                                      product.discount >= 40
+                                        ? "bg-yellow-500 hover:bg-yellow-600 animate-pulse"
+                                        : "bg-rose-500 hover:bg-rose-600"
+                                    } text-white font-bold`}
+                                  >
                                     {product.discount}% OFF
                                   </Badge>
                                 </div>
                               )}
 
-                              {/* Stock status */}
-                              {product.stockStatus === "Low Stock" && (
+                              {/* Time remaining */}
+                              {product.discountEnds && (
                                 <div className="absolute bottom-2 left-2">
-                                  <Badge className="bg-amber-500 text-white">Low Stock</Badge>
-                                </div>
-                              )}
-                              {product.stockStatus === "Out of Stock" && (
-                                <div className="absolute bottom-2 left-2">
-                                  <Badge className="bg-red-500 text-white">Out of Stock</Badge>
+                                  <Badge className="bg-fuchsia-500 text-white flex items-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    {getTimeRemaining(product.discountEnds)}
+                                  </Badge>
                                 </div>
                               )}
 
@@ -1667,7 +1801,7 @@ export default function BeautyShopPage() {
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                className="absolute bottom-2 right-2 h-8 w-8 rounded-full bg-white/80 hover:bg-white text-pink-500 hover:text-pink-600"
+                                className="absolute bottom-2 right-2 h-8 w-8 rounded-full bg-white/80 hover:bg-white text-rose-500 hover:text-rose-600"
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   // Add to wishlist functionality
@@ -1679,7 +1813,7 @@ export default function BeautyShopPage() {
 
                             <CardContent className="p-4">
                               <div className="mb-2 flex items-center justify-between">
-                                <Badge variant="outline" className="text-xs border-pink-200 text-pink-700">
+                                <Badge variant="outline" className="text-xs border-rose-200 text-rose-700">
                                   {
                                     categories
                                       .find((c) => c.id === product.category)
@@ -1694,18 +1828,14 @@ export default function BeautyShopPage() {
 
                               {/* Vendor info */}
                               {vendor && (
-                                <div className="flex items-center mb-3 bg-pink-50 p-2 rounded-md">
-                                  <div className="w-8 h-8 rounded-full bg-pink-200 flex items-center justify-center text-pink-700 font-bold text-xs mr-2">
+                                <div className="flex items-center mb-3 bg-rose-50 p-2 rounded-md">
+                                  <div className="w-8 h-8 rounded-full bg-rose-200 flex items-center justify-center text-rose-700 font-bold text-xs mr-2">
                                     {vendor.name.substring(0, 2).toUpperCase()}
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-medium text-gray-700 truncate">
+                                    <p className="text-xs font-medium text-gray-700 truncate flex items-center">
                                       {vendor.name}
-                                      {vendor.verified && (
-                                        <div className="absolute -bottom-1 -right-1 bg-pink-500 text-white rounded-full p-1">
-                                          <Check className="h-3 w-3" />
-                                        </div>
-                                      )}
+                                      {vendor.verified && <Check className="h-3 w-3 ml-1 text-rose-500" />}
                                     </p>
                                     <p className="text-xs text-gray-500 flex items-center">
                                       <MapPin className="h-3 w-3 mr-1" />
@@ -1746,6 +1876,9 @@ export default function BeautyShopPage() {
                                     </div>
                                   )}
                                 </div>
+                                {product.discount && product.discount >= 30 && (
+                                  <Badge className="bg-yellow-500 text-white">Great Deal!</Badge>
+                                )}
                               </div>
                             </CardContent>
                           </div>
@@ -1754,7 +1887,7 @@ export default function BeautyShopPage() {
                           <CardFooter className="p-4 pt-0 grid grid-cols-2 gap-2">
                             <Button
                               variant="outline"
-                              className="border-pink-200 text-pink-600 hover:bg-pink-50 flex items-center justify-center gap-1"
+                              className="border-rose-200 text-rose-600 hover:bg-rose-50 flex items-center justify-center gap-1"
                               onClick={() => handleProductClick(product)}
                             >
                               <Sparkles className="h-4 w-4" />
@@ -1762,7 +1895,7 @@ export default function BeautyShopPage() {
                             </Button>
 
                             <Button
-                              className="bg-pink-500 hover:bg-pink-600 text-white flex items-center justify-center gap-1"
+                              className="bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center gap-1"
                               disabled={product.stockStatus === "Out of Stock"}
                             >
                               <ShoppingBag className="h-4 w-4" />
@@ -1772,43 +1905,43 @@ export default function BeautyShopPage() {
                         </Card>
                       </motion.div>
                     )
-                  })
-                ) : (
-                  // No products found
-                  <div className="col-span-full text-center py-12">
-                    <div className="mx-auto w-16 h-16 mb-4 bg-pink-100 rounded-full flex items-center justify-center">
-                      <Search className="h-8 w-8 text-pink-500" />
-                    </div>
-                    <h3 className="text-xl font-medium text-gray-800 mb-2">No products found</h3>
-                    <p className="text-gray-600 max-w-md mx-auto">
-                      We couldn't find any products matching your criteria. Try adjusting your filters or search term.
-                    </p>
+                  })}
+                </div>
+              ) : isLoading && page === 1 ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin mb-3"></div>
+                    <p className="text-rose-500 font-medium">Loading products...</p>
                   </div>
-                )}
-              </div>
-
-              {/* Load more button */}
-              {!loadingProducts && displayProducts.length > 0 && displayProducts.length < filteredProducts.length && (
-                <div className="flex justify-center mt-8">
-                  <Button onClick={handleLoadMore} className="bg-pink-500 hover:bg-pink-600 text-white" size="lg">
-                    Load More Products
-                  </Button>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="mx-auto w-16 h-16 mb-4 bg-rose-100 rounded-full flex items-center justify-center">
+                    <Search className="h-8 w-8 text-rose-500" />
+                  </div>
+                  <h3 className="text-xl font-medium text-gray-800 mb-2">No products found</h3>
+                  <p className="text-gray-600 max-w-md mx-auto">
+                    We couldn't find any discounted products matching your criteria. Try adjusting your filters or
+                    search term.
+                  </p>
                 </div>
               )}
 
-              {/* Loading indicator for load more */}
-              {loadingProducts && displayProducts.length > 0 && (
-                <div className="flex justify-center items-center py-8">
-                  <div className="flex flex-col items-center">
-                    <div className="w-10 h-10 border-4 border-pink-300 border-t-pink-500 rounded-full animate-spin mb-2"></div>
-                    <p className="text-pink-500 text-sm">Loading more products...</p>
-                  </div>
+              {/* Infinite scroll loader */}
+              {hasMore && (
+                <div ref={loaderRef} className="flex justify-center items-center py-8">
+                  {isLoading && (
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-10 border-4 border-rose-300 border-t-rose-500 rounded-full animate-spin mb-2"></div>
+                      <p className="text-rose-500 text-sm">Loading more products...</p>
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* End of results message */}
-              {!loadingProducts && displayProducts.length > 0 && displayProducts.length >= filteredProducts.length && (
-                <div className="text-center py-8 border-t border-pink-100 mt-8">
+              {!hasMore && visibleProducts.length > 0 && (
+                <div className="text-center py-8 border-t border-rose-100 mt-8">
                   <p className="text-gray-600">You've reached the end of the results</p>
                 </div>
               )}
@@ -1823,7 +1956,7 @@ export default function BeautyShopPage() {
           {selectedProduct && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Product image */}
-              <div className="relative h-80 md:h-full rounded-lg overflow-hidden bg-pink-50">
+              <div className="relative h-80 md:h-full rounded-lg overflow-hidden bg-rose-50">
                 <Image
                   src={selectedProduct.imageUrl || "/placeholder.svg"}
                   alt={selectedProduct.name}
@@ -1846,7 +1979,25 @@ export default function BeautyShopPage() {
                 {/* Discount badge */}
                 {selectedProduct.discount && selectedProduct.discount > 0 && (
                   <div className="absolute top-2 right-2">
-                    <Badge className="bg-pink-500 text-white">{selectedProduct.discount}% OFF</Badge>
+                    <Badge
+                      className={`${
+                        selectedProduct.discount >= 40
+                          ? "bg-yellow-500 hover:bg-yellow-600 animate-pulse"
+                          : "bg-rose-500 hover:bg-rose-600"
+                      } text-white font-bold`}
+                    >
+                      {selectedProduct.discount}% OFF
+                    </Badge>
+                  </div>
+                )}
+
+                {/* Time remaining */}
+                {selectedProduct.discountEnds && (
+                  <div className="absolute bottom-2 left-2">
+                    <Badge className="bg-fuchsia-500 text-white flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {getTimeRemaining(selectedProduct.discountEnds)}
+                    </Badge>
                   </div>
                 )}
               </div>
@@ -1855,7 +2006,7 @@ export default function BeautyShopPage() {
               <div className="flex flex-col">
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <Badge variant="outline" className="text-xs border-pink-200 text-pink-700">
+                    <Badge variant="outline" className="text-xs border-rose-200 text-rose-700">
                       {
                         categories
                           .find((c) => c.id === selectedProduct.category)
@@ -1869,13 +2020,16 @@ export default function BeautyShopPage() {
 
                   {/* Vendor info */}
                   {getVendorForProduct(selectedProduct.vendorId) && (
-                    <div className="flex items-center mb-4 bg-pink-50 p-3 rounded-md">
-                      <div className="w-10 h-10 rounded-full bg-pink-200 flex items-center justify-center text-pink-700 font-bold text-xs mr-3">
+                    <div className="flex items-center mb-4 bg-rose-50 p-3 rounded-md">
+                      <div className="w-10 h-10 rounded-full bg-rose-200 flex items-center justify-center text-rose-700 font-bold text-xs mr-3">
                         {getVendorForProduct(selectedProduct.vendorId)?.name.substring(0, 2).toUpperCase()}
                       </div>
                       <div className="flex-1">
-                        <p className="font-medium text-gray-800">
+                        <p className="font-medium text-gray-800 flex items-center">
                           {getVendorForProduct(selectedProduct.vendorId)?.name}
+                          {getVendorForProduct(selectedProduct.vendorId)?.verified && (
+                            <Check className="h-4 w-4 ml-1 text-rose-500" />
+                          )}
                         </p>
                         <p className="text-sm text-gray-600 flex items-center">
                           <MapPin className="h-3 w-3 mr-1" />
@@ -1885,7 +2039,7 @@ export default function BeautyShopPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-pink-200 text-pink-600 hover:bg-pink-50"
+                        className="border-rose-200 text-rose-600 hover:bg-rose-50"
                         onClick={() => window.open(getVendorForProduct(selectedProduct.vendorId)?.website, "_blank")}
                       >
                         <Store className="h-4 w-4 mr-1" />
@@ -1917,13 +2071,33 @@ export default function BeautyShopPage() {
 
                   <p className="text-gray-700 mb-4">{selectedProduct.description}</p>
 
+                  {/* Discount info */}
+                  {selectedProduct.discount && selectedProduct.discount > 0 && (
+                    <div className="mb-4 p-3 bg-rose-50 rounded-md border border-rose-200">
+                      <h3 className="text-lg font-medium text-rose-700 mb-2 flex items-center">
+                        <Percent className="h-5 w-5 mr-2" />
+                        Special Discount Offer
+                      </h3>
+                      <p className="text-gray-700">
+                        Save <span className="font-bold text-rose-600">{selectedProduct.discount}%</span> on this
+                        product!
+                        {selectedProduct.discountEnds && (
+                          <span className="block mt-1">
+                            Offer ends in:{" "}
+                            <span className="font-semibold">{getTimeRemaining(selectedProduct.discountEnds)}</span>
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  )}
+
                   {/* Ingredients */}
                   {selectedProduct.ingredients && selectedProduct.ingredients.length > 0 && (
                     <div className="mb-4">
                       <h3 className="text-lg font-medium text-gray-800 mb-2">Ingredients</h3>
                       <div className="flex flex-wrap gap-2">
                         {selectedProduct.ingredients.map((ingredient, index) => (
-                          <Badge key={index} variant="outline" className="border-pink-200 text-gray-700">
+                          <Badge key={index} variant="outline" className="border-rose-200 text-gray-700">
                             {ingredient}
                           </Badge>
                         ))}
@@ -1960,7 +2134,7 @@ export default function BeautyShopPage() {
                       <h3 className="text-lg font-medium text-gray-800 mb-2">Suitable For</h3>
                       <div className="flex flex-wrap gap-2">
                         {selectedProduct.suitableFor.map((suitable, index) => (
-                          <Badge key={index} variant="outline" className="border-pink-200 text-gray-700">
+                          <Badge key={index} variant="outline" className="border-rose-200 text-gray-700">
                             {suitable}
                           </Badge>
                         ))}
@@ -2002,20 +2176,23 @@ export default function BeautyShopPage() {
                           </div>
                         )}
                       </div>
+                      {selectedProduct.discount && selectedProduct.discount >= 30 && (
+                        <Badge className="bg-yellow-500 text-white">Great Deal!</Badge>
+                      )}
                     </div>
 
                     {/* Action buttons */}
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Button
                         variant="outline"
-                        className="border-pink-200 text-pink-600 hover:bg-pink-50 flex-1 flex items-center justify-center gap-2"
+                        className="border-rose-200 text-rose-600 hover:bg-rose-50 flex-1 flex items-center justify-center gap-2"
                       >
                         <Heart className="h-4 w-4" />
                         <span>Add to Wishlist</span>
                       </Button>
 
                       <Button
-                        className="bg-pink-500 hover:bg-pink-600 text-white flex-1 flex items-center justify-center gap-2"
+                        className="bg-rose-500 hover:bg-rose-600 text-white flex-1 flex items-center justify-center gap-2"
                         disabled={selectedProduct.stockStatus === "Out of Stock"}
                       >
                         <ShoppingBag className="h-4 w-4" />
@@ -2030,43 +2207,44 @@ export default function BeautyShopPage() {
         </DialogContent>
       </Dialog>
 
-      {/* New Product Alert */}
+      {/* Discount Alert */}
       <AnimatePresence>
-        {newProductAlert && (
+        {discountAlert && (
           <motion.div
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed bottom-6 right-6 z-50 max-w-md bg-white rounded-lg shadow-xl border-l-4 border-pink-500 overflow-hidden"
+            className="fixed bottom-6 right-6 z-50 max-w-md bg-white rounded-lg shadow-xl border-l-4 border-yellow-500 overflow-hidden"
           >
             <div className="p-4">
               <div className="flex items-start">
-                <div className="flex-shrink-0 bg-pink-100 rounded-full p-2">
-                  <Bell className="h-6 w-6 text-pink-500" />
+                <div className="flex-shrink-0 bg-yellow-100 rounded-full p-2">
+                  <Percent className="h-6 w-6 text-yellow-500" />
                 </div>
                 <div className="ml-3 w-0 flex-1 pt-0.5">
-                  <h3 className="text-lg font-medium text-gray-800">New Product Alert!</h3>
+                  <h3 className="text-lg font-medium text-gray-800">Flash Sale Alert!</h3>
                   <p className="mt-1 text-sm text-gray-600">
-                    Check out the new {newProductAlert.name} from {newProductAlert.brand}. Limited stock available!
+                    <span className="font-bold text-rose-600">{discountAlert.discount}% OFF</span> on{" "}
+                    {discountAlert.name}. This is our biggest discount ever!
                   </p>
                   <div className="mt-3 flex gap-3">
                     <Button
                       size="sm"
-                      className="bg-pink-500 hover:bg-pink-600 text-white flex items-center gap-1"
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white flex items-center gap-1"
                       onClick={() => {
-                        handleProductClick(newProductAlert)
-                        closeNewProductAlert()
+                        handleProductClick(discountAlert)
+                        closeDiscountAlert()
                       }}
                     >
-                      View Product
+                      View Deal
                       <ArrowUpRight className="h-4 w-4" />
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
-                      className="border-pink-200 text-pink-600 hover:bg-pink-50"
-                      onClick={closeNewProductAlert}
+                      className="border-rose-200 text-rose-600 hover:bg-rose-50"
+                      onClick={closeDiscountAlert}
                     >
                       Dismiss
                     </Button>
@@ -2075,7 +2253,7 @@ export default function BeautyShopPage() {
                 <div className="ml-4 flex-shrink-0 flex">
                   <button
                     className="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none"
-                    onClick={closeNewProductAlert}
+                    onClick={closeDiscountAlert}
                   >
                     <span className="sr-only">Close</span>
                     <X className="h-5 w-5" />
@@ -2085,7 +2263,7 @@ export default function BeautyShopPage() {
             </div>
             <div className="h-1 w-full bg-gray-100">
               <motion.div
-                className="h-full bg-pink-500"
+                className="h-full bg-yellow-500"
                 initial={{ width: "100%" }}
                 animate={{ width: "0%" }}
                 transition={{ duration: 15, ease: "linear" }}
