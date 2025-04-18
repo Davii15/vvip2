@@ -39,7 +39,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
-import { beautyTutorials, celebrityRoutines, liveBeautyStreams, previousTutorials } from "./beauty-usage-data"
+import { beautyTutorials, celebrityRoutines, liveBeautyStreams, previousTutorials } from "./mock-data"
 
 export default function BeautyShopUsagePage() {
   const router = useRouter()
