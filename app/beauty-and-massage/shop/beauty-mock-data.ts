@@ -1,3 +1,5 @@
+"use client"
+
 import { Sparkles, Droplet, Palette, Scissors, SprayCanIcon as Spray, Leaf } from "lucide-react"
 import type React from "react"
 
