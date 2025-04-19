@@ -46,7 +46,7 @@ import CountdownTimer from "@/components/CountdownTimer"
 import HotTimeDeals from "@/components/HotTimeDeals"
 import TrendingPopularSection from "@/components/TrendingPopularSection"
 import { TimeBasedRecommendations } from "@/components/TimeBasedRecommendations"
-import { beautyTrendingProducts, beautyPopularProducts } from "./trending-data"
+//import { beautyTrendingProducts, beautyPopularProducts } from "./trending-data"
 import { beautyProducts, beautyVendors, beautyCategories } from "./beauty-mock-data"
 import Link from "next/link"
 // Types
@@ -150,7 +150,7 @@ const isNewProduct = (dateAdded?: string): boolean => {
   return diffDays <= 7
 }
 
-// Custom color scheme for beauty products
+{/*// Custom color scheme for beauty products
 const beautyColorScheme = {
   primary: "from-violet-500 to-fuchsia-600",
   secondary: "bg-violet-100",
@@ -158,7 +158,7 @@ const beautyColorScheme = {
   text: "text-violet-900",
   background: "bg-violet-50",
 }
-
+*/}
 export default function BeautyProductsPage() {
   const [activeCategory, setActiveCategory] = useState<string>("skincare")
   const [activeSubcategory, setActiveSubcategory] = useState<string>("")
@@ -597,8 +597,8 @@ export default function BeautyProductsPage() {
           maxProducts={4}
         />
       </div>
-
-      {/* Trending and Popular Section */}
+  
+      {/* Trending and Popular Section */}{/*
       <div className="container mx-auto px-4 mb-12">
         <TrendingPopularSection
           trendingProducts={beautyTrendingProducts}
@@ -608,14 +608,15 @@ export default function BeautyProductsPage() {
           subtitle="Discover trending and most popular beauty products"
         />
       </div>
-   {/* Trending and Popular Section */}
+      */}
+   {/* Trending and Popular Section */}{/*
       <TrendingPopularSection
         trendingProducts={trendingProducts}
         popularProducts={popularProducts}
         colorScheme={beautyColorScheme}
         title="Beauty Favorites"
         subtitle="Discover trending and most popular beauty products"
-      />
+      />*/}
       {/*some beauty shop logic*/}
       <div className="flex justify-center my-8">
         <Link href="/beauty-and-massage/shop/best-beauty-usage">
