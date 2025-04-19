@@ -19,6 +19,7 @@ import {
   Check,
   Store,
   MapPin,
+  ChevronRight,
   Bell,
   ArrowUpRight,
   Leaf,
@@ -608,7 +609,47 @@ export default function BeautyProductsPage() {
           subtitle="Discover trending and most popular beauty products"
         />
       </div>
-
+   {/* Trending and Popular Section */}
+      <TrendingPopularSection
+        trendingProducts={trendingProducts}
+        popularProducts={popularProducts}
+        colorScheme={beautyColorScheme}
+        title="Beauty Favorites"
+        subtitle="Discover trending and most popular beauty products"
+      />
+      {/*some beauty shop logic*/}
+      <div className="flex justify-center my-8">
+        <Link href="/beauty-and-massage/shop/beauty-shop">
+          <Button
+            size="lg"
+            className="group relative overflow-hidden bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <motion.div
+              className="absolute inset-0 bg-white opacity-10"
+              initial={{ x: "-100%" }}
+              animate={{ x: isHovered ? "100%" : "-100%" }}
+              transition={{ duration: 1, ease: "easeInOut" }}
+            />
+            <span className="flex items-center text-lg font-medium">
+              <ShoppingBag className="mr-2 h-5 w-5" />
+              Open our Beauty shop
+              <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
+                <ChevronRight className="ml-2 h-5 w-5" />
+              </motion.div>
+            </span>
+            <motion.div
+              className="absolute -top-1 -right-1"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Sparkles className="h-5 w-5 text-yellow-300" />
+            </motion.div>
+          </Button>
+        </Link>
+      </div>
       {/* Categories and filters */}
       <div className="container mx-auto px-4 py-6">
         <div className="bg-white rounded-2xl shadow-lg border border-violet-100 p-6 mb-8">
