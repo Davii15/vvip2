@@ -68,7 +68,7 @@ export const beautyCategories: Category[] = [
   {
     id: "skincare",
     name: "Skincare",
-    icon: <Sparkles className="h-4 w-4 mr-2" />,
+    
     subcategories: [
       { id: "cleansers", name: "Cleansers", productCount: 24 },
       { id: "moisturizers", name: "Moisturizers", productCount: 32 },
