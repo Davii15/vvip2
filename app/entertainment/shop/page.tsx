@@ -58,8 +58,8 @@ import { useCookieTracking } from "@/hooks/useCookieTracking"
 import { swapArrayElementsRandomly } from "@/utils/swap-utils"
 import { isNewThisWeek } from "@/utils/date-utils"
 import MostPreferredBadge from "@/components/most-preferred-badge"
-import TrendingPopularSection from "@/components/TrendingPopularSection"
-import { trendingProducts, popularProducts } from "./trending-data"
+//import TrendingPopularSection from "@/components/TrendingPopularSection"
+//import { trendingProducts, popularProducts } from "./trending-data"
 import Link from "next/link"
 import SportsRecommendations from "@/components/recommendations/sports-recommendations"
 
@@ -1134,14 +1134,14 @@ export default function SportsAttirePage() {
   const [genderFilter, setGenderFilter] = useState<string>("")
 
   // Custom color scheme for sports
-  const sportsColorScheme = {
+  {/*const sportsColorScheme = {
     primary: "from-green-500 to-teal-700",
     secondary: "bg-green-100",
     accent: "bg-teal-600",
     text: "text-green-900",
     background: "bg-green-50",
   }
-
+*/}
   // State for product detail modal
   const [selectedProduct, setSelectedProduct] = useState<SportsProduct | null>(null)
 
@@ -1462,8 +1462,8 @@ export default function SportsAttirePage() {
       <div className="container mx-auto px-4 max-w-7xl">
         <NewProductsForYou allProducts={newProducts} colorScheme="green" maxProducts={4} />
       </div>
-
-      {/* Trending and Popular Section */}
+         
+      {/* Trending and Popular Section */}{/*
       <TrendingPopularSection
         trendingProducts={trendingProducts}
         popularProducts={popularProducts}
@@ -1471,7 +1471,7 @@ export default function SportsAttirePage() {
         title="Sports & Music Highlights"
         subtitle="Discover trending and most popular sports and music options"
       />
-
+*/}
       {/*the shop logic*/}
       <div className="flex justify-center my-8">
         <Link href="/sports/shop">
