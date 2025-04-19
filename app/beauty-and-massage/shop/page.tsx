@@ -46,7 +46,7 @@ import CountdownTimer from "@/components/CountdownTimer"
 import HotTimeDeals from "@/components/HotTimeDeals"
 import TrendingPopularSection from "@/components/TrendingPopularSection"
 import { TimeBasedRecommendations } from "@/components/TimeBasedRecommendations"
-import { beautyTrendingProducts, beautyPopularProducts } from "./beauty-trending-data"
+import { beautyTrendingProducts, beautyPopularProducts } from "./trending-data"
 import { beautyProducts, beautyVendors, beautyCategories } from "./beauty-mock-data"
 
 // Types
