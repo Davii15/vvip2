@@ -1,1307 +1,1169 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import type React from "react"
+
+import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
 import {
-  Search,
-  ArrowLeft,
   Play,
   Pause,
+  Volume2,
+  VolumeX,
   Heart,
   Share2,
   MessageCircle,
-  Clock,
-  Star,
-  Users,
-  Award,
-  Sparkles,
-  ChevronRight,
-  BookOpen,
-  ShoppingBag,
+  Bookmark,
+  ChevronUp,
+  ChevronDown,
+  Search,
   Filter,
-  Eye,
-  Calendar,
-  User,
+  X,
+  ArrowUp,
+  CheckCircle2,
+  Star,
+  ShoppingBag,
+  Sparkles,
+  Palette,
+  Droplet,
+  Scissors,
+  Flame,
+  Award,
+  Zap,
 } from "lucide-react"
+import {
+  beautyVideos,
+  videoCategories,
+  formatNumber,
+  formatDuration,
+  formatTimeAgo,
+  getVideoById,
+  getAuthorById,
+  getCategoryById,
+  searchVideos,
+  type BeautyVideo,
+} from "./beauty-mock-data"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { cn } from "@/lib/utils"
-import { beautyTutorials, celebrityRoutines, liveBeautyStreams, previousTutorials } from "./mock-data"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Slider } from "@/components/ui/slider"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
-export default function BestBeautyUsagePage() {
-  const router = useRouter()
-  const [activeTab, setActiveTab] = useState("featured")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedTutorial, setSelectedTutorial] = useState<any>(null)
-  const [isPlaying, setIsPlaying] = useState<Record<string, boolean>>({})
-  const [activeCategory, setActiveCategory] = useState("all")
-  const [showFilters, setShowFilters] = useState(false)
-  const [selectedCelebrity, setSelectedCelebrity] = useState<any>(null)
-  const [isLiveModalOpen, setIsLiveModalOpen] = useState(false)
-  const [selectedLiveStream, setSelectedLiveStream] = useState<any>(null)
-  const videoRefs = useState<Record<string, HTMLVideoElement | null>>({})
-
-  // Skeleton loading state
-  const [loadingTutorials, setLoadingTutorials] = useState(true)
-  const [displayTutorials, setDisplayTutorials] = useState<any[]>([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const tutorialsPerPage = 6
-
-  // Filter tutorials based on search query and category
-  const filteredTutorials = beautyTutorials.filter((tutorial) => {
-    const matchesSearch =
-      tutorial.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tutorial.creator.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tutorial.products.some((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
-
-    const matchesCategory = activeCategory === "all" || tutorial.category === activeCategory
-
-    return matchesSearch && matchesCategory
-  })
-
-  // Load tutorials with simulated delay
-  const loadTutorials = () => {
-    setLoadingTutorials(true)
-
-    // Simulate API fetch delay
-    setTimeout(() => {
-      const startIndex = (currentPage - 1) * tutorialsPerPage
-      const endIndex = startIndex + tutorialsPerPage
-      const newTutorials = filteredTutorials.slice(0, endIndex)
-
-      setDisplayTutorials(newTutorials)
-      setLoadingTutorials(false)
-    }, 800)
+// Get category icon
+const getCategoryIcon = (categoryId: string) => {
+  switch (categoryId) {
+    case "tutorials":
+      return <Palette className="h-4 w-4" />
+    case "celebrity":
+      return <Star className="h-4 w-4" />
+    case "demonstrations":
+      return <Zap className="h-4 w-4" />
+    case "skincare":
+      return <Droplet className="h-4 w-4" />
+    case "makeup":
+      return <Sparkles className="h-4 w-4" />
+    case "haircare":
+      return <Scissors className="h-4 w-4" />
+    case "trending":
+      return <Flame className="h-4 w-4" />
+    default:
+      return <Sparkles className="h-4 w-4" />
   }
+}
 
-  // Handle load more button click
-  const handleLoadMore = () => {
-    setCurrentPage((prev) => prev + 1)
-  }
+// Video Card Component
+function VideoCard({
+  video,
+  isPlaying,
+  isMuted,
+  isExpanded,
+  onPlay,
+  onToggleExpand,
+  onSelect,
+  videoRef,
+}: {
+  video: BeautyVideo
+  isPlaying: boolean
+  isMuted: boolean
+  isExpanded: boolean
+  onPlay: () => void
+  onToggleExpand: () => void
+  onSelect: () => void
+  videoRef: (el: HTMLVideoElement | null) => void
+}) {
+  const author = getAuthorById(video.authorId)
+  const category = getCategoryById(video.categoryId)
 
-  // Effect to load tutorials on initial render and when filters change
-  useEffect(() => {
-    setCurrentPage(1)
-    loadTutorials()
-  }, [searchQuery, activeCategory])
+  return (
+    <motion.div
+      className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-full border border-pink-100 hover:shadow-lg transition-all duration-300"
+      whileHover={{ y: -5 }}
+      layout
+    >
+      {/* Video container */}
+      <div className="relative aspect-video cursor-pointer" onClick={onPlay}>
+        <video
+          id={video.id}
+          ref={videoRef}
+          src={video.videoUrl}
+          poster={video.thumbnailUrl}
+          loop
+          playsInline
+          muted={isMuted}
+          className="w-full h-full object-cover"
+        />
 
-  // Effect to load more tutorials when page changes
-  useEffect(() => {
-    loadTutorials()
-  }, [currentPage])
+        {/* Video overlay */}
+        <div
+          className={`absolute inset-0 bg-black/30 flex items-center justify-center transition-opacity ${isPlaying ? "opacity-0 hover:opacity-100" : "opacity-100"}`}
+        >
+          <button
+            className="bg-pink-500/90 hover:bg-pink-600/90 text-white rounded-full p-3 transform transition-transform hover:scale-110"
+            onClick={(e) => {
+              e.stopPropagation()
+              onPlay()
+            }}
+          >
+            {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+          </button>
+        </div>
 
-  // Handle video play/pause
-  const togglePlay = (id: string) => {
-    const videoElement = videoRefs.current[id]
-    if (!videoElement) return
+        {/* Duration badge */}
+        <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+          {formatDuration(video.duration)}
+        </div>
 
-    if (videoElement.paused) {
-      videoElement.play()
-      setIsPlaying((prev) => ({ ...prev, [id]: true }))
+        {/* Category badge */}
+        <div className="absolute top-2 left-2 bg-pink-500/90 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+          {getCategoryIcon(video.categoryId)}
+          <span>{category?.name || video.categoryId}</span>
+        </div>
+
+        {/* Featured badge */}
+        {video.featured && (
+          <div className="absolute top-2 right-2 bg-purple-500/90 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+            <Award className="h-3 w-3" />
+            <span>Featured</span>
+          </div>
+        )}
+      </div>
+
+      {/* Video info */}
+      <div className="p-4 flex-grow flex flex-col">
+        <h3 className="font-bold text-gray-800 mb-1 line-clamp-2 hover:text-pink-700 cursor-pointer" onClick={onSelect}>
+          {video.title}
+        </h3>
+
+        {/* Author info */}
+        <div className="flex items-center mb-2">
+          <div className="w-8 h-8 rounded-full overflow-hidden bg-pink-100 mr-2 relative">
+            <img
+              src={author?.avatar || "/placeholder.svg?height=32&width=32"}
+              alt={author?.name || "Creator"}
+              className="w-full h-full object-cover"
+            />
+            {author?.verified && (
+              <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5">
+                <CheckCircle2 className="h-3 w-3 text-pink-500" />
+              </div>
+            )}
+          </div>
+          <div>
+            <div className="flex items-center">
+              <p className="text-sm font-medium text-gray-700">{author?.name || "Unknown creator"}</p>
+              {author?.verified && <CheckCircle2 className="h-3 w-3 text-pink-500 ml-1" />}
+            </div>
+            <div className="flex items-center text-xs text-gray-500">
+              <span>{formatNumber(video.views)} views</span>
+              <span className="mx-1">•</span>
+              <span>{formatTimeAgo(video.publishedAt)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Description */}
+        <p className={`text-sm text-gray-600 mb-3 ${isExpanded ? "" : "line-clamp-2"}`}>{video.description}</p>
+
+        {/* Expand/collapse button */}
+        <button className="text-xs text-pink-600 hover:text-pink-800 flex items-center mb-3" onClick={onToggleExpand}>
+          {isExpanded ? (
+            <>
+              <ChevronUp className="h-3 w-3 mr-1" />
+              <span>Show less</span>
+            </>
+          ) : (
+            <>
+              <ChevronDown className="h-3 w-3 mr-1" />
+              <span>Show more</span>
+            </>
+          )}
+        </button>
+
+        {/* Tags */}
+        {isExpanded && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {video.tags.map((tag) => (
+              <Badge key={tag} variant="outline" className="text-xs bg-pink-50 text-pink-700 border-pink-200">
+                #{tag}
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        {/* Product info */}
+        {isExpanded && video.products && video.products.length > 0 && (
+          <div className="bg-pink-50 rounded-lg p-3 mb-3 text-xs">
+            <h4 className="font-medium text-pink-800 mb-1">Featured Products</h4>
+            <div className="space-y-2">
+              {video.products.slice(0, 3).map((product, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <ShoppingBag className="h-3 w-3 text-pink-600 mr-1" />
+                    <span className="text-gray-700">{product.name}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-pink-700 font-medium">${product.price}</span>
+                  </div>
+                </div>
+              ))}
+              {video.products.length > 3 && (
+                <div className="text-pink-600 text-center mt-1">+{video.products.length - 3} more products</div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Engagement stats */}
+        <div className="flex justify-between items-center mt-auto pt-2 border-t border-gray-100">
+          <div className="flex items-center gap-3">
+            <button className="flex items-center text-gray-600 hover:text-pink-600">
+              <Heart className="h-4 w-4 mr-1" />
+              <span className="text-xs">{formatNumber(video.likes)}</span>
+            </button>
+            <button className="flex items-center text-gray-600 hover:text-pink-600">
+              <MessageCircle className="h-4 w-4 mr-1" />
+              <span className="text-xs">{formatNumber(video.comments.length)}</span>
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="text-gray-600 hover:text-pink-600">
+              <Share2 className="h-4 w-4" />
+            </button>
+            <button className="text-gray-600 hover:text-pink-600">
+              <Bookmark className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+// Video Detail View Component
+function VideoDetailView({ videoId, onClose }: { videoId: string; onClose: () => void }) {
+  const video = getVideoById(videoId)
+  const author = video ? getAuthorById(video.authorId) : undefined
+  const category = video ? getCategoryById(video.categoryId) : undefined
+
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
+  const [volume, setVolume] = useState(1)
+  const [progress, setProgress] = useState(0)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  // Handle play/pause
+  const togglePlay = () => {
+    if (!videoRef.current) return
+
+    if (videoRef.current.paused) {
+      videoRef.current.play()
+      setIsPlaying(true)
     } else {
-      videoElement.pause()
-      setIsPlaying((prev) => ({ ...prev, [id]: false }))
+      videoRef.current.pause()
+      setIsPlaying(false)
     }
   }
 
-  // Handle tutorial click
-  const handleTutorialClick = (tutorial: any) => {
-    setSelectedTutorial(tutorial)
+  // Handle mute/unmute
+  const toggleMute = () => {
+    if (!videoRef.current) return
+
+    const newMutedState = !isMuted
+    videoRef.current.muted = newMutedState
+    setIsMuted(newMutedState)
   }
 
-  // Handle celebrity click
-  const handleCelebrityClick = (celebrity: any) => {
-    setSelectedCelebrity(celebrity)
+  // Handle volume change
+  const handleVolumeChange = (value: number[]) => {
+    if (!videoRef.current) return
+
+    const newVolume = value[0]
+    videoRef.current.volume = newVolume
+    setVolume(newVolume)
+
+    if (newVolume === 0) {
+      setIsMuted(true)
+      videoRef.current.muted = true
+    } else if (isMuted) {
+      setIsMuted(false)
+      videoRef.current.muted = false
+    }
   }
 
-  // Handle live stream click
-  const handleLiveStreamClick = (stream: any) => {
-    setSelectedLiveStream(stream)
-    setIsLiveModalOpen(true)
+  // Update progress bar
+  const handleTimeUpdate = () => {
+    if (!videoRef.current) return
+
+    const progress = (videoRef.current.currentTime / videoRef.current.duration) * 100
+    setProgress(progress)
   }
 
-  // Categories for filtering
-  const categories = [
-    { id: "all", name: "All Tutorials" },
-    { id: "skincare", name: "Skincare" },
-    { id: "makeup", name: "Makeup" },
-    { id: "haircare", name: "Hair Care" },
-    { id: "nailcare", name: "Nail Care" },
-    { id: "bodycare", name: "Body Care" },
-  ]
+  // Seek in video
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!videoRef.current) return
 
-  // Tutorial skeleton component
-  const TutorialSkeleton = () => (
-    <div className="h-full">
-      <Card className="h-full overflow-hidden border-pink-100">
-        <div className="relative h-64 bg-pink-50">
-          <Skeleton className="h-full w-full" />
-        </div>
-        <CardContent className="p-4">
-          <div className="flex items-center mb-2">
-            <Skeleton className="h-8 w-8 rounded-full mr-2" />
-            <div className="space-y-1">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-3 w-16" />
-            </div>
-          </div>
-          <Skeleton className="h-5 w-full mb-1" />
-          <Skeleton className="h-5 w-3/4 mb-3" />
-          <div className="mb-3">
-            <Skeleton className="h-3 w-32 mb-1" />
-            <div className="flex flex-wrap gap-1">
-              <Skeleton className="h-5 w-16 rounded-full" />
-              <Skeleton className="h-5 w-20 rounded-full" />
-              <Skeleton className="h-5 w-14 rounded-full" />
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <Skeleton className="h-3 w-16" />
-            <Skeleton className="h-3 w-20" />
-          </div>
-        </CardContent>
-        <CardFooter className="p-4 pt-0 flex justify-between">
-          <Skeleton className="h-9 w-20" />
-          <Skeleton className="h-9 w-28" />
-        </CardFooter>
-      </Card>
-    </div>
-  )
+    const progressBar = e.currentTarget
+    const rect = progressBar.getBoundingClientRect()
+    const pos = (e.clientX - rect.left) / rect.width
+
+    videoRef.current.currentTime = pos * videoRef.current.duration
+  }
+
+  // Auto-play video when component mounts
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {
+        // Auto-play was prevented, show play button
+        setIsPlaying(false)
+      })
+    }
+
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.pause()
+      }
+    }
+  }, [videoId])
+
+  if (!video) return null
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
-      {/* Header */}
-      <div className="relative bg-gradient-to-r from-pink-500 to-purple-600 py-16">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-pink-300 rounded-full filter blur-3xl opacity-30"></div>
-          <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-purple-300 rounded-full filter blur-3xl opacity-30"></div>
-        </div>
+    <div className="bg-white overflow-hidden">
+      {/* Video player */}
+      <div className="relative bg-black">
+        <video
+          ref={videoRef}
+          src={video.videoUrl}
+          poster={video.thumbnailUrl}
+          className="w-full aspect-video object-contain"
+          onTimeUpdate={handleTimeUpdate}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          onEnded={() => setIsPlaying(false)}
+          onClick={togglePlay}
+        />
 
-        <div className="container mx-auto px-4 relative z-10">
-          <Link href="/beauty-and-massage/shop" className="flex items-center text-white mb-4 hover:underline">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Beauty Shop
-          </Link>
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">Beauty Tutorials & Demonstrations</h1>
-          <p className="text-pink-100 max-w-2xl text-lg">
-            Watch expert tutorials, celebrity beauty routines, and live demonstrations to get the most out of your
-            beauty products.
-          </p>
-        </div>
-      </div>
-
-      {/* Search and filters */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col md:flex-row gap-4 items-center">
-          <div className="relative flex-1">
-            <Input
-              type="text"
-              placeholder="Search tutorials, creators, or products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 rounded-full border-pink-200 focus:border-pink-500 focus:ring-pink-500"
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-pink-400" />
-          </div>
-          <Button
-            onClick={() => setShowFilters(!showFilters)}
-            variant="outline"
-            className="flex items-center gap-2 border-pink-200 hover:bg-pink-50"
+        {/* Video controls overlay */}
+        <div
+          className={`absolute inset-0 bg-black/30 flex items-center justify-center transition-opacity ${isPlaying ? "opacity-0 hover:opacity-100" : "opacity-100"}`}
+        >
+          <button
+            className="bg-pink-500/90 hover:bg-pink-600/90 text-white rounded-full p-4 transform transition-transform hover:scale-110"
+            onClick={(e) => {
+              e.stopPropagation()
+              togglePlay()
+            }}
           >
-            <Filter className="h-4 w-4 text-pink-500" />
-            <span>Categories</span>
-          </Button>
+            {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
+          </button>
         </div>
 
-        {/* Category filters */}
-        <AnimatePresence>
-          {showFilters && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden mt-4"
-            >
-              <div className="flex flex-wrap gap-2 py-4">
-                {categories.map((category) => (
-                  <Button
-                    key={category.id}
-                    variant="outline"
-                    size="sm"
-                    className={cn(
-                      "rounded-full border-pink-200 hover:bg-pink-50",
-                      activeCategory === category.id && "bg-pink-100 border-pink-300 text-pink-700",
-                    )}
-                    onClick={() => setActiveCategory(category.id)}
-                  >
-                    {category.name}
-                  </Button>
-                ))}
+        {/* Bottom controls */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+          {/* Progress bar */}
+          <div className="w-full h-1 bg-white/30 rounded-full mb-4 cursor-pointer" onClick={handleSeek}>
+            <div className="h-full bg-pink-500 rounded-full" style={{ width: `${progress}%` }}></div>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <button className="text-white hover:text-pink-300" onClick={togglePlay}>
+                {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+              </button>
+
+              <button className="text-white hover:text-pink-300" onClick={toggleMute}>
+                {isMuted ? <VolumeX className="h-6 w-6" /> : <Volume2 className="h-6 w-6" />}
+              </button>
+
+              <div className="w-24 hidden sm:block">
+                <Slider
+                  value={[volume]}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onValueChange={handleVolumeChange}
+                  className="cursor-pointer"
+                />
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+
+              <span className="text-white text-sm">{formatDuration(video.duration)}</span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button className="text-white hover:text-pink-300">
+                <Heart className="h-6 w-6" />
+              </button>
+              <button className="text-white hover:text-pink-300">
+                <Share2 className="h-6 w-6" />
+              </button>
+              <button className="text-white hover:text-pink-300">
+                <Bookmark className="h-6 w-6" />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Main content */}
-      <div className="container mx-auto px-4 py-6">
-        <Tabs defaultValue="featured" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-white p-1 rounded-xl mb-6 flex flex-nowrap overflow-x-auto hide-scrollbar border border-pink-100 shadow-sm">
+      {/* Video info */}
+      <div className="p-6">
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">{video.title}</h1>
+
+        <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
+          <div className="flex items-center">
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-pink-100 mr-3 relative">
+              <img
+                src={author?.avatar || "/placeholder.svg?height=48&width=48"}
+                alt={author?.name || "Creator"}
+                className="w-full h-full object-cover"
+              />
+              {author?.verified && (
+                <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5">
+                  <CheckCircle2 className="h-4 w-4 text-pink-500" />
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="flex items-center">
+                <p className="font-medium text-gray-800">{author?.name || "Unknown creator"}</p>
+                {author?.verified && <CheckCircle2 className="h-4 w-4 text-pink-500 ml-1" />}
+              </div>
+              <p className="text-sm text-gray-500">{formatNumber(author?.followers || 0)} followers</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white">
+              Follow
+            </Button>
+            <Button variant="outline" className="border-pink-300 text-pink-700 hover:bg-pink-100">
+              Visit Website
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Badge className="bg-pink-100 text-pink-800 border-pink-200">{category?.name || video.categoryId}</Badge>
+
+          <Badge variant="outline" className="border-pink-200 text-pink-700">
+            {formatNumber(video.views)} views
+          </Badge>
+
+          <Badge variant="outline" className="border-pink-200 text-pink-700">
+            {formatTimeAgo(video.publishedAt)}
+          </Badge>
+        </div>
+
+        <div className="mb-6">
+          <h2 className="font-medium text-gray-800 mb-2">Description</h2>
+          <p className="text-gray-700 whitespace-pre-line">{video.description}</p>
+        </div>
+
+        {/* Product information */}
+        {video.products && video.products.length > 0 && (
+          <div className="bg-pink-50 rounded-lg p-4 mb-6">
+            <h2 className="font-medium text-pink-800 mb-3 flex items-center">
+              <ShoppingBag className="h-5 w-5 mr-2" />
+              Featured Products
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {video.products.map((product, index) => (
+                <div key={index} className="flex items-start bg-white p-3 rounded-lg border border-pink-100">
+                  <div className="w-16 h-16 rounded-md overflow-hidden bg-pink-100 mr-3 flex-shrink-0">
+                    <img
+                      src={product.image || "/placeholder.svg?height=64&width=64"}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-grow">
+                    <h3 className="font-medium text-gray-800">{product.name}</h3>
+                    <p className="text-sm text-gray-600 mb-1">{product.brand}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Star className="h-3 w-3 text-yellow-500 mr-1" />
+                        <span className="text-sm text-gray-600">{product.rating}</span>
+                      </div>
+                      <span className="font-medium text-pink-700">${product.price}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tags */}
+        <div className="mb-6">
+          <h2 className="font-medium text-gray-800 mb-2">Tags</h2>
+          <div className="flex flex-wrap gap-2">
+            {video.tags.map((tag) => (
+              <Badge
+                key={tag}
+                variant="outline"
+                className="text-pink-700 border-pink-200 hover:bg-pink-50 cursor-pointer"
+              >
+                #{tag}
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        {/* Comments */}
+        <div>
+          <h2 className="font-medium text-gray-800 mb-4">Comments ({video.comments.length})</h2>
+
+          <div className="space-y-4">
+            {video.comments.map((comment) => (
+              <div key={comment.id} className="flex gap-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-pink-100 flex-shrink-0">
+                  <img
+                    src={comment.author.avatar || "/placeholder.svg"}
+                    alt={comment.author.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="font-medium text-gray-800">{comment.author.name}</p>
+                    {comment.author.verified && <CheckCircle2 className="h-3 w-3 text-pink-500" />}
+                    <span className="text-xs text-gray-500">{formatTimeAgo(comment.timestamp)}</span>
+                  </div>
+                  <p className="text-gray-700">{comment.content}</p>
+                  <div className="flex items-center gap-3 mt-2">
+                    <button className="text-xs text-gray-500 hover:text-pink-600 flex items-center gap-1">
+                      <Heart className="h-3 w-3" />
+                      <span>{comment.likes}</span>
+                    </button>
+                    <button className="text-xs text-gray-500 hover:text-pink-600">Reply</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Comment input */}
+          <div className="mt-6 flex gap-3">
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-pink-100 flex-shrink-0">
+              <img
+                src="/placeholder.svg?height=40&width=40&text=You"
+                alt="Your avatar"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="flex-grow">
+              <Input
+                placeholder="Add a comment..."
+                className="border-pink-200 focus:border-pink-400 focus:ring-pink-400"
+              />
+              <div className="flex justify-end mt-2">
+                <Button className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white">
+                  Comment
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function BeautyMediaPage() {
+  // State for videos and filtering
+  const [videos, setVideos] = useState<BeautyVideo[]>(beautyVideos)
+  const [filteredVideos, setFilteredVideos] = useState<BeautyVideo[]>(beautyVideos)
+  const [activeCategory, setActiveCategory] = useState<string>("all")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
+  const [showScrollToTop, setShowScrollToTop] = useState(false)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [sortOption, setSortOption] = useState<"popular" | "recent" | "trending">("popular")
+
+  // State for video playback
+  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null)
+  const [isMuted, setIsMuted] = useState(true)
+  const [expandedVideoId, setExpandedVideoId] = useState<string | null>(null)
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null)
+
+  // State for infinite scroll
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+  const videosPerPage = 8
+  const observerTarget = useRef<HTMLDivElement>(null)
+
+  // Refs for video elements
+  const videoRefs = useRef<{ [key: string]: HTMLVideoElement }>({})
+
+  // Filter videos based on active category and search query
+  useEffect(() => {
+    let results = [...beautyVideos]
+
+    // Filter by category
+    if (activeCategory !== "all") {
+      results = results.filter((video) => video.categoryId === activeCategory)
+    }
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      results = searchVideos(searchQuery)
+    }
+
+    // Sort videos
+    if (sortOption === "recent") {
+      results.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+    } else if (sortOption === "popular") {
+      results.sort((a, b) => b.views - a.views)
+    } else if (sortOption === "trending") {
+      results = results.filter((video) => video.trending).concat(results.filter((video) => !video.trending))
+    }
+
+    setFilteredVideos(results)
+    setPage(1) // Reset pagination when filters change
+    setVideos(results.slice(0, videosPerPage))
+    setHasMore(results.length > videosPerPage)
+  }, [activeCategory, searchQuery, sortOption])
+
+  // Handle infinite scrolling
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoading) {
+          loadMoreVideos()
+        }
+      },
+      { threshold: 0.1 },
+    )
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current)
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current)
+      }
+    }
+  }, [hasMore, isLoading, filteredVideos])
+
+  // Load more videos for infinite scrolling
+  const loadMoreVideos = useCallback(() => {
+    if (isLoading) return
+
+    setIsLoading(true)
+
+    // Simulate loading delay
+    setTimeout(() => {
+      const nextPage = page + 1
+      const startIndex = page * videosPerPage
+      const endIndex = nextPage * videosPerPage
+      const nextVideos = filteredVideos.slice(startIndex, endIndex)
+
+      if (nextVideos.length > 0) {
+        setVideos((prevVideos) => [...prevVideos, ...nextVideos])
+        setPage(nextPage)
+        setHasMore(endIndex < filteredVideos.length)
+      } else {
+        setHasMore(false)
+      }
+
+      setIsLoading(false)
+    }, 800)
+  }, [page, filteredVideos, isLoading])
+
+  // Handle scroll events for showing scroll-to-top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollToTop(window.scrollY > 500)
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  // Scroll to top function
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
+  // Handle video playback
+  const handleVideoPlay = (videoId: string) => {
+    // Pause currently playing video if different
+    if (playingVideoId && playingVideoId !== videoId && videoRefs.current[playingVideoId]) {
+      videoRefs.current[playingVideoId].pause()
+    }
+
+    // Play the new video
+    if (videoRefs.current[videoId]) {
+      const videoElement = videoRefs.current[videoId]
+
+      if (videoElement.paused) {
+        videoElement.play()
+        setPlayingVideoId(videoId)
+      } else {
+        videoElement.pause()
+        setPlayingVideoId(null)
+      }
+    }
+  }
+
+  // Toggle mute for all videos
+  const toggleMute = () => {
+    const newMutedState = !isMuted
+    setIsMuted(newMutedState)
+
+    // Apply to all video elements
+    Object.values(videoRefs.current).forEach((video) => {
+      video.muted = newMutedState
+    })
+  }
+
+  // Toggle video info expansion
+  const toggleVideoExpansion = (videoId: string) => {
+    setExpandedVideoId(expandedVideoId === videoId ? null : videoId)
+  }
+
+  // Handle video selection for detailed view
+  const handleVideoSelect = (videoId: string) => {
+    setSelectedVideoId(videoId)
+
+    // Pause the playing video if it exists
+    if (playingVideoId && videoRefs.current[playingVideoId]) {
+      videoRefs.current[playingVideoId].pause()
+      setPlayingVideoId(null)
+    }
+  }
+
+  // Close detailed view
+  const handleCloseDetailView = () => {
+    setSelectedVideoId(null)
+  }
+
+  // Set up video observers for autoplay when in viewport
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: "0px",
+      threshold: 0.7,
+    }
+
+    const videoObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const videoId = entry.target.id
+
+        if (entry.isIntersecting) {
+          // Only autoplay if no other video is currently playing
+          if (!playingVideoId && videoRefs.current[videoId]) {
+            videoRefs.current[videoId].play()
+            setPlayingVideoId(videoId)
+          }
+        } else {
+          // Pause when out of view
+          if (videoRefs.current[videoId] && !videoRefs.current[videoId].paused) {
+            videoRefs.current[videoId].pause()
+            if (playingVideoId === videoId) {
+              setPlayingVideoId(null)
+            }
+          }
+        }
+      })
+    }, options)
+
+    // Observe all video elements
+    Object.keys(videoRefs.current).forEach((videoId) => {
+      if (videoRefs.current[videoId]) {
+        videoObserver.observe(videoRefs.current[videoId])
+      }
+    })
+
+    return () => {
+      // Cleanup
+      Object.keys(videoRefs.current).forEach((videoId) => {
+        if (videoRefs.current[videoId]) {
+          videoObserver.unobserve(videoRefs.current[videoId])
+        }
+      })
+    }
+  }, [videos, playingVideoId])
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-pink-100">
+      {/* Decorative elements */}
+      <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-r from-pink-500/10 to-purple-500/10 -z-10"></div>
+      <div className="absolute bottom-0 right-0 w-full h-64 bg-gradient-to-l from-pink-500/10 to-purple-500/10 -z-10"></div>
+
+      <div className="container mx-auto px-4 py-8 max-w-[1920px] relative z-10">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <motion.h1
+            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-pink-600 via-purple-600 to-pink-600 text-transparent bg-clip-text"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            Beauty Video Showcase
+          </motion.h1>
+
+          <motion.p
+            className="text-xl text-pink-800 max-w-3xl mx-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            Discover amazing beauty tutorials, celebrity routines, and product demonstrations
+          </motion.p>
+        </div>
+
+        {/* Search and filter bar */}
+        <div className="mb-8 bg-white bg-opacity-80 backdrop-blur-sm rounded-xl shadow-lg p-4 border border-pink-100">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-grow">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" />
+              <Input
+                type="text"
+                placeholder="Search for tutorials, products, or techniques..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setIsSearchFocused(false)}
+                className="pl-10 pr-10 py-6 rounded-lg border-2 border-pink-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-400 bg-white text-gray-800 placeholder-gray-400 text-lg"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="border-pink-300 text-pink-700 hover:bg-pink-100"
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+              >
+                <Filter className="h-5 w-5 mr-2" />
+                Filters
+              </Button>
+
+              <select
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value as "popular" | "recent" | "trending")}
+                className="px-4 py-2 rounded-lg border-2 border-pink-300 bg-white text-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-400"
+              >
+                <option value="popular">Most Popular</option>
+                <option value="recent">Most Recent</option>
+                <option value="trending">Trending</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Filter panel */}
+          <AnimatePresence>
+            {isFilterOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden mt-4 pt-4 border-t border-pink-200"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Duration filter */}
+                  <div>
+                    <h3 className="font-medium text-pink-800 mb-2">Video Duration</h3>
+                    <div className="space-y-2">
+                      <label className="flex items-center">
+                        <input type="checkbox" className="rounded text-pink-600 focus:ring-pink-500" />
+                        <span className="ml-2 text-gray-700">Short (&lt; 5 min)</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input type="checkbox" className="rounded text-pink-600 focus:ring-pink-500" />
+                        <span className="ml-2 text-gray-700">Medium (5-15 min)</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input type="checkbox" className="rounded text-pink-600 focus:ring-pink-500" />
+                        <span className="ml-2 text-gray-700">Long (&gt; 15 min)</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Product type filter */}
+                  <div>
+                    <h3 className="font-medium text-pink-800 mb-2">Product Type</h3>
+                    <div className="space-y-2">
+                      <label className="flex items-center">
+                        <input type="checkbox" className="rounded text-pink-600 focus:ring-pink-500" />
+                        <span className="ml-2 text-gray-700">Makeup</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input type="checkbox" className="rounded text-pink-600 focus:ring-pink-500" />
+                        <span className="ml-2 text-gray-700">Skincare</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input type="checkbox" className="rounded text-pink-600 focus:ring-pink-500" />
+                        <span className="ml-2 text-gray-700">Haircare</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Features filter */}
+                  <div>
+                    <h3 className="font-medium text-pink-800 mb-2">Features</h3>
+                    <div className="space-y-2">
+                      <label className="flex items-center">
+                        <input type="checkbox" className="rounded text-pink-600 focus:ring-pink-500" />
+                        <span className="ml-2 text-gray-700">Verified creators</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input type="checkbox" className="rounded text-pink-600 focus:ring-pink-500" />
+                        <span className="ml-2 text-gray-700">Product links</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input type="checkbox" className="rounded text-pink-600 focus:ring-pink-500" />
+                        <span className="ml-2 text-gray-700">Step-by-step</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex justify-end">
+                  <Button
+                    variant="outline"
+                    className="mr-2 border-pink-300 text-pink-700 hover:bg-pink-100"
+                    onClick={() => setIsFilterOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white"
+                    onClick={() => setIsFilterOpen(false)}
+                  >
+                    Apply Filters
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Category tabs */}
+        <Tabs defaultValue="all" value={activeCategory} onValueChange={setActiveCategory} className="mb-8">
+          <TabsList className="bg-white/70 p-1 rounded-xl mb-4 flex flex-nowrap overflow-x-auto hide-scrollbar">
             <TabsTrigger
-              value="featured"
-              className={`flex items-center gap-1.5 px-6 py-2 rounded-lg text-sm font-medium transition-all ${
-                activeTab === "featured" ? "bg-pink-500 text-white shadow-sm" : "text-gray-700 hover:bg-pink-50"
+              value="all"
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeCategory === "all" ? "bg-pink-500 text-white shadow-sm" : "text-pink-800 hover:bg-pink-100"
               }`}
             >
               <Sparkles className="h-4 w-4" />
-              <span>Featured Tutorials</span>
+              <span>All Videos</span>
             </TabsTrigger>
+
             <TabsTrigger
-              value="live"
-              className={`flex items-center gap-1.5 px-6 py-2 rounded-lg text-sm font-medium transition-all ${
-                activeTab === "live" ? "bg-pink-500 text-white shadow-sm" : "text-gray-700 hover:bg-pink-50"
+              value="tutorials"
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeCategory === "tutorials" ? "bg-pink-500 text-white shadow-sm" : "text-pink-800 hover:bg-pink-100"
               }`}
             >
-              <Play className="h-4 w-4" />
-              <span>Live Demonstrations</span>
+              <Palette className="h-4 w-4" />
+              <span>Tutorials</span>
             </TabsTrigger>
+
             <TabsTrigger
               value="celebrity"
-              className={`flex items-center gap-1.5 px-6 py-2 rounded-lg text-sm font-medium transition-all ${
-                activeTab === "celebrity" ? "bg-pink-500 text-white shadow-sm" : "text-gray-700 hover:bg-pink-50"
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeCategory === "celebrity" ? "bg-pink-500 text-white shadow-sm" : "text-pink-800 hover:bg-pink-100"
               }`}
             >
               <Star className="h-4 w-4" />
               <span>Celebrity Routines</span>
             </TabsTrigger>
+
             <TabsTrigger
-              value="previous"
-              className={`flex items-center gap-1.5 px-6 py-2 rounded-lg text-sm font-medium transition-all ${
-                activeTab === "previous" ? "bg-pink-500 text-white shadow-sm" : "text-gray-700 hover:bg-pink-50"
+              value="demonstrations"
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeCategory === "demonstrations"
+                  ? "bg-pink-500 text-white shadow-sm"
+                  : "text-pink-800 hover:bg-pink-100"
               }`}
             >
-              <Clock className="h-4 w-4" />
-              <span>Previous Tutorials</span>
+              <Zap className="h-4 w-4" />
+              <span>Live Demonstrations</span>
             </TabsTrigger>
+
+            {videoCategories
+              .filter((c) => !["tutorials", "celebrity", "demonstrations"].includes(c.id))
+              .map((category) => (
+                <TabsTrigger
+                  key={category.id}
+                  value={category.id}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    activeCategory === category.id
+                      ? "bg-pink-500 text-white shadow-sm"
+                      : "text-pink-800 hover:bg-pink-100"
+                  }`}
+                >
+                  {getCategoryIcon(category.id)}
+                  <span>{category.name}</span>
+                </TabsTrigger>
+              ))}
           </TabsList>
-
-          {/* Featured Tutorials Tab */}
-          <TabsContent value="featured" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Display loaded tutorials */}
-              {displayTutorials.map((tutorial) => (
-                <motion.div
-                  key={tutorial.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                  className="h-full"
-                >
-                  <Card className="h-full overflow-hidden border-pink-100 hover:border-pink-300 hover:shadow-md transition-all duration-300">
-                    <div
-                      className="relative h-64 bg-pink-50 cursor-pointer"
-                      onClick={() => handleTutorialClick(tutorial)}
-                    >
-                      <div className="absolute inset-0 overflow-hidden">
-                        <video
-                          ref={(el) => (videoRefs.current[tutorial.id] = el)}
-                          src={tutorial.videoUrl}
-                          poster={tutorial.thumbnailUrl}
-                          className="w-full h-full object-cover"
-                          loop
-                          muted
-                          playsInline
-                          onEnded={() => setIsPlaying((prev) => ({ ...prev, [tutorial.id]: false }))}
-                        />
-                      </div>
-
-                      {/* Play/Pause button */}
-                      <div
-                        className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 hover:bg-opacity-30 transition-all duration-300"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          togglePlay(tutorial.id)
-                        }}
-                      >
-                        <div className="w-14 h-14 rounded-full bg-white bg-opacity-80 flex items-center justify-center">
-                          {isPlaying[tutorial.id] ? (
-                            <Pause className="h-6 w-6 text-pink-600" />
-                          ) : (
-                            <Play className="h-6 w-6 text-pink-600 ml-1" />
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Duration badge */}
-                      <div className="absolute bottom-2 right-2">
-                        <Badge className="bg-black bg-opacity-70 text-white border-0">{tutorial.duration}</Badge>
-                      </div>
-
-                      {/* Category badge */}
-                      <div className="absolute top-2 left-2">
-                        <Badge className="bg-pink-500 hover:bg-pink-600 text-white">
-                          {tutorial.category.charAt(0).toUpperCase() + tutorial.category.slice(1)}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <CardContent className="p-4">
-                      <div className="flex items-center mb-2">
-                        <Avatar className="h-8 w-8 mr-2">
-                          <AvatarImage
-                            src={tutorial.creator.avatarUrl || "/placeholder.svg"}
-                            alt={tutorial.creator.name}
-                          />
-                          <AvatarFallback>{tutorial.creator.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-medium text-gray-800">{tutorial.creator.name}</p>
-                          <p className="text-xs text-gray-500">{tutorial.creator.followers} followers</p>
-                        </div>
-                      </div>
-
-                      <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2">{tutorial.title}</h3>
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{tutorial.description}</p>
-
-                      {/* Featured products */}
-                      {tutorial.products.length > 0 && (
-                        <div className="mb-3">
-                          <p className="text-xs font-medium text-gray-700 mb-1">Featured Products:</p>
-                          <div className="flex flex-wrap gap-1">
-                            {tutorial.products.slice(0, 3).map((product) => (
-                              <Badge
-                                key={product.id}
-                                variant="outline"
-                                className="text-xs border-pink-200 text-pink-700"
-                              >
-                                {product.name}
-                              </Badge>
-                            ))}
-                            {tutorial.products.length > 3 && (
-                              <Badge variant="outline" className="text-xs border-pink-200 text-pink-700">
-                                +{tutorial.products.length - 3} more
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Stats */}
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <div className="flex items-center">
-                          <Eye className="h-3 w-3 mr-1" />
-                          <span>{tutorial.views} views</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          <span>{tutorial.publishedAt}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-
-                    <CardFooter className="p-4 pt-0 flex justify-between">
-                      <Button variant="outline" size="sm" className="border-pink-200 text-pink-600 hover:bg-pink-50">
-                        <Heart className="h-4 w-4 mr-1" />
-                        <span>Save</span>
-                      </Button>
-
-                      <Button
-                        size="sm"
-                        className="bg-pink-500 hover:bg-pink-600 text-white"
-                        onClick={() => handleTutorialClick(tutorial)}
-                      >
-                        <Play className="h-4 w-4 mr-1" />
-                        <span>Watch Now</span>
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </motion.div>
-              ))}
-
-              {/* Skeleton loaders */}
-              {loadingTutorials && (
-                <>
-                  {Array(3)
-                    .fill(0)
-                    .map((_, index) => (
-                      <TutorialSkeleton key={`skeleton-${index}`} />
-                    ))}
-                </>
-              )}
-            </div>
-
-            {/* Load more button */}
-            {displayTutorials.length > 0 && displayTutorials.length < filteredTutorials.length && (
-              <div className="flex justify-center mt-8">
-                <Button
-                  onClick={handleLoadMore}
-                  disabled={loadingTutorials}
-                  className="bg-pink-500 hover:bg-pink-600 text-white"
-                >
-                  {loadingTutorials ? "Loading..." : "Load More Tutorials"}
-                </Button>
-              </div>
-            )}
-
-            {filteredTutorials.length === 0 && !loadingTutorials && (
-              <div className="text-center py-12">
-                <div className="mx-auto w-16 h-16 mb-4 bg-pink-100 rounded-full flex items-center justify-center">
-                  <Search className="h-8 w-8 text-pink-500" />
-                </div>
-                <h3 className="text-xl font-medium text-gray-800 mb-2">No tutorials found</h3>
-                <p className="text-gray-600 max-w-md mx-auto">
-                  We couldn't find any tutorials matching your criteria. Try adjusting your filters or search term.
-                </p>
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Live Demonstrations Tab */}
-          <TabsContent value="live" className="mt-0">
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                <div className="w-3 h-3 bg-red-500 rounded-full mr-2 animate-pulse"></div>
-                Live Now
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {liveBeautyStreams
-                  .filter((stream) => stream.isLive)
-                  .map((stream) => (
-                    <motion.div
-                      key={stream.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                      whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                      className="h-full"
-                    >
-                      <Card className="h-full overflow-hidden border-pink-100 hover:border-pink-300 hover:shadow-md transition-all duration-300">
-                        <div
-                          className="relative h-64 bg-pink-50 cursor-pointer"
-                          onClick={() => handleLiveStreamClick(stream)}
-                        >
-                          <Image
-                            src={stream.thumbnailUrl || "/placeholder.svg"}
-                            alt={stream.title}
-                            layout="fill"
-                            objectFit="cover"
-                            className="transition-transform duration-300 hover:scale-105"
-                          />
-
-                          {/* Live badge */}
-                          <div className="absolute top-2 left-2 flex items-center">
-                            <Badge className="bg-red-500 hover:bg-red-600 text-white flex items-center">
-                              <div className="w-2 h-2 bg-white rounded-full mr-1 animate-pulse"></div>
-                              <span>LIVE</span>
-                            </Badge>
-                          </div>
-
-                          {/* Viewers count */}
-                          <div className="absolute top-2 right-2">
-                            <Badge className="bg-black bg-opacity-70 text-white border-0 flex items-center">
-                              <Users className="h-3 w-3 mr-1" />
-                              <span>{stream.viewerCount} watching</span>
-                            </Badge>
-                          </div>
-
-                          {/* Play button */}
-                          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 hover:bg-opacity-30 transition-all duration-300">
-                            <div className="w-14 h-14 rounded-full bg-white bg-opacity-80 flex items-center justify-center">
-                              <Play className="h-6 w-6 text-pink-600 ml-1" />
-                            </div>
-                          </div>
-                        </div>
-
-                        <CardContent className="p-4">
-                          <div className="flex items-center mb-2">
-                            <Avatar className="h-8 w-8 mr-2">
-                              <AvatarImage src={stream.host.avatarUrl || "/placeholder.svg"} alt={stream.host.name} />
-                              <AvatarFallback>{stream.host.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="text-sm font-medium text-gray-800">{stream.host.name}</p>
-                              <p className="text-xs text-gray-500">{stream.host.role}</p>
-                            </div>
-                          </div>
-
-                          <h3 className="font-semibold text-gray-800 mb-1">{stream.title}</h3>
-                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{stream.description}</p>
-
-                          {/* Featured products */}
-                          {stream.products.length > 0 && (
-                            <div className="mb-3">
-                              <p className="text-xs font-medium text-gray-700 mb-1">Products Being Demonstrated:</p>
-                              <div className="flex flex-wrap gap-1">
-                                {stream.products.slice(0, 2).map((product) => (
-                                  <Badge
-                                    key={product.id}
-                                    variant="outline"
-                                    className="text-xs border-pink-200 text-pink-700"
-                                  >
-                                    {product.name}
-                                  </Badge>
-                                ))}
-                                {stream.products.length > 2 && (
-                                  <Badge variant="outline" className="text-xs border-pink-200 text-pink-700">
-                                    +{stream.products.length - 2} more
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </CardContent>
-
-                        <CardFooter className="p-4 pt-0">
-                          <Button
-                            className="w-full bg-red-500 hover:bg-red-600 text-white"
-                            onClick={() => handleLiveStreamClick(stream)}
-                          >
-                            <Play className="h-4 w-4 mr-1" />
-                            <span>Join Live Stream</span>
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    </motion.div>
-                  ))}
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Upcoming Live Demonstrations</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {liveBeautyStreams
-                  .filter((stream) => !stream.isLive)
-                  .map((stream) => (
-                    <motion.div
-                      key={stream.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                      whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                      className="h-full"
-                    >
-                      <Card className="h-full overflow-hidden border-pink-100 hover:border-pink-300 hover:shadow-md transition-all duration-300">
-                        <div className="relative h-64 bg-pink-50">
-                          <Image
-                            src={stream.thumbnailUrl || "/placeholder.svg"}
-                            alt={stream.title}
-                            layout="fill"
-                            objectFit="cover"
-                            className="transition-transform duration-300 hover:scale-105 filter brightness-90"
-                          />
-
-                          {/* Upcoming badge */}
-                          <div className="absolute top-2 left-2">
-                            <Badge className="bg-purple-500 hover:bg-purple-600 text-white">Upcoming</Badge>
-                          </div>
-
-                          {/* Scheduled time */}
-                          <div className="absolute top-2 right-2">
-                            <Badge className="bg-black bg-opacity-70 text-white border-0 flex items-center">
-                              <Clock className="h-3 w-3 mr-1" />
-                              <span>{stream.scheduledFor}</span>
-                            </Badge>
-                          </div>
-                        </div>
-
-                        <CardContent className="p-4">
-                          <div className="flex items-center mb-2">
-                            <Avatar className="h-8 w-8 mr-2">
-                              <AvatarImage src={stream.host.avatarUrl || "/placeholder.svg"} alt={stream.host.name} />
-                              <AvatarFallback>{stream.host.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="text-sm font-medium text-gray-800">{stream.host.name}</p>
-                              <p className="text-xs text-gray-500">{stream.host.role}</p>
-                            </div>
-                          </div>
-
-                          <h3 className="font-semibold text-gray-800 mb-1">{stream.title}</h3>
-                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{stream.description}</p>
-
-                          {/* Featured products */}
-                          {stream.products.length > 0 && (
-                            <div className="mb-3">
-                              <p className="text-xs font-medium text-gray-700 mb-1">Products To Be Demonstrated:</p>
-                              <div className="flex flex-wrap gap-1">
-                                {stream.products.slice(0, 2).map((product) => (
-                                  <Badge
-                                    key={product.id}
-                                    variant="outline"
-                                    className="text-xs border-pink-200 text-pink-700"
-                                  >
-                                    {product.name}
-                                  </Badge>
-                                ))}
-                                {stream.products.length > 2 && (
-                                  <Badge variant="outline" className="text-xs border-pink-200 text-pink-700">
-                                    +{stream.products.length - 2} more
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </CardContent>
-
-                        <CardFooter className="p-4 pt-0">
-                          <Button
-                            variant="outline"
-                            className="w-full border-purple-200 text-purple-600 hover:bg-purple-50"
-                          >
-                            <Calendar className="h-4 w-4 mr-1" />
-                            <span>Set Reminder</span>
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    </motion.div>
-                  ))}
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Celebrity Routines Tab */}
-          <TabsContent value="celebrity" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {celebrityRoutines.map((celebrity) => (
-                <motion.div
-                  key={celebrity.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                  className="h-full"
-                >
-                  <Card className="h-full overflow-hidden border-pink-100 hover:border-pink-300 hover:shadow-md transition-all duration-300">
-                    <div
-                      className="relative h-80 bg-pink-50 cursor-pointer"
-                      onClick={() => handleCelebrityClick(celebrity)}
-                    >
-                      <Image
-                        src={celebrity.coverImageUrl || "/placeholder.svg"}
-                        alt={celebrity.name}
-                        layout="fill"
-                        objectFit="cover"
-                        className="transition-transform duration-300 hover:scale-105"
-                      />
-
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
-
-                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                        <div className="flex items-center mb-2">
-                          <Avatar className="h-12 w-12 border-2 border-white">
-                            <AvatarImage src={celebrity.avatarUrl || "/placeholder.svg"} alt={celebrity.name} />
-                            <AvatarFallback>{celebrity.name.charAt(0)}</AvatarFallback>
-                          </Avatar>
-                          <div className="ml-3">
-                            <h3 className="text-xl font-bold">{celebrity.name}</h3>
-                            <p className="text-sm text-gray-200">{celebrity.profession}</p>
-                          </div>
-                        </div>
-
-                        <p className="text-sm text-gray-200 line-clamp-2">{celebrity.bio}</p>
-                      </div>
-
-                      {/* Verified badge */}
-                      {celebrity.isVerified && (
-                        <div className="absolute top-2 right-2">
-                          <Badge className="bg-blue-500 hover:bg-blue-600 text-white flex items-center">
-                            <Award className="h-3 w-3 mr-1" />
-                            <span>Verified</span>
-                          </Badge>
-                        </div>
-                      )}
-                    </div>
-
-                    <CardContent className="p-4">
-                      <h4 className="font-medium text-gray-800 mb-2">Beauty Routine Highlights:</h4>
-                      <ul className="space-y-2 mb-4">
-                        {celebrity.routineHighlights.slice(0, 3).map((highlight, index) => (
-                          <li key={index} className="flex items-start">
-                            <ChevronRight className="h-4 w-4 text-pink-500 mt-0.5 mr-2 flex-shrink-0" />
-                            <span className="text-sm text-gray-700">{highlight}</span>
-                          </li>
-                        ))}
-                      </ul>
-
-                      {/* Featured products */}
-                      <div>
-                        <p className="text-xs font-medium text-gray-700 mb-2">Favorite Products:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {celebrity.favoriteProducts.slice(0, 3).map((product) => (
-                            <div key={product.id} className="flex items-center bg-pink-50 rounded-full px-3 py-1">
-                              <div className="w-6 h-6 rounded-full bg-white overflow-hidden mr-2">
-                                <Image
-                                  src={product.imageUrl || "/placeholder.svg"}
-                                  alt={product.name}
-                                  width={24}
-                                  height={24}
-                                  className="object-cover"
-                                />
-                              </div>
-                              <span className="text-xs text-pink-700">{product.name}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </CardContent>
-
-                    <CardFooter className="p-4 pt-0">
-                      <Button
-                        className="w-full bg-pink-500 hover:bg-pink-600 text-white"
-                        onClick={() => handleCelebrityClick(celebrity)}
-                      >
-                        <BookOpen className="h-4 w-4 mr-1" />
-                        <span>View Full Routine</span>
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* Previous Tutorials Tab */}
-          <TabsContent value="previous" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {previousTutorials.map((tutorial) => (
-                <motion.div
-                  key={tutorial.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                  className="h-full"
-                >
-                  <Card className="h-full overflow-hidden border-pink-100 hover:border-pink-300 hover:shadow-md transition-all duration-300">
-                    <div
-                      className="relative h-48 bg-pink-50 cursor-pointer"
-                      onClick={() => handleTutorialClick(tutorial)}
-                    >
-                      <Image
-                        src={tutorial.thumbnailUrl || "/placeholder.svg"}
-                        alt={tutorial.title}
-                        layout="fill"
-                        objectFit="cover"
-                        className="transition-transform duration-300 hover:scale-105"
-                      />
-
-                      {/* Play button */}
-                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 hover:bg-opacity-30 transition-all duration-300">
-                        <div className="w-12 h-12 rounded-full bg-white bg-opacity-80 flex items-center justify-center">
-                          <Play className="h-5 w-5 text-pink-600 ml-0.5" />
-                        </div>
-                      </div>
-
-                      {/* Duration badge */}
-                      <div className="absolute bottom-2 right-2">
-                        <Badge className="bg-black bg-opacity-70 text-white border-0">{tutorial.duration}</Badge>
-                      </div>
-
-                      {/* Category badge */}
-                      <div className="absolute top-2 left-2">
-                        <Badge className="bg-pink-500 hover:bg-pink-600 text-white">
-                          {tutorial.category.charAt(0).toUpperCase() + tutorial.category.slice(1)}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <CardContent className="p-4">
-                      <div className="flex items-center mb-2">
-                        <Avatar className="h-6 w-6 mr-2">
-                          <AvatarImage
-                            src={tutorial.creator.avatarUrl || "/placeholder.svg"}
-                            alt={tutorial.creator.name}
-                          />
-                          <AvatarFallback>{tutorial.creator.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <p className="text-xs font-medium text-gray-800">{tutorial.creator.name}</p>
-                      </div>
-
-                      <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2">{tutorial.title}</h3>
-                      <p className="text-xs text-gray-600 mb-3 line-clamp-2">{tutorial.description}</p>
-
-                      {/* Stats */}
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <div className="flex items-center">
-                          <Eye className="h-3 w-3 mr-1" />
-                          <span>{tutorial.views} views</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          <span>{tutorial.publishedAt}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-
-                    <CardFooter className="p-4 pt-0">
-                      <Button
-                        className="w-full bg-pink-500 hover:bg-pink-600 text-white"
-                        onClick={() => handleTutorialClick(tutorial)}
-                      >
-                        <Play className="h-4 w-4 mr-1" />
-                        <span>Watch Tutorial</span>
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </TabsContent>
         </Tabs>
+
+        {/* Video grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {videos.map((video) => (
+            <VideoCard
+              key={video.id}
+              video={video}
+              isPlaying={playingVideoId === video.id}
+              isMuted={isMuted}
+              isExpanded={expandedVideoId === video.id}
+              onPlay={() => handleVideoPlay(video.id)}
+              onToggleExpand={() => toggleVideoExpansion(video.id)}
+              onSelect={() => handleVideoSelect(video.id)}
+              videoRef={(el) => {
+                if (el) {
+                  videoRefs.current[video.id] = el
+                  el.muted = isMuted
+                }
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Loading indicator */}
+        {isLoading && (
+          <div className="flex justify-center items-center py-8">
+            <div className="flex flex-col items-center">
+              <div className="w-12 h-12 border-4 border-pink-200 border-t-pink-600 rounded-full animate-spin"></div>
+              <p className="mt-4 text-pink-800 font-medium">Loading more videos...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Observer target for infinite scroll */}
+        <div ref={observerTarget} className="h-4 mt-8"></div>
+
+        {/* No results message */}
+        {filteredVideos.length === 0 && (
+          <div className="bg-white bg-opacity-80 backdrop-blur-sm rounded-lg p-8 text-center shadow-md">
+            <p className="text-gray-600 text-lg">No videos found matching your criteria.</p>
+            <p className="text-gray-500 mt-2">Try adjusting your filters or search term.</p>
+            <Button
+              className="mt-4 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white"
+              onClick={() => {
+                setSearchQuery("")
+                setActiveCategory("all")
+              }}
+            >
+              Clear Filters
+            </Button>
+          </div>
+        )}
       </div>
 
-      {/* Tutorial Detail Modal */}
-      <Dialog open={!!selectedTutorial} onOpenChange={(open) => !open && setSelectedTutorial(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          {selectedTutorial && (
-            <div>
-              <div className="relative aspect-video bg-black rounded-lg overflow-hidden mb-4">
-                <video
-                  src={selectedTutorial.videoUrl}
-                  poster={selectedTutorial.thumbnailUrl}
-                  controls
-                  className="w-full h-full"
-                  autoPlay
-                />
-              </div>
+      {/* Floating controls */}
+      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-30">
+        {/* Mute/unmute button */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                className="rounded-full bg-pink-500 hover:bg-pink-600 text-white shadow-lg"
+                onClick={toggleMute}
+              >
+                {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              <p>{isMuted ? "Unmute videos" : "Mute videos"}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                  <Badge className="bg-pink-500 text-white">
-                    {selectedTutorial.category.charAt(0).toUpperCase() + selectedTutorial.category.slice(1)}
-                  </Badge>
-                  <div className="flex items-center text-sm text-gray-500">
-                    <Eye className="h-4 w-4 mr-1" />
-                    <span>{selectedTutorial.views} views</span>
-                    <span className="mx-2">•</span>
-                    <Calendar className="h-4 w-4 mr-1" />
-                    <span>{selectedTutorial.publishedAt}</span>
-                  </div>
-                </div>
-
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">{selectedTutorial.title}</h2>
-                <p className="text-gray-600 mb-4">{selectedTutorial.description}</p>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Avatar className="h-10 w-10 mr-3">
-                      <AvatarImage
-                        src={selectedTutorial.creator.avatarUrl || "/placeholder.svg"}
-                        alt={selectedTutorial.creator.name}
-                      />
-                      <AvatarFallback>{selectedTutorial.creator.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium text-gray-800">{selectedTutorial.creator.name}</p>
-                      <p className="text-sm text-gray-500">{selectedTutorial.creator.followers} followers</p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="border-pink-200 text-pink-600 hover:bg-pink-50">
-                      <Heart className="h-4 w-4 mr-1" />
-                      <span>Save</span>
+        {/* Scroll to top button */}
+        <AnimatePresence>
+          {showScrollToTop && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.2 }}
+            >
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      className="rounded-full bg-pink-500 hover:bg-pink-600 text-white shadow-lg"
+                      onClick={scrollToTop}
+                    >
+                      <ArrowUp className="h-5 w-5" />
                     </Button>
-                    <Button variant="outline" size="sm" className="border-pink-200 text-pink-600 hover:bg-pink-50">
-                      <Share2 className="h-4 w-4 mr-1" />
-                      <span>Share</span>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t border-gray-200 pt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Products Used in This Tutorial</h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                  {selectedTutorial.products.map((product) => (
-                    <div key={product.id} className="bg-pink-50 rounded-lg p-3 flex items-center">
-                      <div className="w-12 h-12 bg-white rounded-md overflow-hidden mr-3 flex-shrink-0">
-                        <Image
-                          src={product.imageUrl || "/placeholder.svg"}
-                          alt={product.name}
-                          width={48}
-                          height={48}
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-medium text-gray-800 text-sm truncate">{product.name}</p>
-                        <p className="text-pink-600 text-xs">{product.price}</p>
-                      </div>
-                      <Button size="sm" variant="ghost" className="ml-auto flex-shrink-0">
-                        <ShoppingBag className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-
-                {selectedTutorial.steps && (
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Tutorial Steps</h3>
-                    <ol className="space-y-4">
-                      {selectedTutorial.steps.map((step, index) => (
-                        <li key={index} className="flex">
-                          <div className="flex-shrink-0 w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center text-pink-600 font-medium mr-3">
-                            {index + 1}
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-800 mb-1">{step.title}</p>
-                            <p className="text-sm text-gray-600">{step.description}</p>
-                          </div>
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                )}
-
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Comments</h3>
-
-                  <div className="flex mb-4">
-                    <Avatar className="h-8 w-8 mr-3">
-                      <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Your avatar" />
-                      <AvatarFallback>
-                        <User className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <Input
-                        placeholder="Add a comment..."
-                        className="border-pink-200 focus:border-pink-500 focus:ring-pink-500"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    {selectedTutorial.comments &&
-                      selectedTutorial.comments.map((comment, index) => (
-                        <div key={index} className="flex">
-                          <Avatar className="h-8 w-8 mr-3">
-                            <AvatarImage src={comment.user.avatarUrl || "/placeholder.svg"} alt={comment.user.name} />
-                            <AvatarFallback>{comment.user.name.charAt(0)}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="flex items-center mb-1">
-                              <p className="font-medium text-gray-800 text-sm">{comment.user.name}</p>
-                              <span className="mx-2 text-gray-400 text-xs">•</span>
-                              <p className="text-gray-500 text-xs">{comment.timeAgo}</p>
-                            </div>
-                            <p className="text-sm text-gray-600">{comment.text}</p>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="left">
+                    <p>Scroll to top</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </motion.div>
           )}
-        </DialogContent>
-      </Dialog>
+        </AnimatePresence>
+      </div>
 
-      {/* Celebrity Routine Modal */}
-      <Dialog open={!!selectedCelebrity} onOpenChange={(open) => !open && setSelectedCelebrity(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          {selectedCelebrity && (
-            <div>
-              <div className="relative h-64 rounded-lg overflow-hidden mb-6">
-                <Image
-                  src={selectedCelebrity.coverImageUrl || "/placeholder.svg"}
-                  alt={selectedCelebrity.name}
-                  layout="fill"
-                  objectFit="cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70"></div>
-
-                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                  <div className="flex items-center">
-                    <Avatar className="h-16 w-16 border-2 border-white">
-                      <AvatarImage
-                        src={selectedCelebrity.avatarUrl || "/placeholder.svg"}
-                        alt={selectedCelebrity.name}
-                      />
-                      <AvatarFallback>{selectedCelebrity.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="ml-4">
-                      <div className="flex items-center">
-                        <h2 className="text-2xl font-bold">{selectedCelebrity.name}</h2>
-                        {selectedCelebrity.isVerified && (
-                          <Badge className="ml-2 bg-blue-500 text-white flex items-center">
-                            <Award className="h-3 w-3 mr-1" />
-                            <span>Verified</span>
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-gray-200">{selectedCelebrity.profession}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="md:col-span-2">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">About {selectedCelebrity.name}</h3>
-                  <p className="text-gray-600 mb-6">{selectedCelebrity.bio}</p>
-
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Beauty Philosophy</h3>
-                  <div className="bg-pink-50 rounded-lg p-4 mb-6">
-                    <p className="text-gray-700 italic">"{selectedCelebrity.beautyPhilosophy}"</p>
-                  </div>
-
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Beauty Routine</h3>
-                  <div className="space-y-6">
-                    {selectedCelebrity.routineSections.map((section, index) => (
-                      <div key={index}>
-                        <h4 className="text-lg font-medium text-gray-800 mb-3">{section.title}</h4>
-                        <ul className="space-y-3">
-                          {section.steps.map((step, stepIndex) => (
-                            <li key={stepIndex} className="flex items-start">
-                              <div className="flex-shrink-0 w-6 h-6 bg-pink-100 rounded-full flex items-center justify-center text-pink-600 font-medium mr-3 mt-0.5">
-                                {stepIndex + 1}
-                              </div>
-                              <div>
-                                <p className="text-gray-700">{step}</p>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Favorite Products</h3>
-                  <div className="space-y-4">
-                    {selectedCelebrity.favoriteProducts.map((product) => (
-                      <div key={product.id} className="bg-white rounded-lg shadow-sm border border-pink-100 p-3">
-                        <div className="flex items-center mb-3">
-                          <div className="w-12 h-12 bg-pink-50 rounded-md overflow-hidden mr-3">
-                            <Image
-                              src={product.imageUrl || "/placeholder.svg"}
-                              alt={product.name}
-                              width={48}
-                              height={48}
-                              className="object-cover"
-                            />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-800 text-sm">{product.name}</p>
-                            <p className="text-pink-600 text-xs">{product.price}</p>
-                          </div>
-                        </div>
-                        <p className="text-xs text-gray-600 mb-3">{product.description}</p>
-                        <Button size="sm" className="w-full bg-pink-500 hover:bg-pink-600 text-white">
-                          <ShoppingBag className="h-3 w-3 mr-1" />
-                          <span>Shop Now</span>
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-
-                  {selectedCelebrity.tutorials && selectedCelebrity.tutorials.length > 0 && (
-                    <div className="mt-6">
-                      <h3 className="text-xl font-semibold text-gray-800 mb-4">Related Tutorials</h3>
-                      <div className="space-y-3">
-                        {selectedCelebrity.tutorials.map((tutorial, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center bg-white rounded-lg shadow-sm border border-pink-100 p-2"
-                          >
-                            <div className="w-16 h-12 bg-pink-50 rounded-md overflow-hidden mr-3 flex-shrink-0 relative">
-                              <Image
-                                src={tutorial.thumbnailUrl || "/placeholder.svg"}
-                                alt={tutorial.title}
-                                layout="fill"
-                                objectFit="cover"
-                              />
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <Play className="h-4 w-4 text-white" />
-                              </div>
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-medium text-gray-800 text-sm truncate">{tutorial.title}</p>
-                              <p className="text-xs text-gray-500">{tutorial.duration}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Live Stream Modal */}
-      <Dialog open={isLiveModalOpen} onOpenChange={setIsLiveModalOpen}>
+      {/* Video detail modal */}
+      <Dialog open={!!selectedVideoId} onOpenChange={(open) => !open && handleCloseDetailView()}>
         <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-0">
-          {selectedLiveStream && (
-            <div>
-              <div className="relative aspect-video bg-black">
-                <Image
-                  src={selectedLiveStream.streamUrl || selectedLiveStream.thumbnailUrl}
-                  alt={selectedLiveStream.title}
-                  layout="fill"
-                  objectFit="cover"
-                />
-
-                {/* Live badge */}
-                <div className="absolute top-4 left-4 flex items-center">
-                  <Badge className="bg-red-500 text-white flex items-center">
-                    <div className="w-2 h-2 bg-white rounded-full mr-1 animate-pulse"></div>
-                    <span>LIVE</span>
-                  </Badge>
-                </div>
-
-                {/* Viewers count */}
-                <div className="absolute top-4 right-4">
-                  <Badge className="bg-black bg-opacity-70 text-white border-0 flex items-center">
-                    <Users className="h-3 w-3 mr-1" />
-                    <span>{selectedLiveStream.viewerCount} watching</span>
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <Avatar className="h-12 w-12 mr-3">
-                      <AvatarImage
-                        src={selectedLiveStream.host.avatarUrl || "/placeholder.svg"}
-                        alt={selectedLiveStream.host.name}
-                      />
-                      <AvatarFallback>{selectedLiveStream.host.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h2 className="text-xl font-bold text-gray-800">{selectedLiveStream.title}</h2>
-                      <p className="text-gray-600">
-                        Hosted by <span className="font-medium">{selectedLiveStream.host.name}</span> •{" "}
-                        {selectedLiveStream.host.role}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button variant="outline" className="border-pink-200 text-pink-600 hover:bg-pink-50">
-                      <Heart className="h-4 w-4 mr-1" />
-                      <span>Follow</span>
-                    </Button>
-                    <Button variant="outline" className="border-pink-200 text-pink-600 hover:bg-pink-50">
-                      <Share2 className="h-4 w-4 mr-1" />
-                      <span>Share</span>
-                    </Button>
-                  </div>
-                </div>
-
-                <p className="text-gray-700 mb-6">{selectedLiveStream.description}</p>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="md:col-span-2">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Live Chat</h3>
-                    <div className="bg-gray-50 rounded-lg h-80 p-4 mb-4 overflow-y-auto">
-                      <div className="space-y-4">
-                        {selectedLiveStream.chat &&
-                          selectedLiveStream.chat.map((message, index) => (
-                            <div key={index} className="flex items-start">
-                              <Avatar className="h-6 w-6 mr-2">
-                                <AvatarImage
-                                  src={message.user.avatarUrl || "/placeholder.svg"}
-                                  alt={message.user.name}
-                                />
-                                <AvatarFallback>{message.user.name.charAt(0)}</AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <div className="flex items-center">
-                                  <p className="font-medium text-gray-800 text-sm">{message.user.name}</p>
-                                  {message.user.isHost && (
-                                    <Badge className="ml-1 bg-pink-500 text-white text-xs py-0 px-1">Host</Badge>
-                                  )}
-                                </div>
-                                <p className="text-sm text-gray-600">{message.text}</p>
-                              </div>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-
-                    <div className="flex">
-                      <Input
-                        placeholder="Type a message..."
-                        className="border-pink-200 focus:border-pink-500 focus:ring-pink-500 mr-2"
-                      />
-                      <Button className="bg-pink-500 hover:bg-pink-600 text-white">
-                        <MessageCircle className="h-4 w-4 mr-1" />
-                        <span>Send</span>
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Products Being Demonstrated</h3>
-                    <div className="space-y-3">
-                      {selectedLiveStream.products.map((product) => (
-                        <div key={product.id} className="bg-white rounded-lg shadow-sm border border-pink-100 p-3">
-                          <div className="flex items-center mb-2">
-                            <div className="w-10 h-10 bg-pink-50 rounded-md overflow-hidden mr-3">
-                              <Image
-                                src={product.imageUrl || "/placeholder.svg"}
-                                alt={product.name}
-                                width={40}
-                                height={40}
-                                className="object-cover"
-                              />
-                            </div>
-                            <div>
-                              <p className="font-medium text-gray-800 text-sm">{product.name}</p>
-                              <p className="text-pink-600 text-xs">{product.price}</p>
-                            </div>
-                          </div>
-                          <Button size="sm" className="w-full bg-pink-500 hover:bg-pink-600 text-white">
-                            <ShoppingBag className="h-3 w-3 mr-1" />
-                            <span>Shop Now</span>
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="mt-6">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Upcoming in This Stream</h3>
-                      <ul className="space-y-2">
-                        {selectedLiveStream.agenda &&
-                          selectedLiveStream.agenda.map((item, index) => (
-                            <li key={index} className="flex items-start">
-                              <div className="flex-shrink-0 w-6 h-6 bg-pink-100 rounded-full flex items-center justify-center text-pink-600 font-medium mr-2 mt-0.5">
-                                {index + 1}
-                              </div>
-                              <div>
-                                <p className="text-sm text-gray-700">{item}</p>
-                              </div>
-                            </li>
-                          ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          {selectedVideoId && <VideoDetailView videoId={selectedVideoId} onClose={handleCloseDetailView} />}
         </DialogContent>
       </Dialog>
+
+      {/* Custom scrollbar styles */}
+      <style jsx global>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        
+        @keyframes pulse {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
+        }
+        
+        .animate-pulse-slow {
+          animation: pulse 2s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   )
 }
