@@ -1198,7 +1198,8 @@ export default function SportsAttirePage() {
 
     // Filter by brands
     if (selectedBrands.length > 0) {
-      results = results.filter((product) => selectedBrands.includes(product.brand))
+      results = results.filter((product) => product.brand && selectedBrands.includes(product.brand))
+
     }
 
     // Filter by price range
