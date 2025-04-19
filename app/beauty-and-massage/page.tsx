@@ -428,12 +428,6 @@ export default function BeautyAndMassage() {
       </Link>
     </div>
 
-
-
-
-
-
-        
         {/* Use AnimatePresence with infinite scroll */}
         <AnimatePresence mode="popLayout">
           {visibleServiceTypes.map((type) => (
