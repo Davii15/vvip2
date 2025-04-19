@@ -49,7 +49,7 @@ import TrendingPopularSection from "@/components/TrendingPopularSection"
 import { TimeBasedRecommendations } from "@/components/TimeBasedRecommendations"
 import { beautyTrendingProducts, beautyPopularProducts } from "./trending-data"
 import { beautyProducts, beautyVendors, beautyCategories } from "./beauty-mock-data"
-
+import Link from "next/link"
 // Types
 interface Price {
   amount: number
