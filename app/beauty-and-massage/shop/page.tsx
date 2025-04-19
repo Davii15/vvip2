@@ -619,7 +619,7 @@ export default function BeautyProductsPage() {
       />
       {/*some beauty shop logic*/}
       <div className="flex justify-center my-8">
-        <Link href="/beauty-and-massage/shop/beauty-shop">
+        <Link href="/beauty-and-massage/shop/best-beauty-usage">
           <Button
             size="lg"
             className="group relative overflow-hidden bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
@@ -634,7 +634,7 @@ export default function BeautyProductsPage() {
             />
             <span className="flex items-center text-lg font-medium">
               <ShoppingBag className="mr-2 h-5 w-5" />
-              Open our Beauty shop
+              Open our Beauty Products Usage
               <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
                 <ChevronRight className="ml-2 h-5 w-5" />
               </motion.div>
