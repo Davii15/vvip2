@@ -81,7 +81,7 @@ export const beautyCategories: Category[] = [
   {
     id: "makeup",
     name: "Makeup",
-    icon: <Palette className="h-4 w-4 mr-2" />,
+    
     subcategories: [
       { id: "face", name: "Face", productCount: 36 },
       { id: "eyes", name: "Eyes", productCount: 42 },
@@ -93,7 +93,7 @@ export const beautyCategories: Category[] = [
   {
     id: "haircare",
     name: "Hair Care",
-    icon: <Scissors className="h-4 w-4 mr-2" />,
+    
     subcategories: [
       { id: "shampoo", name: "Shampoo", productCount: 22 },
       { id: "conditioner", name: "Conditioner", productCount: 20 },
@@ -105,7 +105,7 @@ export const beautyCategories: Category[] = [
   {
     id: "fragrance",
     name: "Fragrance",
-    icon: <Spray className="h-4 w-4 mr-2" />,
+    
     subcategories: [
       { id: "women-perfume", name: "Women's Perfume", productCount: 32 },
       { id: "men-cologne", name: "Men's Cologne", productCount: 28 },
@@ -116,7 +116,7 @@ export const beautyCategories: Category[] = [
   {
     id: "bodycare",
     name: "Body Care",
-    icon: <Droplet className="h-4 w-4 mr-2" />,
+   
     subcategories: [
       { id: "body-wash", name: "Body Wash", productCount: 20 },
       { id: "lotions", name: "Lotions & Creams", productCount: 24 },
@@ -128,7 +128,7 @@ export const beautyCategories: Category[] = [
   {
     id: "natural",
     name: "Natural & Organic",
-    icon: <Leaf className="h-4 w-4 mr-2" />,
+  
     subcategories: [
       { id: "organic-skincare", name: "Organic Skincare", productCount: 22 },
       { id: "organic-makeup", name: "Organic Makeup", productCount: 18 },
