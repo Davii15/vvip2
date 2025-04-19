@@ -5,6 +5,8 @@ import type React from "react"
 import { useMemo, useRef, useCallback } from "react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { SearchX } from "lucide-react"
+
 import Image from "next/image"
 import {
   Search,
@@ -30,7 +32,6 @@ import {
   Zap,
   Gift,
   Crown,
-  SearhX,
   
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
