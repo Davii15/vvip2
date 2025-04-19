@@ -31,6 +31,7 @@ import {
   Gift,
   Crown,
   SearhX,
+  
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -45,7 +46,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import CountdownTimer from "@/components/CountdownTimer"
 import HotTimeDeals from "@/components/HotTimeDeals"
-import TrendingPopularSection from "@/components/TrendingPopularSection"
+//import TrendingPopularSection from "@/components/TrendingPopularSection"
 import { TimeBasedRecommendations } from "@/components/TimeBasedRecommendations"
 //import { beautyTrendingProducts, beautyPopularProducts } from "./trending-data"
 import { beautyProducts, beautyVendors, beautyCategories } from "./beauty-mock-data"
