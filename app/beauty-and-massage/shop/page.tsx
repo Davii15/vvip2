@@ -2764,8 +2764,6 @@ export default function BeautyShopProducts() {
           )}
         </AnimatePresence>
       </div>
-      </div>
-    </div>
-    
+     
   )
 }
