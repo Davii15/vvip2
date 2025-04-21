@@ -63,7 +63,7 @@ import { isNewThisWeek } from "@/utils/date-utils"
 import MostPreferredBadge from "@/components/most-preferred-badge"
 //import TrendingPopularSection from "@/components/TrendingPopularSection"
 import Link from "next/link"
-import { TimeBasedRecommendations } from "@/components/TimeBasedRecommendations"
+//import { TimeBasedRecommendations } from "@/components/TimeBasedRecommendations"
 //import BeautyRecommendations from "@/components/recommendations/beauty-recommendations"
 //import { trendingProducts, popularProducts } from "./beauty-trending-data"
 
@@ -1682,38 +1682,7 @@ export default function BeautyShopProducts() {
         </div>
       )}
 
-      {/* Time-Based Recommendations */}
-      <div className="container mx-auto px-4 mb-8">
-        <TimeBasedRecommendations
-          products={beautyProducts.map((product) => {
-            const vendor = getVendorForProduct(product.vendorId)
-            return {
-              id: product.id,
-              name: product.name,
-              imageUrl: product.imageUrl,
-              description: product.description,
-              currentPrice: product.currentPrice,
-              originalPrice: product.originalPrice,
-              category: product.subcategory,
-              vendorName: vendor?.name,
-              vendorLocation: vendor?.location,
-              recommendedTimes:
-                product.subcategory?.toLowerCase().includes("cleanser") && !product.name.toLowerCase().includes("night")
-                  ? ["morning"]
-                  : product.name.toLowerCase().includes("night") ||
-                      product.subcategory?.toLowerCase().includes("repair")
-                    ? ["night"]
-                    : product.subcategory?.toLowerCase().includes("spf") || product.name.toLowerCase().includes("day")
-                      ? ["morning"]
-                      : undefined,
-            }
-          })}
-          title="Skincare Recommendations For Now"
-          subtitle="Products ideal for your current skincare routine"
-          colorScheme="violet"
-          maxProducts={4}
-        />
-      </div>
+      
 
       {/* New Products For You Section */}
       <div className="container mx-auto px-4 max-w-7xl">
