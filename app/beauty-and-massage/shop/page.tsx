@@ -1593,8 +1593,8 @@ export default function BeautyShopProducts() {
 
   // Get vendor for a product
   const getVendorForProduct = (productId: number | string) => {
-    return vendors.find((vendor) => vendor.products.some((product) => product.id === productId))
-  }
+    return vendors.find((vendor) => vendor.products.some((product) => product.id === productId))}
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-pink-800 relative overflow-hidden">
