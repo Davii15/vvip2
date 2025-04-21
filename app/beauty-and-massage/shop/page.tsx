@@ -1330,15 +1330,7 @@ export default function BeautyShopProducts() {
   const [showFilters, setShowFilters] = useState(false)
   const [activeBeautyTipCategory, setActiveBeautyTipCategory] = useState("All")
 
-  // Custom color scheme for beauty products
-  {/*  const beautyColorScheme = {
-    primary: "from-pink-500 to-purple-700",
-    secondary: "bg-pink-100",
-    accent: "bg-purple-600",
-    text: "text-pink-900",
-    background: "bg-pink-50",
-  }
-*/}
+ 
   // State for product detail modal
   const [selectedProduct, setSelectedProduct] = useState<BeautyProduct | null>(null)
   const [productRotation, setProductRotation] = useState(0)
@@ -1728,15 +1720,6 @@ export default function BeautyShopProducts() {
         <NewProductsForYou allProducts={newProducts} colorScheme="pink" maxProducts={4} />
       </div>
 
-         {/* Trending and Popular Section */}{/*
-      <TrendingPopularSection
-        trendingProducts={trendingProducts}
-        popularProducts={popularProducts}
-        colorScheme={beautyColorScheme}
-        title="Beauty Highlights"
-        subtitle="Discover trending and most popular beauty options"
-      />
-*/}
       {/* Beauty Tips Section */}
       <div className="container mx-auto px-4 py-12 max-w-7xl">
         <div className="text-center mb-10">
