@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo, Suspense } from "react"
 import { motion } from "framer-motion"
 import confetti from "canvas-confetti"
 import {
