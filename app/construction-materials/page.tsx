@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo,Suspense } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import confetti from "canvas-confetti"
 import {
@@ -1637,6 +1637,45 @@ const transformForNewProducts = (vendors: Vendor[]) => {
       })),
   )
 }
+// Fallback components for Suspense
+const CountdownTimerFallback = () => <div className="w-full h-20 bg-amber-800/50 animate-pulse rounded-lg"></div>
+
+const HotDealsFallback = () => (
+  <div className="w-full">
+    <div className="h-10 w-64 bg-amber-800/50 animate-pulse rounded-lg mb-4"></div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="h-64 bg-amber-800/50 animate-pulse rounded-lg"></div>
+      ))}
+    </div>
+  </div>
+)
+
+const NewProductsFallback = () => (
+  <div className="w-full">
+    <div className="h-10 w-64 bg-amber-800/50 animate-pulse rounded-lg mb-4"></div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="h-64 bg-amber-800/50 animate-pulse rounded-lg"></div>
+      ))}
+    </div>
+  </div>
+)
+
+const TrendingSectionFallback = () => (
+  <div className="w-full">
+    <div className="h-10 w-64 bg-amber-800/50 animate-pulse rounded-lg mb-4"></div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {[...Array(2)].map((_, i) => (
+        <div key={i} className="h-64 bg-amber-800/50 animate-pulse rounded-lg"></div>
+      ))}
+    </div>
+  </div>
+)
+
+
+
+
 
 export default function ConstructionMaterialsPage() {
   useCookieTracking("construction-materials")
