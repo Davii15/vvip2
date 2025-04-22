@@ -1945,31 +1945,41 @@ export default function ConstructionMaterialsPage() {
           )}
         </AnimatePresence>
 
-        {/* Countdown Timer */}
+      {/* Countdown Timer */}
         <div className="mb-8">
-          <CountdownTimer targetDate="2025-05-31T23:59:59" startDate="2025-03-01T00:00:00" />
+          <Suspense fallback={<CountdownTimerFallback />}>
+            <CountdownTimer targetDate="2025-05-31T23:59:59" startDate="2025-03-01T00:00:00" />
+          </Suspense>
         </div>
 
         {/* Hot Time Deals Section */}
         {hotDeals.length > 0 && (
-          <HotTimeDeals
-            deals={hotDeals}
-            colorScheme="amber"
-            title="Limited Time Construction Deals"
-            subtitle="Exclusive discounts on premium construction materials - build better for less!"
-          />
+          <Suspense fallback={<HotDealsFallback />}>
+            <HotTimeDeals
+              deals={hotDeals}
+              colorScheme="amber"
+              title="Limited Time Construction Deals"
+              subtitle="Exclusive discounts on premium construction materials - build better for less!"
+            />
+          </Suspense>
         )}
- {/* Trending and Popular Section */}
- <TrendingPopularSection
-        trendingProducts={trendingProducts}
-        popularProducts={popularProducts}
-        colorScheme={constructionColorScheme}
-        title="Market Favorites"
-        subtitle="See what's trending and most popular in the construction sector"
-      />
+        
+        {/* Trending and Popular Section */}
+        <Suspense fallback={<TrendingSectionFallback />}>
+          <TrendingPopularSection
+            trendingProducts={trendingProducts}
+            popularProducts={popularProducts}
+            colorScheme={constructionColorScheme}
+            title="Market Favorites"
+            subtitle="See what's trending and most popular in the construction sector"
+          />
+        </Suspense>
+        
         {/* New Products For You Section */}
-        <NewProductsForYou allProducts={newProducts} colorScheme="amber" maxProducts={4} />
-
+        <Suspense fallback={<NewProductsFallback />}>
+          <NewProductsForYou allProducts={newProducts} colorScheme="amber" maxProducts={4} />
+        </Suspense>
+        
  {/*button for hospitality*/}
  <div className="flex justify-center my-8">
       <Link href="/construction-materials/shop">
