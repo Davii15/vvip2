@@ -1276,6 +1276,23 @@ const transformForNewProducts = (vendors: Vendor[]) => {
       })),
   )
 }
+// Loading fallback components
+function CountdownTimerFallback() {
+  return <div className="h-16 bg-gray-200 animate-pulse rounded-lg"></div>
+}
+
+function HotDealsFallback() {
+  return <div className="h-64 bg-gray-200 animate-pulse rounded-lg"></div>
+}
+
+function NewProductsFallback() {
+  return <div className="h-64 bg-gray-200 animate-pulse rounded-lg"></div>
+}
+
+function TrendingSectionFallback() {
+  return <div className="h-64 bg-gray-200 animate-pulse rounded-lg"></div>
+}
+
 
 export default function TravellingPage() {
   useCookieTracking("travelling")
@@ -1589,33 +1606,41 @@ const travellingColorScheme = {
           </motion.p>
         </div>
 
-        {/* Countdown Timer */}
+    {/* Countdown Timer - Wrapped in Suspense */}
         <div className="mb-8">
-          <CountdownTimer targetDate="2025-05-31T23:59:59" startDate="2025-03-01T00:00:00" />
+          <Suspense fallback={<CountdownTimerFallback />}>
+            <CountdownTimer targetDate="2025-05-31T23:59:59" startDate="2025-03-01T00:00:00" />
+          </Suspense>
         </div>
 
-        {/* Hot Time Deals Section */}
+        {/* Hot Time Deals Section - Wrapped in Suspense */}
         {hotDeals.length > 0 && (
-          <HotTimeDeals
-            deals={hotDeals}
-            colorScheme="blue"
-            title="Limited Time Travel Offers"
-            subtitle="Exclusive deals on amazing journeys - book before they're gone!"
-          />
+          <Suspense fallback={<HotDealsFallback />}>
+            <HotTimeDeals
+              deals={hotDeals}
+              colorScheme="blue"
+              title="Limited Time Travel Offers"
+              subtitle="Exclusive deals on amazing journeys - book before they're gone!"
+            />
+          </Suspense>
         )}
 
-        {/* New Products For You Section */}
-        <NewProductsForYou allProducts={newProducts} colorScheme="blue" maxProducts={4} />
+        {/* New Products For You Section - Wrapped in Suspense */}
+        <Suspense fallback={<NewProductsFallback />}>
+          <NewProductsForYou allProducts={newProducts} colorScheme="blue" maxProducts={4} />
+        </Suspense>
 
- {/* Trending and Popular Section */}
- <TrendingPopularSection
-        trendingProducts={trendingProducts}
-        popularProducts={popularProducts}
-        colorScheme={travellingColorScheme}
-        title="Best Travelling Deals Today"
-        subtitle="Discover  most popular travelling options"
-      />
-
+  {/* Trending and Popular Section - Wrapped in Suspense */}
+        <Suspense fallback={<TrendingSectionFallback />}>
+          <TrendingPopularSection
+            trendingProducts={trendingProducts}
+            popularProducts={popularProducts}
+            colorScheme={travellingColorScheme}
+            title="Best Travelling Deals Today"
+            subtitle="Discover most popular travelling options"
+          />
+        </Suspense>
+        
     <div className="flex flex-wrap gap-4 animate-fadeIn" style={{ animationDelay: "0.4s" }}>
               <Link href="/travelling/shop">
                 <Button
