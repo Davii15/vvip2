@@ -407,8 +407,7 @@ export default function MovieReelsDisplay() {
         {/* Disclaimer */}
         <div className="mt-8 text-center text-xs text-gray-400">
           <p>
-            Videos are for demonstration purposes only. In a production environment, these would be your actual
-            promotional videos and movie trailers.
+           The videos used here are Purely for Advertisement section Only, for more you can watch it or get in the Advertisers Website or their place of operation.
           </p>
         </div>
       </div>
