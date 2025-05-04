@@ -7,6 +7,12 @@ import WelcomeBackAlert from "@/components/WelcomeBackAlert"
 import MonthlyRecommendations from "@/components/MonthlyRecommendations"
 import SeasonalRecommendationBanner from "@/components/SeasonalRecommendations"
 import TopAdvertisementSection from "@/components/TopAdvertisementSection"
+import MagazineDisplay from "@/components/MagazineDisplay"
+import MovieReelsDisplay from "@/components/MovieReelsDisplay"
+import SellingSoftwareSection from "@/components/SellingSoftwareSection"
+
+
+
 
 export default function Home() {
   return (
@@ -76,6 +82,17 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+
+        
+           {/* Magazine Display Section */}
+        <MagazineDisplay />
+
+        {/* Movie Reels Display Section */}
+        <MovieReelsDisplay />
+
+        {/* Software Marketplace Section */}
+        <SellingSoftwareSection />
       </div>
       <TrustedPartners />
     </div>
