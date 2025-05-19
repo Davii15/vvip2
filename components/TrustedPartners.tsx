@@ -29,7 +29,7 @@ const partners2: Partner[] = [
   { name: "Game park and Orphanges Kenya" },
 ]
 
-export function trusted-partners() {
+export function trustedPartners() {
   const scrollRef1 = useRef<HTMLDivElement>(null)
   const scrollRef2 = useRef<HTMLDivElement>(null)
 
