@@ -2,7 +2,8 @@ import Greeting from "@/components/Greeting"
 import CountdownTimer from "@/components/CountdownTimer"
 import GetShoppingButton from "@/components/GetShoppingButton"
 import Talktobot from "@/components/Talktobot"
-import  trustedPartners  from "@/components/TrustedPartners"
+//import  trustedPartners  from "@/components/TrustedPartners"
+import { TrustedPartners } from "@/components/trusted-partners"
 import WelcomeBackAlert from "@/components/WelcomeBackAlert"
 import MonthlyRecommendations from "@/components/MonthlyRecommendations"
 import SeasonalRecommendationBanner from "@/components/SeasonalRecommendations"
@@ -94,8 +95,7 @@ export default function Home() {
         {/* Software Marketplace Section */}
         <SellingSoftwareSection />
       </div>
-      <trustedPartners />
-
+      <TrustedPartners />
     </div>
   )
 }
