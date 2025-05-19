@@ -18,8 +18,9 @@ import {
   Armchair,
   UtensilsCrossed,
   BookOpen,
-  Home,
   DoorOpen,
+  Home,
+  Sparkles,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -38,7 +39,6 @@ import NewThisWeekBadge from "@/components/NewThisWeekBadge"
 import { furnitureProducts, vendors, subcategories } from "./mock-data"
 import TrendingPopularSection from "@/components/TrendingPopularSection"
 import { trendingProducts, popularProducts } from "./trending-data"
-
 
 // Types
 interface Price {
@@ -59,7 +59,7 @@ interface Product {
   vendor: string
   rating: number
   reviewCount: number
-  verified?:boolean
+  verified?: boolean
   isNew?: boolean
   isHotDeal?: boolean
   discountPercentage?: number
@@ -83,6 +83,8 @@ interface HotDeal {
   isNew?: boolean
   category?: string
   rating?: number
+  expiresAt: string
+  imageUrl: string
 }
 
 // Helper functions
@@ -131,6 +133,7 @@ export default function FurnitureShopPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [showNewProductAlert, setShowNewProductAlert] = useState<boolean>(false)
   const [newProduct, setNewProduct] = useState<Product | null>(null)
+  const [isHovered, setIsHovered] = useState(false)
 
   const observer = useRef<IntersectionObserver | null>(null)
   const PRODUCTS_PER_PAGE = 12
@@ -322,14 +325,15 @@ export default function FurnitureShopPage() {
 
     return () => clearTimeout(timer)
   }, [])
-// Custom color scheme for furniture
-const furnitureColorScheme = {
-  primary: "from-purple-500 to-indigo-700",
-  secondary: "bg-purple-100",
-  accent: "bg-indigo-600",
-  text: "text-purple-900",
-  background: "bg-purple-50",
-}
+
+  // Custom color scheme for furniture
+  const furnitureColorScheme = {
+    primary: "from-amber-500 to-orange-700",
+    secondary: "bg-amber-100",
+    accent: "bg-orange-600",
+    text: "text-amber-900",
+    background: "bg-amber-50",
+  }
 
   // Apply filters when criteria change
   useEffect(() => {
@@ -337,11 +341,34 @@ const furnitureColorScheme = {
   }, [activeCategory, activeSubcategories, activeVendors, priceRange, sortOption, searchQuery, filterProducts])
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100">
+      {/* Decorative elements */}
+      <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-r from-amber-500/10 to-orange-500/10 -z-10"></div>
+      <div className="absolute bottom-0 right-0 w-full h-64 bg-gradient-to-l from-amber-500/10 to-orange-500/10 -z-10"></div>
+
+      {/* Animated particles background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-5">
+        {Array.from({ length: 15 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full bg-gradient-to-r from-amber-400/10 to-orange-400/10"
+            style={{
+              width: `${Math.random() * 100 + 50}px`,
+              height: `${Math.random() * 100 + 50}px`,
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDuration: `${Math.random() * 20 + 10}s`,
+              animationDelay: `${Math.random() * 5}s`,
+              animation: "float-furniture infinite ease-in-out",
+            }}
+          />
+        ))}
+      </div>
+
       {/* New Product Alert */}
       {showNewProductAlert && newProduct && (
         <div className="fixed top-4 right-4 z-50 max-w-md animate-slide-in-right">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-amber-200 dark:border-amber-800 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border-l-4 border-amber-500 p-4">
             <div className="flex items-start">
               <div className="flex-shrink-0 bg-amber-100 dark:bg-amber-900/30 rounded-full p-2">
                 <BellRing className="h-6 w-6 text-amber-600 dark:text-amber-400" />
@@ -351,7 +378,7 @@ const furnitureColorScheme = {
                   <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">New Product Added!</h3>
                   <button
                     type="button"
-                    className="ml-3 flex-shrink-0 text-gray-400 hover:text-gray-500"
+                    className="ml-3 flex-shrink-0 text-gray-400 hover:text-gray-500 transition-colors"
                     onClick={() => setShowNewProductAlert(false)}
                   >
                     <X className="h-5 w-5" />
@@ -375,7 +402,7 @@ const furnitureColorScheme = {
                 <div className="mt-3">
                   <Button
                     size="sm"
-                    className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+                    className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md transition-all duration-300"
                     onClick={() => {
                       viewProductDetails(newProduct)
                       setShowNewProductAlert(false)
@@ -392,11 +419,16 @@ const furnitureColorScheme = {
 
       {/* Product Detail View */}
       {selectedProduct && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white dark:bg-gray-900 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
             <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
               <h2 className="text-xl font-bold truncate">{selectedProduct.name}</h2>
-              <Button variant="ghost" size="icon" onClick={closeProductDetails}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={closeProductDetails}
+                className="rounded-full hover:bg-amber-100"
+              >
                 <X className="h-5 w-5" />
               </Button>
             </div>
@@ -405,11 +437,11 @@ const furnitureColorScheme = {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Product Images */}
                 <div className="space-y-4">
-                  <div className="aspect-square rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
+                  <div className="aspect-square rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800 shadow-md hover:shadow-lg transition-shadow duration-300">
                     <img
                       src={selectedProduct.image || "/placeholder.svg"}
                       alt={selectedProduct.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
                     />
                   </div>
 
@@ -418,7 +450,7 @@ const furnitureColorScheme = {
                       {selectedProduct.images.map((img, index) => (
                         <div
                           key={index}
-                          className="aspect-square rounded-md overflow-hidden border border-gray-200 dark:border-gray-800"
+                          className="aspect-square rounded-md overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105"
                         >
                           <img
                             src={img || "/placeholder.svg"}
@@ -435,21 +467,21 @@ const furnitureColorScheme = {
                 <div className="space-y-6">
                   <div>
                     <div className="flex items-center mb-2">
-                      <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                      <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 mr-2">
                         {selectedProduct.category}
                       </Badge>
-                      <span className="mx-2 text-gray-300">•</span>
-                      <Badge variant="outline">{selectedProduct.subcategory}</Badge>
+                      <Badge variant="outline" className="border-amber-300 text-amber-700">
+                        {selectedProduct.subcategory}
+                      </Badge>
                       {selectedProduct.isNew && (
-                        <>
-                          <span className="mx-2 text-gray-300">•</span>
-                          <NewThisWeekBadge  />
-                        </>
+                        <div className="ml-2">
+                          <NewThisWeekBadge />
+                        </div>
                       )}
                     </div>
 
                     <div className="flex items-center mb-4">
-                      <div className="flex items-center">
+                      <div className="flex items-center bg-amber-50 px-2 py-1 rounded-md">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star
                             key={i}
@@ -461,54 +493,72 @@ const furnitureColorScheme = {
                             )}
                           />
                         ))}
+                        <span className="ml-2 text-sm text-amber-700 font-medium">
+                          ({selectedProduct.reviewCount} reviews)
+                        </span>
                       </div>
-                      <span className="ml-2 text-sm text-gray-500">({selectedProduct.reviewCount} reviews)</span>
                     </div>
 
-                    <p className="text-gray-700 dark:text-gray-300 mb-6">{selectedProduct.description}</p>
+                    <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
+                      {selectedProduct.description}
+                    </p>
 
-                    <div className="space-y-3 mb-6">
+                    <div className="space-y-3 mb-6 bg-amber-50 p-4 rounded-lg">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-500 dark:text-gray-400">Vendor</span>
-                        <span className="font-medium">{selectedProduct.vendor}</span>
+                        <span className="text-amber-700 font-medium">Vendor</span>
+                        <span className="font-medium flex items-center">
+                          {selectedProduct.vendor}
+                          {selectedProduct.verified && <Check className="h-4 w-4 ml-1 text-blue-500" />}
+                        </span>
                       </div>
 
                       {selectedProduct.material && (
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-500 dark:text-gray-400">Material</span>
+                          <span className="text-amber-700 font-medium">Material</span>
                           <span className="font-medium">{selectedProduct.material}</span>
                         </div>
                       )}
 
                       {selectedProduct.color && (
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-500 dark:text-gray-400">Color</span>
+                          <span className="text-amber-700 font-medium">Color</span>
                           <span className="font-medium">{selectedProduct.color}</span>
                         </div>
                       )}
 
                       {selectedProduct.dimensions && (
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-500 dark:text-gray-400">Dimensions</span>
+                          <span className="text-amber-700 font-medium">Dimensions</span>
                           <span className="font-medium">{selectedProduct.dimensions}</span>
                         </div>
                       )}
 
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-500 dark:text-gray-400">Availability</span>
+                        <span className="text-amber-700 font-medium">Availability</span>
                         <span
-                          className={cn("font-medium", selectedProduct.inStock ? "text-green-600" : "text-red-600")}
+                          className={cn(
+                            "font-medium flex items-center",
+                            selectedProduct.inStock ? "text-green-600" : "text-red-600",
+                          )}
                         >
-                          {selectedProduct.inStock
-                            ? selectedProduct.stockCount
-                              ? `In Stock (${selectedProduct.stockCount} available)`
-                              : "In Stock"
-                            : "Out of Stock"}
+                          {selectedProduct.inStock ? (
+                            <>
+                              <Check className="h-4 w-4 mr-1" />
+                              {selectedProduct.stockCount
+                                ? `In Stock (${selectedProduct.stockCount} available)`
+                                : "In Stock"}
+                            </>
+                          ) : (
+                            <>
+                              <X className="h-4 w-4 mr-1" />
+                              Out of Stock
+                            </>
+                          )}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-baseline mb-6">
+                    <div className="flex items-baseline mb-6 bg-white p-4 rounded-lg shadow-sm">
                       <span className="text-2xl font-bold text-amber-600 dark:text-amber-500">
                         {selectedProduct.currentPrice.currency} {selectedProduct.currentPrice.amount.toLocaleString()}
                       </span>
@@ -534,7 +584,7 @@ const furnitureColorScheme = {
 
                     <div className="flex gap-4">
                       <Button
-                        className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
+                        className="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md transition-all duration-300"
                         disabled={!selectedProduct.inStock}
                         onClick={() => {
                           addToCart(selectedProduct)
@@ -545,7 +595,7 @@ const furnitureColorScheme = {
                       </Button>
                       <Button
                         variant="outline"
-                        className="flex-1 border-amber-600 text-amber-600 hover:bg-amber-50"
+                        className="flex-1 border-amber-600 text-amber-600 hover:bg-amber-50 transition-colors duration-300"
                         onClick={() => {
                           addToWishlist(selectedProduct)
                           closeProductDetails()
@@ -562,325 +612,155 @@ const furnitureColorScheme = {
         </div>
       )}
 
-      {/* Hero Section */}
-      <div className="relative mb-12 rounded-xl overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-amber-800/90 to-amber-600/80 z-10"></div>
-        <img
-          src="/placeholder.svg?height=500&width=1200"
-          alt="Luxury Furniture"
-          className="w-full h-64 md:h-80 object-cover"
-        />
-        <div className="absolute inset-0 z-20 flex flex-col justify-center px-6 md:px-12">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 animate-fade-in">
-            Premium Furniture Collection
-          </h1>
-          <p className="text-white/90 text-lg md:text-xl max-w-2xl mb-6 animate-slide-in">
-            Discover exquisite furniture pieces for your home and office, crafted with precision and style.
-          </p>
-          <div className="flex flex-wrap gap-4 animate-fade-in-up">
-            <Button
-              size="lg"
-              className="bg-white text-amber-800 hover:bg-amber-50"
-              onClick={() => {
-                setActiveCategory("home")
-                window.scrollTo({ top: 500, behavior: "smooth" })
-              }}
-            >
-              <Home className="mr-2 h-5 w-5" />
-              Home Furniture
-            </Button>
-            <Button
-              size="lg"
-              className="bg-amber-900 text-white hover:bg-amber-950"
-              onClick={() => {
-                setActiveCategory("office")
-                window.scrollTo({ top: 500, behavior: "smooth" })
-              }}
-            >
-              <Briefcase className="mr-2 h-5 w-5" />
-              Office Furniture
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Hot Deals Section */}
-      {hotDeals.length > 0 && (
-        <div className="mb-12">
-          <HotTimeDeals
-            deals={hotDeals}
-            colorScheme="amber"
-            title="Limited Time Furniture Deals"
-            subtitle="Exclusive discounts on premium furniture pieces"
+      <div className="container mx-auto px-4 py-8">
+        {/* Hero Section */}
+        <div className="relative mb-12 rounded-xl overflow-hidden shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-800/90 to-amber-600/80 z-10"></div>
+          <img
+            src="/placeholder.svg?height=500&width=1200"
+            alt="Luxury Furniture"
+            className="w-full h-64 md:h-80 object-cover"
           />
-          <div className="mt-6">
-            <CountdownTimer targetDate="2025-06-30T23:59:59" startDate="2025-04-01T00:00:00"/>
-          </div>
-        </div>
-      )}
- {/* Trending and Popular Section */}
- <TrendingPopularSection
-        trendingProducts={trendingProducts}
-        popularProducts={popularProducts}
-        colorScheme={furnitureColorScheme}
-        title="Best Furniture Decor Trending Today!"
-        subtitle="Discover  most popular and trending Furniture Decor"
-      />
-      
-      {/* Main Content */}
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Filters Sidebar - Desktop */}
-        <div className="hidden md:block w-64 flex-shrink-0">
-          <div className="sticky top-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Filters</h2>
-              <Button variant="ghost" size="sm" onClick={resetFilters}>
-                Reset
+          <div className="absolute inset-0 z-20 flex flex-col justify-center px-6 md:px-12">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 animate-fade-in">
+              Premium Furniture Collection
+            </h1>
+            <p className="text-white/90 text-lg md:text-xl max-w-2xl mb-6 animate-slide-in">
+              Discover exquisite furniture pieces for your home and office, crafted with precision and style.
+            </p>
+            <div className="flex flex-wrap gap-4 animate-fade-in-up">
+              <Button
+                size="lg"
+                className="bg-white text-amber-800 hover:bg-amber-50 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                onClick={() => {
+                  setActiveCategory("home")
+                  window.scrollTo({ top: 500, behavior: "smooth" })
+                }}
+              >
+                <Home className="mr-2 h-5 w-5" />
+                Home Furniture
+              </Button>
+              <Button
+                size="lg"
+                className="bg-amber-900 text-white hover:bg-amber-950 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                onClick={() => {
+                  setActiveCategory("office")
+                  window.scrollTo({ top: 500, behavior: "smooth" })
+                }}
+              >
+                <Briefcase className="mr-2 h-5 w-5" />
+                Office Furniture
               </Button>
             </div>
+          </div>
+        </div>
 
-            {/* Category Filter */}
-            <div className="mb-6">
-              <h3 className="text-sm font-medium mb-2">Category</h3>
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <Checkbox
-                    id="category-all"
-                    checked={activeCategory === "all"}
-                    onCheckedChange={() => setActiveCategory("all")}
-                  />
-                  <label htmlFor="category-all" className="ml-2 text-sm cursor-pointer">
-                    All Furniture
-                  </label>
-                </div>
-                <div className="flex items-center">
-                  <Checkbox
-                    id="category-office"
-                    checked={activeCategory === "office"}
-                    onCheckedChange={() => setActiveCategory("office")}
-                  />
-                  <label htmlFor="category-office" className="ml-2 text-sm cursor-pointer flex items-center">
-                    <Briefcase className="h-3.5 w-3.5 mr-1 text-amber-600" />
-                    Office Furniture
-                  </label>
-                </div>
-                <div className="flex items-center">
-                  <Checkbox
-                    id="category-home"
-                    checked={activeCategory === "home"}
-                    onCheckedChange={() => setActiveCategory("home")}
-                  />
-                  <label htmlFor="category-home" className="ml-2 text-sm cursor-pointer flex items-center">
-                    <Home className="h-3.5 w-3.5 mr-1 text-amber-600" />
-                    Home Furniture
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {/* Subcategory Filter */}
-            <div className="mb-6">
-              <h3 className="text-sm font-medium mb-2">Subcategory</h3>
-              <ScrollArea className="h-40">
-                <div className="space-y-2 pr-4">
-                  {getSubcategories().map((sub) => (
-                    <div key={sub.id} className="flex items-center">
-                      <Checkbox
-                        id={`subcategory-${sub.id}`}
-                        checked={activeSubcategories.includes(sub.id)}
-                        onCheckedChange={() => toggleSubcategory(sub.id)}
-                      />
-                      <label
-                        htmlFor={`subcategory-${sub.id}`}
-                        className="ml-2 text-sm cursor-pointer flex items-center"
-                      >
-                        {sub.icon && (
-                          <span className="mr-1 text-amber-600">
-                            {sub.id === "reception" && <Building2 className="h-3.5 w-3.5" />}
-                            {sub.id === "boardroom" && <Coffee className="h-3.5 w-3.5" />}
-                            {sub.id === "main-office" && <Briefcase className="h-3.5 w-3.5" />}
-                            {sub.id === "beds" && <Bed className="h-3.5 w-3.5" />}
-                            {sub.id === "sofaset" && <Sofa className="h-3.5 w-3.5" />}
-                            {sub.id === "dinner-tables" && <UtensilsCrossed className="h-3.5 w-3.5" />}
-                            {sub.id === "chairs" && <Armchair className="h-3.5 w-3.5" />}
-                            {sub.id === "cupboards" && <BookOpen className="h-3.5 w-3.5" />}
-                            {sub.id === "wardrobes" && <DoorOpen className="h-3.5 w-3.5" />}
-                            {sub.id === "sitting-room-tables" && <Coffee className="h-3.5 w-3.5" />}
-                            {sub.id === "other-home" && <Home className="h-3.5 w-3.5" />}
-                          </span>
-                        )}
-                        {sub.name}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
-
-            {/* Vendor Filter */}
-            <div className="mb-6">
-              <h3 className="text-sm font-medium mb-2">Vendor</h3>
-              <ScrollArea className="h-40">
-                <div className="space-y-2 pr-4">
-                  {vendors.map((vendor) => (
-                    <div key={vendor.id} className="flex items-center">
-                      <Checkbox
-                        id={`vendor-${vendor.id}`}
-                        checked={activeVendors.includes(vendor.id)}
-                        onCheckedChange={() => toggleVendor(vendor.id)}
-                      />
-                      <label htmlFor={`vendor-${vendor.id}`} className="ml-2 text-sm cursor-pointer">
-                        {vendor.name}
-                        
-            {vendor.verified && (
-          <Badge className="ml-1 bg-blue-500 text-white flex items-center gap-0.5 px-1 py-0 text-xs">
-          <Check className="h-2 w-2" />
-         </Badge>
-           )}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
-
-            {/* Price Range Filter */}
-            <div className="mb-6">
-              <h3 className="text-sm font-medium mb-2">Price Range</h3>
-              <div className="px-2">
-                <Slider
-                  defaultValue={[0, 500000]}
-                  min={0}
-                  max={500000}
-                  step={5000}
-                  value={priceRange}
-                  onValueChange={(value) => setPriceRange(value as [number, number])}
-                  className="mb-4"
-                />
-                <div className="flex items-center justify-between text-sm">
-                  <span>KSh {priceRange[0].toLocaleString()}</span>
-                  <span>KSh {priceRange[1].toLocaleString()}</span>
-                </div>
-              </div>
+        {/* Hot Deals Section */}
+        {hotDeals.length > 0 && (
+          <div className="mb-12">
+            <HotTimeDeals
+              deals={hotDeals}
+              colorScheme="amber"
+              title="Limited Time Furniture Deals"
+              subtitle="Exclusive discounts on premium furniture pieces"
+            />
+            <div className="mt-6 bg-gradient-to-r from-amber-600/90 to-amber-700/90 rounded-xl p-6 shadow-lg">
+              <CountdownTimer targetDate="2025-06-30T23:59:59" startDate="2025-04-01T00:00:00" />
             </div>
           </div>
+        )}
+
+        {/* Trending and Popular Section */}
+        <div className="mb-12">
+          <TrendingPopularSection
+            trendingProducts={trendingProducts}
+            popularProducts={popularProducts}
+            colorScheme={furnitureColorScheme}
+            title="Best Furniture Decor Trending Today!"
+            subtitle="Discover most popular and trending Furniture Decor"
+          />
         </div>
 
         {/* Main Content */}
-        <div className="flex-1">
-          {/* Search and Sort Bar */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Search furniture..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            <div className="flex gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="flex items-center">
-                    <ArrowUpDown className="mr-2 h-4 w-4" />
-                    {sortOption === "featured" && "Featured"}
-                    {sortOption === "price-low" && "Price: Low to High"}
-                    {sortOption === "price-high" && "Price: High to Low"}
-                    {sortOption === "rating" && "Highest Rated"}
-                    {sortOption === "newest" && "Newest"}
-                    {sortOption === "discount" && "Biggest Discount"}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setSortOption("featured")}>Featured</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortOption("price-low")}>Price: Low to High</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortOption("price-high")}>Price: High to Low</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortOption("rating")}>Highest Rated</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortOption("newest")}>Newest</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortOption("discount")}>Biggest Discount</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <Button variant="outline" className="md:hidden" onClick={() => setShowFilters(!showFilters)}>
-                <Filter className="mr-2 h-4 w-4" />
-                Filters
-              </Button>
-            </div>
-          </div>
-
-          {/* Mobile Filters */}
-          {showFilters && (
-            <div className="md:hidden mb-6 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 shadow-sm">
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Filters Sidebar - Desktop */}
+          <div className="hidden md:block w-64 flex-shrink-0">
+            <div className="sticky top-4 bg-white dark:bg-gray-900 rounded-lg border border-amber-200 dark:border-gray-800 p-4 shadow-md hover:shadow-lg transition-shadow duration-300">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">Filters</h2>
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="sm" onClick={resetFilters}>
-                    Reset
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => setShowFilters(false)}>
-                    <X className="h-4 w-4" />
-                  </Button>
+                <h2 className="text-lg font-semibold text-amber-800">Filters</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetFilters}
+                  className="text-amber-600 hover:text-amber-800 hover:bg-amber-50"
+                >
+                  Reset
+                </Button>
+              </div>
+
+              {/* Category Filter */}
+              <div className="mb-6">
+                <h3 className="text-sm font-medium mb-2 text-amber-700 flex items-center">
+                  <Filter className="h-4 w-4 mr-2 text-amber-500" />
+                  Category
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <Checkbox
+                      id="category-all"
+                      checked={activeCategory === "all"}
+                      onCheckedChange={() => setActiveCategory("all")}
+                      className="text-amber-600 border-amber-300 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
+                    />
+                    <label htmlFor="category-all" className="ml-2 text-sm cursor-pointer">
+                      All Furniture
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <Checkbox
+                      id="category-office"
+                      checked={activeCategory === "office"}
+                      onCheckedChange={() => setActiveCategory("office")}
+                      className="text-amber-600 border-amber-300 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
+                    />
+                    <label htmlFor="category-office" className="ml-2 text-sm cursor-pointer flex items-center">
+                      <Briefcase className="h-3.5 w-3.5 mr-1 text-amber-600" />
+                      Office Furniture
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <Checkbox
+                      id="category-home"
+                      checked={activeCategory === "home"}
+                      onCheckedChange={() => setActiveCategory("home")}
+                      className="text-amber-600 border-amber-300 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
+                    />
+                    <label htmlFor="category-home" className="ml-2 text-sm cursor-pointer flex items-center">
+                      <Home className="h-3.5 w-3.5 mr-1 text-amber-600" />
+                      Home Furniture
+                    </label>
+                  </div>
                 </div>
               </div>
 
-              <Tabs defaultValue="category" className="w-full">
-                <TabsList className="w-full grid grid-cols-3">
-                  <TabsTrigger value="category">Category</TabsTrigger>
-                  <TabsTrigger value="subcategory">Subcategory</TabsTrigger>
-                  <TabsTrigger value="vendor">Vendor</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="category" className="mt-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center">
-                      <Checkbox
-                        id="mobile-category-all"
-                        checked={activeCategory === "all"}
-                        onCheckedChange={() => setActiveCategory("all")}
-                      />
-                      <label htmlFor="mobile-category-all" className="ml-2 text-sm cursor-pointer">
-                        All Furniture
-                      </label>
-                    </div>
-                    <div className="flex items-center">
-                      <Checkbox
-                        id="mobile-category-office"
-                        checked={activeCategory === "office"}
-                        onCheckedChange={() => setActiveCategory("office")}
-                      />
-                      <label htmlFor="mobile-category-office" className="ml-2 text-sm cursor-pointer flex items-center">
-                        <Briefcase className="h-3.5 w-3.5 mr-1 text-amber-600" />
-                        Office Furniture
-                      </label>
-                    </div>
-                    <div className="flex items-center">
-                      <Checkbox
-                        id="mobile-category-home"
-                        checked={activeCategory === "home"}
-                        onCheckedChange={() => setActiveCategory("home")}
-                      />
-                      <label htmlFor="mobile-category-home" className="ml-2 text-sm cursor-pointer flex items-center">
-                        <Home className="h-3.5 w-3.5 mr-1 text-amber-600" />
-                        Home Furniture
-                      </label>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="subcategory" className="mt-4">
-                  <div className="space-y-2">
+              {/* Subcategory Filter */}
+              <div className="mb-6">
+                <h3 className="text-sm font-medium mb-2 text-amber-700 flex items-center">
+                  <Filter className="h-4 w-4 mr-2 text-amber-500" />
+                  Subcategory
+                </h3>
+                <ScrollArea className="h-40">
+                  <div className="space-y-2 pr-4">
                     {getSubcategories().map((sub) => (
-                      <div key={`mobile-${sub.id}`} className="flex items-center">
+                      <div key={sub.id} className="flex items-center">
                         <Checkbox
-                          id={`mobile-subcategory-${sub.id}`}
+                          id={`subcategory-${sub.id}`}
                           checked={activeSubcategories.includes(sub.id)}
                           onCheckedChange={() => toggleSubcategory(sub.id)}
+                          className="text-amber-600 border-amber-300 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
                         />
                         <label
-                          htmlFor={`mobile-subcategory-${sub.id}`}
+                          htmlFor={`subcategory-${sub.id}`}
                           className="ml-2 text-sm cursor-pointer flex items-center"
                         >
                           {sub.icon && (
@@ -903,28 +783,48 @@ const furnitureColorScheme = {
                       </div>
                     ))}
                   </div>
-                </TabsContent>
+                </ScrollArea>
+              </div>
 
-                <TabsContent value="vendor" className="mt-4">
-                  <div className="space-y-2">
+              {/* Vendor Filter */}
+              <div className="mb-6">
+                <h3 className="text-sm font-medium mb-2 text-amber-700 flex items-center">
+                  <Filter className="h-4 w-4 mr-2 text-amber-500" />
+                  Vendor
+                </h3>
+                <ScrollArea className="h-40">
+                  <div className="space-y-2 pr-4">
                     {vendors.map((vendor) => (
-                      <div key={`mobile-${vendor.id}`} className="flex items-center">
+                      <div key={vendor.id} className="flex items-center">
                         <Checkbox
-                          id={`mobile-vendor-${vendor.id}`}
+                          id={`vendor-${vendor.id}`}
                           checked={activeVendors.includes(vendor.id)}
                           onCheckedChange={() => toggleVendor(vendor.id)}
+                          className="text-amber-600 border-amber-300 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
                         />
-                        <label htmlFor={`mobile-vendor-${vendor.id}`} className="ml-2 text-sm cursor-pointer">
+                        <label
+                          htmlFor={`vendor-${vendor.id}`}
+                          className="ml-2 text-sm cursor-pointer flex items-center"
+                        >
                           {vendor.name}
+                          {vendor.verified && (
+                            <Badge className="ml-1 bg-blue-500 text-white flex items-center gap-0.5 px-1 py-0 text-xs">
+                              <Check className="h-2 w-2" />
+                            </Badge>
+                          )}
                         </label>
                       </div>
                     ))}
                   </div>
-                </TabsContent>
-              </Tabs>
+                </ScrollArea>
+              </div>
 
-              <div className="mt-4">
-                <h3 className="text-sm font-medium mb-2">Price Range</h3>
+              {/* Price Range Filter */}
+              <div className="mb-6">
+                <h3 className="text-sm font-medium mb-2 text-amber-700 flex items-center">
+                  <Filter className="h-4 w-4 mr-2 text-amber-500" />
+                  Price Range
+                </h3>
                 <div className="px-2">
                   <Slider
                     defaultValue={[0, 500000]}
@@ -936,201 +836,489 @@ const furnitureColorScheme = {
                     className="mb-4"
                   />
                   <div className="flex items-center justify-between text-sm">
-                    <span>KSh {priceRange[0].toLocaleString()}</span>
-                    <span>KSh {priceRange[1].toLocaleString()}</span>
+                    <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded-md font-medium">
+                      KSh {priceRange[0].toLocaleString()}
+                    </span>
+                    <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded-md font-medium">
+                      KSh {priceRange[1].toLocaleString()}
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
-          )}
+          </div>
 
-          {/* Category Tabs */}
-          <Tabs
-            defaultValue={activeCategory === "all" ? "all" : activeCategory}
-            value={activeCategory === "all" ? "all" : activeCategory}
-            onValueChange={(value) => setActiveCategory(value)}
-            className="mb-6"
-          >
-            <TabsList className="w-full grid grid-cols-3">
-              <TabsTrigger value="all">All Furniture</TabsTrigger>
-              <TabsTrigger value="office" className="flex items-center">
-                <Briefcase className="mr-2 h-4 w-4" />
-                Office
-              </TabsTrigger>
-              <TabsTrigger value="home" className="flex items-center">
-                <Home className="mr-2 h-4 w-4" />
-                Home
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          {/* Subcategory Horizontal Scroll */}
-          <ScrollArea className="w-full whitespace-nowrap mb-6">
-            <div className="flex space-x-2 pb-2">
-              {getSubcategories().map((sub) => (
-                <Badge
-                  key={sub.id}
-                  variant={activeSubcategories.includes(sub.id) ? "default" : "outline"}
-                  className={cn(
-                    "cursor-pointer py-1.5 px-3",
-                    activeSubcategories.includes(sub.id)
-                      ? "bg-amber-600 hover:bg-amber-700"
-                      : "hover:bg-amber-50 dark:hover:bg-amber-900/20",
-                  )}
-                  onClick={() => toggleSubcategory(sub.id)}
-                >
-                  {sub.icon && (
-                    <span className="mr-1">
-                      {sub.id === "reception" && <Building2 className="h-3.5 w-3.5 inline" />}
-                      {sub.id === "boardroom" && <Coffee className="h-3.5 w-3.5 inline" />}
-                      {sub.id === "main-office" && <Briefcase className="h-3.5 w-3.5 inline" />}
-                      {sub.id === "beds" && <Bed className="h-3.5 w-3.5 inline" />}
-                      {sub.id === "sofaset" && <Sofa className="h-3.5 w-3.5 inline" />}
-                      {sub.id === "dinner-tables" && <UtensilsCrossed className="h-3.5 w-3.5 inline" />}
-                      {sub.id === "chairs" && <Armchair className="h-3.5 w-3.5 inline" />}
-                      {sub.id === "cupboards" && <BookOpen className="h-3.5 w-3.5 inline" />}
-                      {sub.id === "wardrobes" && <DoorOpen className="h-3.5 w-3.5 inline" />}
-                      {sub.id === "sitting-room-tables" && <Coffee className="h-3.5 w-3.5 inline" />}
-                      {sub.id === "other-home" && <Home className="h-3.5 w-3.5 inline" />}
-                    </span>
-                  )}
-                  {sub.name}
-                </Badge>
-              ))}
-            </div>
-          </ScrollArea>
-
-          {/* Products Grid */}
-          {displayedProducts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="bg-amber-100 dark:bg-amber-900/30 rounded-full p-4 mb-4">
-                <Search className="h-8 w-8 text-amber-600" />
+          {/* Main Content */}
+          <div className="flex-1">
+            {/* Search and Sort Bar */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-500 h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Search furniture..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 border-amber-200 focus:border-amber-400 focus:ring-amber-400 transition-all duration-300"
+                />
               </div>
-              <h3 className="text-xl font-semibold mb-2">No products found</h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md">
-                We couldn't find any products matching your criteria. Try adjusting your filters or search query.
-              </p>
-              <Button onClick={resetFilters}>Reset Filters</Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {displayedProducts.map((product, index) => (
-                <Card
-                  key={product.id}
-                  className="overflow-hidden transition-all duration-300 hover:shadow-lg group"
-                  ref={index === displayedProducts.length - 1 ? lastProductRef : undefined}
-                >
-                  <div className="relative h-48 overflow-hidden bg-gray-100 dark:bg-gray-800">
-                    <img
-                      src={product.image || "/placeholder.svg?height=300&width=300"}
-                      alt={product.name}
-                      className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
-                    />
 
-                    {product.isNew && (
-                      <div className="absolute top-2 left-2">
-                        <NewThisWeekBadge/>
-                      </div>
-                    )}
-
-                    {product.discountPercentage && product.discountPercentage > 0 && (
-                      <div className="absolute bottom-2 right-2">
-                        <Badge className="bg-red-500 text-white">{product.discountPercentage}% OFF</Badge>
-                      </div>
-                    )}
-                  </div>
-
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant="outline" className="text-xs">
-                        {product.subcategory}
-                      </Badge>
-                      <Badge
-                        variant="secondary"
-                        className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-                      >
-                        {product.vendor}
-                        {vendors.find(v => v.id === product.vendor)?.verified && (
-                  <Check className="h-3 w-3 ml-0.5 text-blue-500" />
-                      )}
-                      </Badge>
-                    </div>
-
-                    <h3 className="font-semibold text-lg mb-1 line-clamp-1">{product.name}</h3>
-
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">{product.description}</p>
-
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center">
-                        <div className="flex">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <Star
-                              key={i}
-                              className={cn(
-                                "h-4 w-4",
-                                i < Math.floor(product.rating) ? "text-yellow-400 fill-yellow-400" : "text-gray-300",
-                              )}
-                            />
-                          ))}
-                        </div>
-                        <span className="ml-1 text-xs text-gray-500">({product.reviewCount})</span>
-                      </div>
-
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "text-xs",
-                          product.inStock ? "border-green-500 text-green-600" : "border-red-500 text-red-600",
-                        )}
-                      >
-                        {product.inStock ? "In Stock" : "Out of Stock"}
-                      </Badge>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-amber-600 dark:text-amber-500">
-                        {product.currentPrice.currency} {product.currentPrice.amount.toLocaleString()}
-                      </span>
-
-                      {product.originalPrice && (
-                        <span className="text-sm line-through text-gray-400">
-                          {product.originalPrice.currency} {product.originalPrice.amount.toLocaleString()}
-                        </span>
-                      )}
-                    </div>
-                  </CardContent>
-
-                  <CardFooter className="p-4 pt-0 flex gap-2">
-                    <Button
-                      className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
-                      disabled={!product.inStock}
-                      onClick={() => addToCart(product)}
-                    >
-                      Add to Cart
-                    </Button>
+              <div className="flex gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      size="icon"
-                      className="hover:text-amber-600 hover:border-amber-600"
-                      onClick={() => viewProductDetails(product)}
+                      className="flex items-center border-amber-300 text-amber-700 hover:bg-amber-50 hover:text-amber-800 transition-colors duration-300"
                     >
-                      <Search className="h-4 w-4" />
+                      <ArrowUpDown className="mr-2 h-4 w-4" />
+                      {sortOption === "featured" && "Featured"}
+                      {sortOption === "price-low" && "Price: Low to High"}
+                      {sortOption === "price-high" && "Price: High to Low"}
+                      {sortOption === "rating" && "Highest Rated"}
+                      {sortOption === "newest" && "Newest"}
+                      {sortOption === "discount" && "Biggest Discount"}
                     </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          )}
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="border-amber-200">
+                    <DropdownMenuItem
+                      onClick={() => setSortOption("featured")}
+                      className="hover:bg-amber-50 hover:text-amber-800"
+                    >
+                      Featured
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setSortOption("price-low")}
+                      className="hover:bg-amber-50 hover:text-amber-800"
+                    >
+                      Price: Low to High
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setSortOption("price-high")}
+                      className="hover:bg-amber-50 hover:text-amber-800"
+                    >
+                      Price: High to Low
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setSortOption("rating")}
+                      className="hover:bg-amber-50 hover:text-amber-800"
+                    >
+                      Highest Rated
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setSortOption("newest")}
+                      className="hover:bg-amber-50 hover:text-amber-800"
+                    >
+                      Newest
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setSortOption("discount")}
+                      className="hover:bg-amber-50 hover:text-amber-800"
+                    >
+                      Biggest Discount
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-          {/* Loading Indicator */}
-          {isLoading && (
-            <div className="flex justify-center my-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+                <Button
+                  variant="outline"
+                  className="md:hidden border-amber-300 text-amber-700 hover:bg-amber-50 hover:text-amber-800"
+                  onClick={() => setShowFilters(!showFilters)}
+                >
+                  <Filter className="mr-2 h-4 w-4" />
+                  Filters
+                </Button>
+              </div>
             </div>
-          )}
+
+            {/* Mobile Filters */}
+            {showFilters && (
+              <div className="md:hidden mb-6 bg-white dark:bg-gray-900 rounded-lg border border-amber-200 dark:border-gray-800 p-4 shadow-md">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-amber-800">Filters</h2>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={resetFilters}
+                      className="text-amber-600 hover:text-amber-800 hover:bg-amber-50"
+                    >
+                      Reset
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowFilters(false)}
+                      className="text-amber-600 hover:text-amber-800 hover:bg-amber-50"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <Tabs defaultValue="category" className="w-full">
+                  <TabsList className="w-full grid grid-cols-3 bg-amber-100/50">
+                    <TabsTrigger
+                      value="category"
+                      className="data-[state=active]:bg-amber-600 data-[state=active]:text-white"
+                    >
+                      Category
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="subcategory"
+                      className="data-[state=active]:bg-amber-600 data-[state=active]:text-white"
+                    >
+                      Subcategory
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="vendor"
+                      className="data-[state=active]:bg-amber-600 data-[state=active]:text-white"
+                    >
+                      Vendor
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="category" className="mt-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center">
+                        <Checkbox
+                          id="mobile-category-all"
+                          checked={activeCategory === "all"}
+                          onCheckedChange={() => setActiveCategory("all")}
+                          className="text-amber-600 border-amber-300 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
+                        />
+                        <label htmlFor="mobile-category-all" className="ml-2 text-sm cursor-pointer">
+                          All Furniture
+                        </label>
+                      </div>
+                      <div className="flex items-center">
+                        <Checkbox
+                          id="mobile-category-office"
+                          checked={activeCategory === "office"}
+                          onCheckedChange={() => setActiveCategory("office")}
+                          className="text-amber-600 border-amber-300 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
+                        />
+                        <label
+                          htmlFor="mobile-category-office"
+                          className="ml-2 text-sm cursor-pointer flex items-center"
+                        >
+                          <Briefcase className="h-3.5 w-3.5 mr-1 text-amber-600" />
+                          Office Furniture
+                        </label>
+                      </div>
+                      <div className="flex items-center">
+                        <Checkbox
+                          id="mobile-category-home"
+                          checked={activeCategory === "home"}
+                          onCheckedChange={() => setActiveCategory("home")}
+                          className="text-amber-600 border-amber-300 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
+                        />
+                        <label htmlFor="mobile-category-home" className="ml-2 text-sm cursor-pointer flex items-center">
+                          <Home className="h-3.5 w-3.5 mr-1 text-amber-600" />
+                          Home Furniture
+                        </label>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="subcategory" className="mt-4">
+                    <div className="space-y-2">
+                      {getSubcategories().map((sub) => (
+                        <div key={`mobile-${sub.id}`} className="flex items-center">
+                          <Checkbox
+                            id={`mobile-subcategory-${sub.id}`}
+                            checked={activeSubcategories.includes(sub.id)}
+                            onCheckedChange={() => toggleSubcategory(sub.id)}
+                            className="text-amber-600 border-amber-300 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
+                          />
+                          <label
+                            htmlFor={`mobile-subcategory-${sub.id}`}
+                            className="ml-2 text-sm cursor-pointer flex items-center"
+                          >
+                            {sub.icon && (
+                              <span className="mr-1 text-amber-600">
+                                {sub.id === "reception" && <Building2 className="h-3.5 w-3.5" />}
+                                {sub.id === "boardroom" && <Coffee className="h-3.5 w-3.5" />}
+                                {sub.id === "main-office" && <Briefcase className="h-3.5 w-3.5" />}
+                                {sub.id === "beds" && <Bed className="h-3.5 w-3.5" />}
+                                {sub.id === "sofaset" && <Sofa className="h-3.5 w-3.5" />}
+                                {sub.id === "dinner-tables" && <UtensilsCrossed className="h-3.5 w-3.5" />}
+                                {sub.id === "chairs" && <Armchair className="h-3.5 w-3.5" />}
+                                {sub.id === "cupboards" && <BookOpen className="h-3.5 w-3.5" />}
+                                {sub.id === "wardrobes" && <DoorOpen className="h-3.5 w-3.5" />}
+                                {sub.id === "sitting-room-tables" && <Coffee className="h-3.5 w-3.5" />}
+                                {sub.id === "other-home" && <Home className="h-3.5 w-3.5" />}
+                              </span>
+                            )}
+                            {sub.name}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="vendor" className="mt-4">
+                    <div className="space-y-2">
+                      {vendors.map((vendor) => (
+                        <div key={`mobile-${vendor.id}`} className="flex items-center">
+                          <Checkbox
+                            id={`mobile-vendor-${vendor.id}`}
+                            checked={activeVendors.includes(vendor.id)}
+                            onCheckedChange={() => toggleVendor(vendor.id)}
+                            className="text-amber-600 border-amber-300 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
+                          />
+                          <label
+                            htmlFor={`mobile-vendor-${vendor.id}`}
+                            className="ml-2 text-sm cursor-pointer flex items-center"
+                          >
+                            {vendor.name}
+                            {vendor.verified && (
+                              <Badge className="ml-1 bg-blue-500 text-white flex items-center gap-0.5 px-1 py-0 text-xs">
+                                <Check className="h-2 w-2" />
+                              </Badge>
+                            )}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+
+                <div className="mt-4">
+                  <h3 className="text-sm font-medium mb-2 text-amber-700">Price Range</h3>
+                  <div className="px-2">
+                    <Slider
+                      defaultValue={[0, 500000]}
+                      min={0}
+                      max={500000}
+                      step={5000}
+                      value={priceRange}
+                      onValueChange={(value) => setPriceRange(value as [number, number])}
+                      className="mb-4"
+                    />
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded-md font-medium">
+                        KSh {priceRange[0].toLocaleString()}
+                      </span>
+                      <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded-md font-medium">
+                        KSh {priceRange[1].toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Category Tabs */}
+            <Tabs
+              defaultValue={activeCategory === "all" ? "all" : activeCategory}
+              value={activeCategory === "all" ? "all" : activeCategory}
+              onValueChange={(value) => setActiveCategory(value)}
+              className="mb-6"
+            >
+              <TabsList className="w-full grid grid-cols-3 bg-amber-100/50">
+                <TabsTrigger value="all" className="data-[state=active]:bg-amber-600 data-[state=active]:text-white">
+                  All Furniture
+                </TabsTrigger>
+                <TabsTrigger
+                  value="office"
+                  className="flex items-center data-[state=active]:bg-amber-600 data-[state=active]:text-white"
+                >
+                  <Briefcase className="mr-2 h-4 w-4" />
+                  Office
+                </TabsTrigger>
+                <TabsTrigger
+                  value="home"
+                  className="flex items-center data-[state=active]:bg-amber-600 data-[state=active]:text-white"
+                >
+                  <Home className="mr-2 h-4 w-4" />
+                  Home
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {/* Subcategory Horizontal Scroll */}
+            <ScrollArea className="w-full whitespace-nowrap mb-6">
+              <div className="flex space-x-2 pb-2">
+                {getSubcategories().map((sub) => (
+                  <Badge
+                    key={sub.id}
+                    variant={activeSubcategories.includes(sub.id) ? "default" : "outline"}
+                    className={cn(
+                      "cursor-pointer py-1.5 px-3 transition-all duration-300",
+                      activeSubcategories.includes(sub.id)
+                        ? "bg-amber-600 hover:bg-amber-700 text-white shadow-md"
+                        : "hover:bg-amber-50 dark:hover:bg-amber-900/20 border-amber-300 text-amber-700",
+                    )}
+                    onClick={() => toggleSubcategory(sub.id)}
+                  >
+                    {sub.icon && (
+                      <span className="mr-1">
+                        {sub.id === "reception" && <Building2 className="h-3.5 w-3.5 inline" />}
+                        {sub.id === "boardroom" && <Coffee className="h-3.5 w-3.5 inline" />}
+                        {sub.id === "main-office" && <Briefcase className="h-3.5 w-3.5 inline" />}
+                        {sub.id === "beds" && <Bed className="h-3.5 w-3.5 inline" />}
+                        {sub.id === "sofaset" && <Sofa className="h-3.5 w-3.5 inline" />}
+                        {sub.id === "dinner-tables" && <UtensilsCrossed className="h-3.5 w-3.5 inline" />}
+                        {sub.id === "chairs" && <Armchair className="h-3.5 w-3.5 inline" />}
+                        {sub.id === "cupboards" && <BookOpen className="h-3.5 w-3.5 inline" />}
+                        {sub.id === "wardrobes" && <DoorOpen className="h-3.5 w-3.5 inline" />}
+                        {sub.id === "sitting-room-tables" && <Coffee className="h-3.5 w-3.5 inline" />}
+                        {sub.id === "other-home" && <Home className="h-3.5 w-3.5 inline" />}
+                      </span>
+                    )}
+                    {sub.name}
+                  </Badge>
+                ))}
+              </div>
+            </ScrollArea>
+
+            {/* Products Grid */}
+            {displayedProducts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center bg-white rounded-xl shadow-md">
+                <div className="bg-amber-100 dark:bg-amber-900/30 rounded-full p-4 mb-4">
+                  <Search className="h-8 w-8 text-amber-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-amber-800">No products found</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md">
+                  We couldn't find any products matching your criteria. Try adjusting your filters or search query.
+                </p>
+                <Button
+                  onClick={resetFilters}
+                  className="bg-amber-600 hover:bg-amber-700 text-white shadow-md transition-all duration-300"
+                >
+                  Reset Filters
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {displayedProducts.map((product, index) => (
+                  <Card
+                    key={product.id}
+                    className="overflow-hidden transition-all duration-300 hover:shadow-xl group border-amber-200"
+                    ref={index === displayedProducts.length - 1 ? lastProductRef : undefined}
+                  >
+                    <div className="relative h-48 overflow-hidden bg-gray-100 dark:bg-gray-800">
+                      <img
+                        src={product.image || "/placeholder.svg?height=300&width=300"}
+                        alt={product.name}
+                        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                      />
+
+                      {product.isNew && (
+                        <div className="absolute top-2 left-2">
+                          <NewThisWeekBadge />
+                        </div>
+                      )}
+
+                      {product.discountPercentage && product.discountPercentage > 0 && (
+                        <div className="absolute bottom-2 right-2">
+                          <Badge className="bg-red-500 text-white shadow-md animate-pulse">
+                            {product.discountPercentage}% OFF
+                          </Badge>
+                        </div>
+                      )}
+                    </div>
+
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline" className="text-xs border-amber-300 text-amber-700">
+                          {product.subcategory}
+                        </Badge>
+                        <Badge
+                          variant="secondary"
+                          className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+                        >
+                          {product.vendor}
+                          {vendors.find((v) => v.id === product.vendor)?.verified && (
+                            <Check className="h-3 w-3 ml-0.5 text-blue-500" />
+                          )}
+                        </Badge>
+                      </div>
+
+                      <h3 className="font-semibold text-lg mb-1 line-clamp-1 text-amber-800">{product.name}</h3>
+
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">
+                        {product.description}
+                      </p>
+
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center">
+                          <div className="flex">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                className={cn(
+                                  "h-4 w-4",
+                                  i < Math.floor(product.rating) ? "text-yellow-400 fill-yellow-400" : "text-gray-300",
+                                )}
+                              />
+                            ))}
+                          </div>
+                          <span className="ml-1 text-xs text-gray-500">({product.reviewCount})</span>
+                        </div>
+
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "text-xs",
+                            product.inStock
+                              ? "border-green-500 text-green-600 bg-green-50"
+                              : "border-red-500 text-red-600 bg-red-50",
+                          )}
+                        >
+                          {product.inStock ? "In Stock" : "Out of Stock"}
+                        </Badge>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold text-amber-600 dark:text-amber-500">
+                          {product.currentPrice.currency} {product.currentPrice.amount.toLocaleString()}
+                        </span>
+
+                        {product.originalPrice && (
+                          <span className="text-sm line-through text-gray-400">
+                            {product.originalPrice.currency} {product.originalPrice.amount.toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+                    </CardContent>
+
+                    <CardFooter className="p-4 pt-0 flex gap-2">
+                      <Button
+                        className="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md transition-all duration-300"
+                        disabled={!product.inStock}
+                        onClick={() => addToCart(product)}
+                      >
+                        Add to Cart
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="hover:text-amber-600 hover:border-amber-600 border-amber-300 transition-colors duration-300"
+                        onClick={() => viewProductDetails(product)}
+                      >
+                        <Search className="h-4 w-4" />
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {/* Loading Indicator */}
+            {isLoading && (
+              <div className="flex items-center justify-center py-8">
+                <Sparkles className="animate-spin h-8 w-8 text-amber-500" />
+                <span className="ml-2 text-gray-500">Loading more products...</span>
+              </div>
+            )}
+
+            {!hasMore && displayedProducts.length > 0 && (
+              <div className="flex items-center justify-center py-8 text-gray-500">No more products to load.</div>
+            )}
+          </div>
         </div>
       </div>
     </div>
   )
 }
-
