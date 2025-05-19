@@ -18,6 +18,7 @@ import {
   Star,
   Sparkles,
   TrendingUp,
+  X,
 } from "lucide-react"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
@@ -35,7 +36,6 @@ import { trendingProducts, popularProducts } from "./trending-data"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { TimeBasedRecommendations } from "@/components/TimeBasedRecommendations"
-
 
 // Add these utility functions at the top of the file, after the imports and before the types
 /**
@@ -105,7 +105,7 @@ interface Vendor {
   drinks: Drink[]
   redirectUrl: string
   mapLink: string
-  verified?:boolean
+  verified?: boolean
   defaultCurrency: string
 }
 
@@ -119,7 +119,7 @@ const mockVendors: Vendor[] = [
     description: "Your one-stop shop for premium soft drinks and refreshing beverages.",
     mapLink: "https://www.google.com/maps",
     defaultCurrency: "KSH",
-    verified:true,
+    verified: true,
     drinks: [
       {
         id: 101,
@@ -145,7 +145,7 @@ const mockVendors: Vendor[] = [
         },
         servingSuggestion: "Best served chilled with ice cubes",
         hotDealEnds: "2025-04-01T23:59:59Z",
-        isHotDeal:true,
+        isHotDeal: true,
       },
       {
         id: 102,
@@ -202,7 +202,7 @@ const mockVendors: Vendor[] = [
     description: "Specializing in unique and exotic non-alcoholic beverages from around the world.",
     mapLink: "https://www.google.com/maps",
     defaultCurrency: "KSH",
-    verified:true,
+    verified: true,
     drinks: [
       {
         id: 201,
@@ -228,7 +228,7 @@ const mockVendors: Vendor[] = [
         },
         servingSuggestion: "Pour over crushed ice and garnish with a mint leaf",
         hotDealEnds: "2025-03-30T23:59:59Z",
-        isHotDeal:true,
+        isHotDeal: true,
       },
       {
         id: 202,
@@ -264,7 +264,7 @@ const mockVendors: Vendor[] = [
     description: "Curating the finest collection of premium spirits and craft alcoholic beverages.",
     mapLink: "https://www.google.com/maps",
     defaultCurrency: "KSH",
-    verified:true,
+    verified: true,
     drinks: [
       {
         id: 301,
@@ -286,7 +286,7 @@ const mockVendors: Vendor[] = [
         reviewCount: 156,
         servingSuggestion: "Best enjoyed neat or with a drop of water to release the aromas",
         hotDealEnds: "2025-04-05T23:59:59Z",
-        isHotDeal:true,
+        isHotDeal: true,
       },
       {
         id: 302,
@@ -348,7 +348,7 @@ const mockVendors: Vendor[] = [
     description: "Local craft brewery specializing in unique and flavorful beer varieties.",
     mapLink: "https://www.google.com/maps",
     defaultCurrency: "KSH",
-    verified:true,
+    verified: true,
     drinks: [
       {
         id: 401,
@@ -372,7 +372,7 @@ const mockVendors: Vendor[] = [
         ingredients: ["Water", "Malted Barley", "Wheat", "Hops", "Yeast"],
         servingSuggestion: "Serve cold in a tulip glass to enhance the aromatic experience",
         hotDealEnds: "2025-04-10T23:59:59Z",
-        isHotDeal:true,
+        isHotDeal: true,
       },
       {
         id: 402,
@@ -476,7 +476,7 @@ export default function DrinksPage() {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const searchInputRef = useRef<HTMLDivElement>(null)
   const [isHovered, setIsHovered] = useState(false)
-
+  const [selectedDrink, setSelectedDrink] = useState<Drink | null>(null)
 
   // Get all drink types
   const softDrinkTypes = Array.from(
@@ -506,16 +506,14 @@ export default function DrinksPage() {
   const [hasMore, setHasMore] = useState(true)
   const loaderRef = useRef<HTMLDivElement>(null)
 
-// Custom color scheme for drinks
-const drinkColorScheme = {
-  primary: "from-blue-500 to-green-700",
-  secondary: "bg-blue-100",
-  accent: "bg-green-600",
-  text: "text-emerald-900",
-  background: "bg-emerald-50",
-}
-
-
+  // Custom color scheme for drinks
+  const drinkColorScheme = {
+    primary: "from-blue-500 to-green-700",
+    secondary: "bg-blue-100",
+    accent: "bg-green-600",
+    text: "text-emerald-900",
+    background: "bg-emerald-50",
+  }
 
   // Transform drinks for HotTimeDeals and NewProductsForYou components
   const allDrinks = vendors.flatMap((vendor) =>
@@ -691,12 +689,225 @@ const drinkColorScheme = {
     return () => clearInterval(swapInterval)
   }, [])
 
+  // Function to view drink details
+  const viewDrinkDetails = (drink: Drink) => {
+    setSelectedDrink(drink)
+  }
+
+  // Function to close drink details
+  const closeDrinkDetails = () => {
+    setSelectedDrink(null)
+  }
+
+  // Function to add to cart
+  const addToCart = (drink: Drink) => {
+    alert(`Added ${drink.name} to cart!`)
+    closeDrinkDetails()
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50">
       {/* Decorative elements */}
       <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-r from-blue-500/10 to-purple-500/10 -z-10"></div>
       <div className="absolute bottom-0 right-0 w-full h-64 bg-gradient-to-l from-indigo-500/10 to-blue-500/10 -z-10"></div>
-     
+
+      {/* Animated particles background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-5">
+        {Array.from({ length: 15 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full bg-gradient-to-r from-blue-400/10 to-purple-400/10"
+            style={{
+              width: `${Math.random() * 100 + 50}px`,
+              height: `${Math.random() * 100 + 50}px`,
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDuration: `${Math.random() * 20 + 10}s`,
+              animationDelay: `${Math.random() * 5}s`,
+              animation: "float-drink infinite ease-in-out",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Drink Detail Modal */}
+      {selectedDrink && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white dark:bg-gray-900 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
+              <h2 className="text-xl font-bold truncate">{selectedDrink.name}</h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={closeDrinkDetails}
+                className="rounded-full hover:bg-blue-100"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Drink Image */}
+                <div className="space-y-4">
+                  <div className="aspect-square rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800 shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <img
+                      src={selectedDrink.imageUrl || "/placeholder.svg"}
+                      alt={selectedDrink.name}
+                      className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+                    />
+                  </div>
+                </div>
+
+                {/* Drink Info */}
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex items-center mb-2">
+                      <Badge
+                        className={`bg-${selectedDrink.category === "Soft Drink" ? "blue" : "purple"}-100 text-${selectedDrink.category === "Soft Drink" ? "blue" : "purple"}-800 mr-2`}
+                      >
+                        {selectedDrink.category}
+                      </Badge>
+                      <Badge
+                        variant="outline"
+                        className={`border-${selectedDrink.category === "Soft Drink" ? "blue" : "purple"}-300 text-${selectedDrink.category === "Soft Drink" ? "blue" : "purple"}-700`}
+                      >
+                        {selectedDrink.type}
+                      </Badge>
+                      {selectedDrink.isNew && (
+                        <div className="ml-2">
+                          <NewThisWeekBadge />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center mb-4">
+                      <div className="flex items-center bg-blue-50 px-2 py-1 rounded-md">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-4 w-4 ${
+                              i < Math.floor(selectedDrink.rating || 0)
+                                ? "text-yellow-400 fill-yellow-400"
+                                : "text-gray-300"
+                            }`}
+                          />
+                        ))}
+                        <span className="ml-2 text-sm text-blue-700 font-medium">
+                          ({selectedDrink.reviewCount} reviews)
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">{selectedDrink.description}</p>
+
+                    <div className="space-y-3 mb-6 bg-blue-50 p-4 rounded-lg">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-blue-700 font-medium">Brand</span>
+                        <span className="font-medium">{selectedDrink.brand}</span>
+                      </div>
+
+                      {selectedDrink.origin && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-blue-700 font-medium">Origin</span>
+                          <span className="font-medium">{selectedDrink.origin}</span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between text-sm">
+                        <span className="text-blue-700 font-medium">Volume</span>
+                        <span className="font-medium">{selectedDrink.volume}</span>
+                      </div>
+
+                      {selectedDrink.alcoholContent && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-blue-700 font-medium">Alcohol Content</span>
+                          <span className="font-medium">{selectedDrink.alcoholContent}</span>
+                        </div>
+                      )}
+
+                      {selectedDrink.nutritionalInfo && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-blue-700 font-medium">Calories</span>
+                          <span className="font-medium">{selectedDrink.nutritionalInfo.calories || "N/A"} kcal</span>
+                        </div>
+                      )}
+
+                      {selectedDrink.nutritionalInfo && selectedDrink.nutritionalInfo.sugar !== undefined && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-blue-700 font-medium">Sugar</span>
+                          <span className="font-medium">{selectedDrink.nutritionalInfo.sugar}g</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {selectedDrink.ingredients && selectedDrink.ingredients.length > 0 && (
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold mb-2 text-blue-700">Ingredients</h3>
+                        <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                          {selectedDrink.ingredients.map((ingredient, index) => (
+                            <li key={index}>{ingredient}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {selectedDrink.servingSuggestion && (
+                      <div className="mb-6 bg-blue-50 p-4 rounded-lg">
+                        <h3 className="text-lg font-semibold mb-2 text-blue-700">Serving Suggestion</h3>
+                        <p className="text-gray-700">{selectedDrink.servingSuggestion}</p>
+                      </div>
+                    )}
+
+                    <div className="flex items-baseline mb-6 bg-white p-4 rounded-lg shadow-sm">
+                      <span className="text-2xl font-bold text-blue-600 dark:text-blue-500">
+                        {formatPrice(selectedDrink.currentPrice)}
+                      </span>
+
+                      {selectedDrink.originalPrice &&
+                        selectedDrink.originalPrice.amount > selectedDrink.currentPrice.amount && (
+                          <>
+                            <span className="ml-2 text-lg text-gray-500 line-through">
+                              {formatPrice(selectedDrink.originalPrice)}
+                            </span>
+                            <Badge className="ml-2 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                              {Math.round(
+                                ((selectedDrink.originalPrice.amount - selectedDrink.currentPrice.amount) /
+                                  selectedDrink.originalPrice.amount) *
+                                  100,
+                              )}
+                              % OFF
+                            </Badge>
+                          </>
+                        )}
+                    </div>
+
+                    <div className="flex gap-4">
+                      <Button
+                        className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md transition-all duration-300"
+                        onClick={() => addToCart(selectedDrink)}
+                      >
+                        Add to Cart
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="flex-1 border-blue-600 text-blue-600 hover:bg-blue-50 transition-colors duration-300"
+                        onClick={() => {
+                          alert(`Added ${selectedDrink.name} to wishlist!`)
+                          closeDrinkDetails()
+                        }}
+                      >
+                        Add to Wishlist
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="container mx-auto px-4 py-8 max-w-[1920px] relative z-10">
         {/* Header with animated gradient text */}
         <div className="text-center mb-10">
@@ -735,78 +946,79 @@ const drinkColorScheme = {
 
         {/* New Products For You Section */}
         <NewProductsForYou allProducts={allDrinks} colorScheme="purple" maxProducts={4} />
-     
-        <div className="container mx-auto px-4">
-  <TimeBasedRecommendations
-    products={vendors.flatMap((vendor) =>
-      vendor.drinks.map((drink) => ({
-        id: drink.id,
-        name: drink.name,
-        imageUrl: drink.imageUrl,
-        description: drink.description,
-        currentPrice: drink.currentPrice,
-        originalPrice: drink.originalPrice,
-        category: drink.type,
-        recommendedTimes:
-  drink.type.toLowerCase().includes("juice") || drink.type.toLowerCase().includes("smoothie")
-    ? ["morning"]
-    : drink.type.toLowerCase().includes("tea") && !drink.name.toLowerCase().includes("night")
-      ? ["afternoon"]
-      : drink.category === "Alcoholic"
-        ? ["evening"]
-        : drink.name.toLowerCase().includes("night") || drink.name.toLowerCase().includes("chamomile")
-          ? ["night"]
-          : undefined,
-      })),
-    )}
-    title="Drinks Perfect For This Time"
-    subtitle="Refreshments ideal for your current moment"
-    colorScheme="blue"
-    maxProducts={4}
-  />
-</div>
 
- {/* Trending and Popular Section */}
- <TrendingPopularSection
-        trendingProducts={trendingProducts}
-        popularProducts={popularProducts}
-        colorScheme={drinkColorScheme}
-        title=" Favorite Drinks"
-        subtitle="See what's trending and most popular"
-      />
-   {/*the shop logic*/}
-   <div className="flex justify-center my-8">
-      <Link href="/drinks/shop">
-        <Button
-          size="lg"
-          className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <motion.div
-            className="absolute inset-0 bg-white opacity-10"
-            initial={{ x: "-100%" }}
-            animate={{ x: isHovered ? "100%" : "-100%" }}
-            transition={{ duration: 1, ease: "easeInOut" }}
+        <div className="container mx-auto px-4">
+          <TimeBasedRecommendations
+            products={vendors.flatMap((vendor) =>
+              vendor.drinks.map((drink) => ({
+                id: drink.id,
+                name: drink.name,
+                imageUrl: drink.imageUrl,
+                description: drink.description,
+                currentPrice: drink.currentPrice,
+                originalPrice: drink.originalPrice,
+                category: drink.type,
+                recommendedTimes:
+                  drink.type.toLowerCase().includes("juice") || drink.type.toLowerCase().includes("smoothie")
+                    ? ["morning"]
+                    : drink.type.toLowerCase().includes("tea") && !drink.name.toLowerCase().includes("night")
+                      ? ["afternoon"]
+                      : drink.category === "Alcoholic"
+                        ? ["evening"]
+                        : drink.name.toLowerCase().includes("night") || drink.name.toLowerCase().includes("chamomile")
+                          ? ["night"]
+                          : undefined,
+              })),
+            )}
+            title="Drinks Perfect For This Time"
+            subtitle="Refreshments ideal for your current moment"
+            colorScheme="blue"
+            maxProducts={4}
           />
-          <span className="flex items-center text-lg font-medium">
-            <Wine className="mr-2 h-5 w-5" />
-            Explore Our Drinks Shop Today!
-            <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </motion.div>
-          </span>
-          <motion.div
-            className="absolute -top-1 -right-1"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Sparkles className="h-5 w-5 text-yellow-300" />
-          </motion.div>
-        </Button>
-      </Link>
-    </div>
+        </div>
+
+        {/* Trending and Popular Section */}
+        <TrendingPopularSection
+          trendingProducts={trendingProducts}
+          popularProducts={popularProducts}
+          colorScheme={drinkColorScheme}
+          title="Favorite Drinks"
+          subtitle="See what's trending and most popular"
+        />
+
+        {/*the shop logic*/}
+        <div className="flex justify-center my-8">
+          <Link href="/drinks/shop">
+            <Button
+              size="lg"
+              className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              <motion.div
+                className="absolute inset-0 bg-white opacity-10"
+                initial={{ x: "-100%" }}
+                animate={{ x: isHovered ? "100%" : "-100%" }}
+                transition={{ duration: 1, ease: "easeInOut" }}
+              />
+              <span className="flex items-center text-lg font-medium">
+                <Wine className="mr-2 h-5 w-5" />
+                Explore Our Drinks Shop Today!
+                <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </motion.div>
+              </span>
+              <motion.div
+                className="absolute -top-1 -right-1"
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Sparkles className="h-5 w-5 text-yellow-300" />
+              </motion.div>
+            </Button>
+          </Link>
+        </div>
 
         {/* Enhanced search section */}
         <div className="mb-10 bg-white bg-opacity-80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-blue-100">
@@ -984,6 +1196,7 @@ const drinkColorScheme = {
                       vendor={vendor}
                       category={category}
                       selectedType={selectedType}
+                      onViewDrinkDetails={viewDrinkDetails}
                     />
                   ))}
               </div>
@@ -1014,6 +1227,50 @@ const drinkColorScheme = {
         {/* Loader reference element */}
         <div ref={loaderRef} className="h-20"></div>
       </div>
+
+      {/* Add keyframes for floating animation */}
+      <style jsx global>{`
+        @keyframes float-drink {
+          0%, 100% { transform: translateY(0) rotate(0); }
+          50% { transform: translateY(-20px) rotate(3deg); }
+        }
+        
+        @keyframes slide-in-right {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .animate-slide-in-right {
+          animation: slide-in-right 0.5s ease-out forwards;
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 0.5s ease-out forwards;
+        }
+        
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        .animate-fade-in-up {
+          animation: fade-in-up 0.8s ease-out forwards;
+        }
+        
+        @keyframes fade-in-up {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-slide-in {
+          animation: slide-in 0.8s ease-out forwards;
+        }
+        
+        @keyframes slide-in {
+          from { opacity: 0; transform: translateX(-20px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
     </div>
   )
 }
@@ -1023,10 +1280,12 @@ function VendorCard({
   vendor,
   category,
   selectedType,
+  onViewDrinkDetails,
 }: {
   vendor: Vendor
   category: "Soft Drink" | "Alcoholic"
   selectedType: string
+  onViewDrinkDetails: (drink: Drink) => void
 }) {
   const [imageError, setImageError] = useState(false)
   const colors = getCategoryColors(category)
@@ -1055,7 +1314,7 @@ function VendorCard({
                 className="rounded-full border-2 border-white shadow-md"
                 onError={() => setImageError(true)}
               />
-               {vendor.verified && (
+              {vendor.verified && (
                 <div className="absolute -bottom-1 -right-1 bg-purple-500 text-white rounded-full p-1">
                   <Check className="h-3 w-3" />
                 </div>
@@ -1080,41 +1339,35 @@ function VendorCard({
 
       <div className="p-4 flex-grow grid grid-cols-1 sm:grid-cols-2 gap-4">
         {filteredDrinks.map((drink) => (
-          <DrinkCard key={drink.id} drink={drink} />
+          <DrinkCard key={drink.id} drink={drink} onViewDetails={onViewDrinkDetails} />
         ))}
       </div>
     </motion.div>
   )
 }
+
 function MostPreferredBadge() {
-    return (
-      <motion.div
-        className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg flex items-center"
-        animate={{ 
-          scale: [1, 1.1, 1],
-          boxShadow: [
-            "0 4px 6px rgba(0, 0, 0, 0.1)",
-            "0 10px 15px rgba(0, 0, 0, 0.2)",
-            "0 4px 6px rgba(0, 0, 0, 0.1)"
-          ]
-        }}
-        transition={{ 
-          duration: 2,
-          repeat: Infinity,
-          repeatType: "reverse"
-        }}
-      >
-        
-        <TrendingUp className="h-3 w-3 mr-1" />
-        <span>most-preferred</span>
-      </motion.div>
-    );
-  }
-
-
+  return (
+    <motion.div
+      className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg flex items-center"
+      animate={{
+        scale: [1, 1.1, 1],
+        boxShadow: ["0 4px 6px rgba(0, 0, 0, 0.1)", "0 10px 15px rgba(0, 0, 0, 0.2)", "0 4px 6px rgba(0, 0, 0, 0.1)"],
+      }}
+      transition={{
+        duration: 2,
+        repeat: Number.POSITIVE_INFINITY,
+        repeatType: "reverse",
+      }}
+    >
+      <TrendingUp className="h-3 w-3 mr-1" />
+      <span>most-preferred</span>
+    </motion.div>
+  )
+}
 
 // Drink Card Component
-function DrinkCard({ drink }: { drink: Drink }) {
+function DrinkCard({ drink, onViewDetails }: { drink: Drink; onViewDetails: (drink: Drink) => void }) {
   const [imageError, setImageError] = useState(false)
   const colors = getCategoryColors(drink.category)
 
@@ -1128,6 +1381,7 @@ function DrinkCard({ drink }: { drink: Drink }) {
       className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col h-full border border-gray-100"
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.98 }}
+      onClick={() => onViewDetails(drink)}
     >
       <div className="relative">
         <div className="relative pt-[75%]">
@@ -1160,7 +1414,7 @@ function DrinkCard({ drink }: { drink: Drink }) {
         {/* Most preferred badge */}
         {drink.isMostPreferred && (
           <div className="absolute top-2 left-2">
-            <MostPreferredBadge  />
+            <MostPreferredBadge />
           </div>
         )}
 
@@ -1226,11 +1480,10 @@ function DrinkCard({ drink }: { drink: Drink }) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Grab Yours Today!
+            View Details
           </motion.button>
         </div>
       </div>
     </motion.div>
   )
 }
-
