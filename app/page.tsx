@@ -11,6 +11,7 @@ import TopAdvertisementSection from "@/components/TopAdvertisementSection"
 import MagazineDisplay from "@/components/MagazineDisplay"
 import MovieReelsDisplay from "@/components/MovieReelsDisplay"
 import SellingSoftwareSection from "@/components/SellingSoftwareSection"
+import ConsumptionAnalyticsChart from "@/components/ConsumptionAnalyticsChart"
 
 
 
@@ -83,8 +84,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-
-
+  
         
            {/* Magazine Display Section */}
         <MagazineDisplay />
@@ -95,6 +95,10 @@ export default function Home() {
         {/* Software Marketplace Section */}
         <SellingSoftwareSection />
       </div>
+    {/* Consumption Analytics Chart Section */}
+        <div className="mb-8">
+          <ConsumptionAnalyticsChart />
+        </div>
       <TrustedPartners />
     </div>
   )
