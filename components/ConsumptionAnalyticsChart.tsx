@@ -477,25 +477,22 @@ export default function ConsumptionAnalyticsChart() {
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-6">
+          {/* Main Chart in Overview */}
           <Card className="bg-gradient-to-br from-slate-50 to-slate-100">
             <CardHeader className="pb-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <BarChart3 className="h-5 w-5" />
-                    Consumption Visualization
+                    Consumption Overview
                   </CardTitle>
-                  <CardDescription>
-                    Interactive charts showing consumption patterns across different time periods and categories
-                  </CardDescription>
+                  <CardDescription>Quick view of consumption patterns across selected categories</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Enhanced Controls */}
+              {/* Basic Controls */}
               <div className="flex flex-wrap gap-4 p-4 bg-white/50 rounded-xl border border-slate-200">
                 <div className="flex items-center space-x-2">
                   <Label htmlFor="chart-type" className="text-sm font-medium">
@@ -560,6 +557,34 @@ export default function ConsumptionAnalyticsChart() {
                 </div>
               </div>
 
+              {/* Chart Container */}
+              <div className="bg-white rounded-xl p-6 border border-slate-200">
+                <div className="h-[400px] w-full">
+                  <ChartContainer config={chartConfig}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      {renderChart()}
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-6">
+          <Card className="bg-gradient-to-br from-slate-50 to-slate-100">
+            <CardHeader className="pb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    Advanced Analytics
+                  </CardTitle>
+                  <CardDescription>Detailed analysis with advanced filtering and category management</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
               {/* Enhanced Category Filters */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -606,7 +631,7 @@ export default function ConsumptionAnalyticsChart() {
                 </div>
               </div>
 
-              {/* Chart Container */}
+              {/* Detailed Chart Container */}
               <div className="bg-white rounded-xl p-6 border border-slate-200">
                 <div className="h-[500px] w-full">
                   <ChartContainer config={chartConfig}>
