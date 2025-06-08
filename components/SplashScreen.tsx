@@ -63,7 +63,7 @@ const redirectTimer = setTimeout(() => {
       clearTimeout(redirectTimer)
       clearInterval(progressInterval)
     }
-  }, [router])
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-400 via-red-500 to-yellow-600 relative overflow-hidden">
