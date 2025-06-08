@@ -535,7 +535,7 @@ export default function Entertainment() {
     </div>
 {/*THE LIVE STREAM LOGIC*/}
 <div className="flex justify-center my-8">
-      <Link href="https://www.2cheki.vercel.app">
+      <Link href="https://www.bit.ly/2cheki">
         <Button
           size="lg"
           className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
