@@ -1,5 +1,6 @@
 "use client"
 
+import type React from "react"
 import { useEffect, useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
@@ -17,10 +18,17 @@ import {
   Loader2,
   Star,
   Zap,
+  Store,
 } from "lucide-react"
-import Image from "next/image"
 
-const productIcons = [
+interface ProductIcon {
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>
+  color: string
+  name: string
+  delay: number
+}
+
+const productIcons: ProductIcon[] = [
   { icon: Wheat, color: "#D4A574", name: "Agriculture Products", delay: 0 },
   { icon: Sparkles, color: "#E91E63", name: "Beauty Products", delay: 0.3 },
   { icon: Building2, color: "#FF9800", name: "Hospitality Products", delay: 0.6 },
@@ -34,40 +42,100 @@ const productIcons = [
   { icon: Dumbbell, color: "#FF5722", name: "Sports & Music Instruments", delay: 3.0 },
 ]
 
-export default function LoadingPage() {
-  const [progress, setProgress] = useState(0)
-  const [showBasket, setShowBasket] = useState(false)
-  const router = useRouter()
+const loadingMessages: string[] = [
+  "Connecting to Kenyan vendors...",
+  "Loading exclusive deals...",
+  "Preparing your discount radar...",
+  "Gathering the best offers...",
+  "Setting up your marketplace...",
+  "Almost ready for shopping...",
+]
+
+interface SplashScreenProps {
+  onComplete: () => void
+}
+
+export default function SplashScreen({ onComplete }: SplashScreenProps): JSX.Element {
+  const [progress, setProgress] = useState<number>(0)
+  const [showBasket, setShowBasket] = useState<boolean>(false)
+  const [timeRemaining, setTimeRemaining] = useState<number>(240) // 4 minutes in seconds
+  const [isCompleting, setIsCompleting] = useState<boolean>(false)
+  const [currentMessage, setCurrentMessage] = useState<number>(0)
+
+  const handleComplete = useCallback((): void => {
+    if (!isCompleting) {
+      console.log("4 minutes completed! Welcome to OneShopDiscount!")
+      setIsCompleting(true)
+      onComplete()
+    }
+  }, [onComplete, isCompleting])
 
   useEffect(() => {
-    // Show basket after 2 seconds
-    const basketTimer = setTimeout(() => setShowBasket(true), 2000)
+    console.log("🎯 OneShopDiscount Splash Screen Started - African Vibe Experience!")
+    console.log("⏱️ 4-minute journey begins now...")
 
-    // Progress animation
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(progressInterval)
-          return 100
+    // Show basket after 2 seconds
+    const basketTimer = setTimeout(() => {
+      setShowBasket(true)
+      console.log("🛒 Shopping basket appeared with overflow animation!")
+    }, 2000)
+
+    // Rotate loading messages every 40 seconds
+    const messageTimer = setInterval(() => {
+      setCurrentMessage((prev) => (prev + 1) % loadingMessages.length)
+    }, 40000)
+
+    // Main timer - updates every second for 4 minutes (240 seconds)
+    const mainTimer = setInterval(() => {
+      setTimeRemaining((prev) => {
+        const newTime = prev - 1
+        const newProgress = ((240 - newTime) / 240) * 100
+
+        setProgress(newProgress)
+
+        // Log progress every 30 seconds
+        if (newTime % 30 === 0 && newTime > 0) {
+          const mins = Math.floor(newTime / 60)
+          const secs = newTime % 60
+          console.log(
+            `⏰ Time remaining: ${mins}:${secs.toString().padStart(2, "0")} | Progress: ${Math.round(newProgress)}% | OneShopDiscount loading...`,
+          )
         }
-        return prev + 0.42 // Roughly 4 minutes (240 seconds / 100 = 2.4, so 100/240 = 0.42 per second)
+
+        if (newTime <= 0) {
+          clearInterval(mainTimer)
+          console.log("🎉 Timer finished! Welcome to OneShopDiscount - Your Ultimate Discount Radar!")
+          handleComplete()
+          return 0
+        }
+
+        return newTime
       })
     }, 1000)
 
-    // Redirect after 4 minutes
-    const redirectTimer = setTimeout(() => {
-      router.push("/")
+    // Fallback timer - ensures completion after exactly 4 minutes
+    const fallbackTimer = setTimeout(() => {
+      console.log("🔄 Fallback timer triggered - ensuring OneShopDiscount loads...")
+      handleComplete()
     }, 240000) // 4 minutes
 
     return () => {
       clearTimeout(basketTimer)
-      clearTimeout(redirectTimer)
-      clearInterval(progressInterval)
+      clearTimeout(fallbackTimer)
+      clearInterval(mainTimer)
+      clearInterval(messageTimer)
     }
-  }, [router])
+  }, [handleComplete])
+
+  // Format time remaining for display
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, "0")}`
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-400 via-red-500 to-yellow-600 relative overflow-hidden">
+    <div className="fixed inset-0 z-50 min-h-screen bg-gradient-to-br from-orange-400 via-red-500 to-yellow-600 overflow-hidden">
       {/* African Pattern Overlay */}
       <div className="absolute inset-0 opacity-10">
         <div
@@ -78,26 +146,47 @@ export default function LoadingPage() {
         />
       </div>
 
-      {/* Header with Logo */}
+      {/* Header with OneShopDiscount Logo */}
       <motion.header
         className="flex justify-center pt-8 pb-4"
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
       >
-        <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 shadow-2xl border border-white/30">
-          <Image
-            src="/oneshopdiscountlogo.png"
-            alt="OneShopDiscount Logo"
-            width={200}
-            height={80}
-            className="h-20 w-auto"
-          />
+        <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-white/30">
+          <div className="text-center">
+            {/* Custom Logo using Icons instead of image */}
+            <motion.div
+              className="flex items-center justify-center gap-3 mb-4"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }}
+            >
+              <div className="bg-white/30 p-3 rounded-full">
+                <Store className="w-12 h-12 text-white" />
+              </div>
+              <div className="text-left">
+                <h1 className="text-3xl font-bold text-white tracking-tight">OneShop</h1>
+                <h2 className="text-xl font-semibold text-yellow-200">Discount</h2>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="flex items-center justify-center gap-2 text-white font-bold text-lg"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+            >
+              <Star className="w-5 h-5 text-yellow-300" />
+              <span>Your Ultimate Discount Radar</span>
+              <Star className="w-5 h-5 text-yellow-300" />
+            </motion.div>
+          </div>
         </div>
       </motion.header>
 
+      {/* Main Content Area */}
       <div className="flex-1 flex items-center justify-center px-4 py-8">
         <div className="relative w-full max-w-4xl aspect-square">
+          {/* Central Shopping Basket */}
           <AnimatePresence>
             {showBasket && (
               <motion.div
@@ -114,7 +203,7 @@ export default function LoadingPage() {
                     <ShoppingBasket className="w-24 h-24 text-amber-800 drop-shadow-2xl" />
                   </motion.div>
 
-                  {/* Overflow Effect */}
+                  {/* Overflow Effect - Enhanced */}
                   <motion.div
                     className="absolute -top-4 -left-2 w-8 h-8"
                     animate={{
@@ -169,7 +258,7 @@ export default function LoadingPage() {
             )}
           </AnimatePresence>
 
-          {/* Orbiting Icons */}
+          {/* Orbiting Product Category Icons */}
           {productIcons.map((item, index) => {
             const Icon = item.icon
             const angle = (index * 360) / productIcons.length
@@ -230,7 +319,7 @@ export default function LoadingPage() {
             )
           })}
 
-          {/* Spilling Animation Particles */}
+          {/* Enhanced Spilling Animation Particles */}
           {showBasket && (
             <>
               {[...Array(12)].map((_, i) => (
@@ -263,7 +352,7 @@ export default function LoadingPage() {
         </div>
       </div>
 
-      {/* Footer */}
+      {/* Enhanced Footer */}
       <motion.footer
         className="text-center pb-8 px-4"
         initial={{ opacity: 0, y: 50 }}
@@ -281,11 +370,11 @@ export default function LoadingPage() {
           }}
           transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
         >
-          {"It's where experience meets convenience"}
+          It&apos;s where experience meets convenience
         </motion.p>
 
-        {/* Spinning Wheel */}
-        <motion.div className="flex justify-center mb-4">
+        {/* Enhanced Spinning Wheel */}
+        <motion.div className="flex justify-center mb-6">
           <motion.div
             className="w-16 h-16 rounded-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 shadow-2xl flex items-center justify-center"
             animate={{ rotate: 360 }}
@@ -301,7 +390,7 @@ export default function LoadingPage() {
           </motion.div>
         </motion.div>
 
-        {/* Progress Bar */}
+        {/* Enhanced Progress Bar and Timer */}
         <div className="max-w-md mx-auto">
           <div className="bg-white/20 rounded-full h-3 backdrop-blur-sm mb-3">
             <motion.div
@@ -341,8 +430,8 @@ export default function LoadingPage() {
         </div>
       </motion.footer>
 
-      {/* Floating Elements */}
-      {[...Array(6)].map((_, i) => (
+      {/* Enhanced Floating Elements */}
+      {[...Array(8)].map((_, i) => (
         <motion.div
           key={`float-${i}`}
           className="absolute w-4 h-4 bg-white/20 rounded-full"
