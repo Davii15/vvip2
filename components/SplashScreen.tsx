@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Wheat,
@@ -15,58 +15,119 @@ import {
   Dumbbell,
   ShoppingBasket,
   Loader2,
+  Star,
+  Zap,
 } from "lucide-react"
-import { useRouter } from "next/navigation"
 import Image from "next/image"
 
 const productIcons = [
-  { icon: Wheat, color: "#D4A574", name: "Agriculture", delay: 0 },
-  { icon: Sparkles, color: "#E91E63", name: "Beauty", delay: 0.3 },
-  { icon: Building2, color: "#FF9800", name: "Hospitality", delay: 0.6 },
-  { icon: Shield, color: "#2196F3", name: "Insurance", delay: 0.9 },
-  { icon: Heart, color: "#4CAF50", name: "Health", delay: 1.2 },
+  { icon: Wheat, color: "#D4A574", name: "Agriculture Products", delay: 0 },
+  { icon: Sparkles, color: "#E91E63", name: "Beauty Products", delay: 0.3 },
+  { icon: Building2, color: "#FF9800", name: "Hospitality Products", delay: 0.6 },
+  { icon: Shield, color: "#2196F3", name: "Insurance Products", delay: 0.9 },
+  { icon: Heart, color: "#4CAF50", name: "Health Products", delay: 1.2 },
   { icon: Music, color: "#9C27B0", name: "Entertainment", delay: 1.5 },
-  { icon: Armchair, color: "#795548", name: "Furniture", delay: 1.8 },
-  { icon: Car, color: "#607D8B", name: "Automotive", delay: 2.1 },
-  { icon: Wheat, color: "#FFC107", name: "Flour", delay: 2.4 },
-  { icon: Apple, color: "#8BC34A", name: "Fruits & Vegetables", delay: 2.7 },
-  { icon: Dumbbell, color: "#FF5722", name: "Sports & Music", delay: 3.0 },
+  { icon: Armchair, color: "#795548", name: "Furniture Products", delay: 1.8 },
+  { icon: Car, color: "#607D8B", name: "Car Related Products", delay: 2.1 },
+  { icon: Wheat, color: "#FFC107", name: "Flour (Maize, Wheat)", delay: 2.4 },
+  { icon: Apple, color: "#8BC34A", name: "Vegetables and Fruits", delay: 2.7 },
+  { icon: Dumbbell, color: "#FF5722", name: "Sports & Music Instruments", delay: 3.0 },
 ]
 
-export default function LoadingPage() {
+const loadingMessages = [
+  "Connecting to Kenyan vendors...",
+  "Loading exclusive deals...",
+  "Preparing your discount radar...",
+  "Gathering the best offers...",
+  "Setting up your marketplace...",
+  "Almost ready for shopping...",
+]
+
+interface SplashScreenProps {
+  onComplete: () => void
+}
+
+export default function SplashScreen({ onComplete }: SplashScreenProps) {
   const [progress, setProgress] = useState(0)
   const [showBasket, setShowBasket] = useState(false)
-  const router = useRouter()
+  const [timeRemaining, setTimeRemaining] = useState(240) // 4 minutes in seconds
+  const [isCompleting, setIsCompleting] = useState(false)
+  const [currentMessage, setCurrentMessage] = useState(0)
+
+  const handleComplete = useCallback(() => {
+    if (!isCompleting) {
+      console.log("4 minutes completed! Welcome to OneShopDiscount!")
+      setIsCompleting(true)
+      onComplete()
+    }
+  }, [onComplete, isCompleting])
 
   useEffect(() => {
-    // Show basket after 2 seconds
-    const basketTimer = setTimeout(() => setShowBasket(true), 2000)
+    console.log("🎯 OneShopDiscount Splash Screen Started - African Vibe Experience!")
+    console.log("⏱️ 4-minute journey begins now...")
 
-    // Progress animation
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(progressInterval)
-          return 100
+    // Show basket after 2 seconds
+    const basketTimer = setTimeout(() => {
+      setShowBasket(true)
+      console.log("🛒 Shopping basket appeared with overflow animation!")
+    }, 2000)
+
+    // Rotate loading messages every 40 seconds
+    const messageTimer = setInterval(() => {
+      setCurrentMessage((prev) => (prev + 1) % loadingMessages.length)
+    }, 40000)
+
+    // Main timer - updates every second for 4 minutes (240 seconds)
+    const mainTimer = setInterval(() => {
+      setTimeRemaining((prev) => {
+        const newTime = prev - 1
+        const newProgress = ((240 - newTime) / 240) * 100
+
+        setProgress(newProgress)
+
+        // Log progress every 30 seconds
+        if (newTime % 30 === 0 && newTime > 0) {
+          const mins = Math.floor(newTime / 60)
+          const secs = newTime % 60
+          console.log(
+            `⏰ Time remaining: ${mins}:${secs.toString().padStart(2, "0")} | Progress: ${Math.round(newProgress)}% | OneShopDiscount loading...`,
+          )
         }
-        return prev + 0.42 // Roughly 4 minutes (240 seconds / 100 = 2.4, so 100/240 = 0.42 per second)
+
+        if (newTime <= 0) {
+          clearInterval(mainTimer)
+          console.log("🎉 Timer finished! Welcome to OneShopDiscount - Your Ultimate Discount Radar!")
+          handleComplete()
+          return 0
+        }
+
+        return newTime
       })
     }, 1000)
 
-    // Redirect after 4 minutes
-    const redirectTimer = setTimeout(() => {
-      router.push("/")
+    // Fallback timer - ensures completion after exactly 4 minutes
+    const fallbackTimer = setTimeout(() => {
+      console.log("🔄 Fallback timer triggered - ensuring OneShopDiscount loads...")
+      handleComplete()
     }, 240000) // 4 minutes
 
     return () => {
       clearTimeout(basketTimer)
-      clearTimeout(redirectTimer)
-      clearInterval(progressInterval)
+      clearTimeout(fallbackTimer)
+      clearInterval(mainTimer)
+      clearInterval(messageTimer)
     }
-  }, [router])
+  }, [handleComplete])
+
+  // Format time remaining for display
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, "0")}`
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-400 via-red-500 to-yellow-600 relative overflow-hidden">
+    <div className="fixed inset-0 z-50 min-h-screen bg-gradient-to-br from-orange-400 via-red-500 to-yellow-600 overflow-hidden">
       {/* African Pattern Overlay */}
       <div className="absolute inset-0 opacity-10">
         <div
@@ -77,21 +138,33 @@ export default function LoadingPage() {
         />
       </div>
 
-      {/* Header with Logo */}
+      {/* Header with OneShopDiscount Logo */}
       <motion.header
         className="flex justify-center pt-8 pb-4"
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
       >
-        <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 shadow-2xl border border-white/30">
-          <Image
-            src="/placeholder.svg?height=80&width=200"
-            alt="OneShopDiscount Logo"
-            width={200}
-            height={80}
-            className="h-20 w-auto"
-          />
+        <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-white/30">
+          <div className="text-center">
+            <Image
+              src="/placeholder.svg?height=80&width=200"
+              alt="OneShopDiscount.com Logo"
+              width={200}
+              height={80}
+              className="h-20 w-auto mx-auto mb-2"
+              priority
+            />
+            <motion.div
+              className="flex items-center justify-center gap-2 text-white font-bold text-lg"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+            >
+              <Star className="w-5 h-5 text-yellow-300" />
+              <span>Your Ultimate Discount Radar</span>
+              <Star className="w-5 h-5 text-yellow-300" />
+            </motion.div>
+          </div>
         </div>
       </motion.header>
 
@@ -108,9 +181,14 @@ export default function LoadingPage() {
                 transition={{ duration: 0.8, type: "spring" }}
               >
                 <div className="relative">
-                  <ShoppingBasket className="w-24 h-24 text-amber-800 drop-shadow-2xl" />
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }}
+                  >
+                    <ShoppingBasket className="w-24 h-24 text-amber-800 drop-shadow-2xl" />
+                  </motion.div>
 
-                  {/* Overflow Effect */}
+                  {/* Overflow Effect - Enhanced */}
                   <motion.div
                     className="absolute -top-4 -left-2 w-8 h-8"
                     animate={{
@@ -143,16 +221,33 @@ export default function LoadingPage() {
                   >
                     <Apple className="w-5 h-5 text-green-400" />
                   </motion.div>
+
+                  <motion.div
+                    className="absolute -top-2 -right-4 w-4 h-4"
+                    animate={{
+                      y: [0, -12, 0],
+                      x: [0, 3, 0],
+                      rotate: [0, 90, 180],
+                    }}
+                    transition={{
+                      duration: 1.8,
+                      repeat: Number.POSITIVE_INFINITY,
+                      ease: "easeInOut",
+                      delay: 1,
+                    }}
+                  >
+                    <Zap className="w-4 h-4 text-yellow-400" />
+                  </motion.div>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Orbiting Icons */}
+          {/* Orbiting Product Category Icons */}
           {productIcons.map((item, index) => {
             const Icon = item.icon
             const angle = (index * 360) / productIcons.length
-            const radius = 180 // Distance from center
+            const radius = 180
 
             return (
               <motion.div
@@ -187,7 +282,7 @@ export default function LoadingPage() {
                     transform: `translate(${Math.cos((angle * Math.PI) / 180) * radius}px, ${Math.sin((angle * Math.PI) / 180) * radius}px)`,
                   }}
                   animate={{
-                    rotate: -360, // Counter-rotate to keep icons upright
+                    rotate: -360,
                   }}
                   transition={{
                     duration: 20,
@@ -196,21 +291,23 @@ export default function LoadingPage() {
                     delay: item.delay,
                   }}
                 >
-                  <div
-                    className="p-4 rounded-full shadow-2xl backdrop-blur-sm border-2 border-white/30 hover:scale-110 transition-transform duration-300"
+                  <motion.div
+                    className="p-4 rounded-full shadow-2xl backdrop-blur-sm border-2 border-white/30 hover:scale-110 transition-transform duration-300 cursor-pointer"
                     style={{ backgroundColor: `${item.color}20` }}
+                    whileHover={{ scale: 1.2 }}
+                    title={item.name}
                   >
                     <Icon className="w-8 h-8 md:w-10 md:h-10" style={{ color: item.color }} />
-                  </div>
+                  </motion.div>
                 </motion.div>
               </motion.div>
             )
           })}
 
-          {/* Spilling Animation Particles */}
+          {/* Enhanced Spilling Animation Particles */}
           {showBasket && (
             <>
-              {[...Array(8)].map((_, i) => (
+              {[...Array(12)].map((_, i) => (
                 <motion.div
                   key={`particle-${i}`}
                   className="absolute top-1/2 left-1/2 w-3 h-3 rounded-full"
@@ -218,8 +315,8 @@ export default function LoadingPage() {
                     backgroundColor: productIcons[i % productIcons.length]?.color || "#FFA500",
                   }}
                   initial={{
-                    x: Math.cos((i * 45 * Math.PI) / 180) * 100,
-                    y: Math.sin((i * 45 * Math.PI) / 180) * 100,
+                    x: Math.cos((i * 30 * Math.PI) / 180) * 120,
+                    y: Math.sin((i * 30 * Math.PI) / 180) * 120,
                     scale: 0,
                   }}
                   animate={{
@@ -228,9 +325,9 @@ export default function LoadingPage() {
                     scale: [0, 1, 0],
                   }}
                   transition={{
-                    duration: 3,
+                    duration: 4,
                     repeat: Number.POSITIVE_INFINITY,
-                    delay: i * 0.3,
+                    delay: i * 0.2,
                     ease: "easeInOut",
                   }}
                 />
@@ -240,7 +337,7 @@ export default function LoadingPage() {
         </div>
       </div>
 
-      {/* Footer */}
+      {/* Enhanced Footer */}
       <motion.footer
         className="text-center pb-8 px-4"
         initial={{ opacity: 0, y: 50 }}
@@ -258,11 +355,11 @@ export default function LoadingPage() {
           }}
           transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
         >
-          It's where experience meets convenience
+          {"It's where experience meets convenience"}
         </motion.p>
 
-        {/* Spinning Wheel */}
-        <motion.div className="flex justify-center mb-4">
+        {/* Enhanced Spinning Wheel */}
+        <motion.div className="flex justify-center mb-6">
           <motion.div
             className="w-16 h-16 rounded-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 shadow-2xl flex items-center justify-center"
             animate={{ rotate: 360 }}
@@ -278,22 +375,48 @@ export default function LoadingPage() {
           </motion.div>
         </motion.div>
 
-        {/* Progress Bar */}
+        {/* Enhanced Progress Bar and Timer */}
         <div className="max-w-md mx-auto">
-          <div className="bg-white/20 rounded-full h-2 backdrop-blur-sm">
+          <div className="bg-white/20 rounded-full h-3 backdrop-blur-sm mb-3">
             <motion.div
-              className="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full shadow-lg"
+              className="bg-gradient-to-r from-green-400 via-yellow-400 to-orange-500 h-3 rounded-full shadow-lg"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 0.5 }}
             />
           </div>
-          <p className="text-white/80 text-sm mt-2">Loading your shopping experience... {Math.round(progress)}%</p>
+
+          <div className="flex justify-between items-center mb-2">
+            <p className="text-white/90 text-sm font-semibold">{Math.round(progress)}% Complete</p>
+            <p className="text-white/90 text-sm font-mono bg-black/20 px-2 py-1 rounded">{formatTime(timeRemaining)}</p>
+          </div>
+
+          <motion.p
+            className="text-white/80 text-sm mb-2"
+            key={currentMessage}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {loadingMessages[currentMessage]}
+          </motion.p>
+
+          {progress >= 95 && (
+            <motion.p
+              className="text-green-300 text-sm font-semibold flex items-center justify-center gap-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <Zap className="w-4 h-4" />
+              Almost ready! Launching OneShopDiscount...
+              <Zap className="w-4 h-4" />
+            </motion.p>
+          )}
         </div>
       </motion.footer>
 
-      {/* Floating Elements */}
-      {[...Array(6)].map((_, i) => (
+      {/* Enhanced Floating Elements */}
+      {[...Array(8)].map((_, i) => (
         <motion.div
           key={`float-${i}`}
           className="absolute w-4 h-4 bg-white/20 rounded-full"
@@ -302,13 +425,16 @@ export default function LoadingPage() {
             top: `${Math.random() * 100}%`,
           }}
           animate={{
-            y: [0, -20, 0],
-            opacity: [0.3, 0.8, 0.3],
+            y: [0, -30, 0],
+            x: [0, Math.random() * 20 - 10, 0],
+            opacity: [0.2, 0.8, 0.2],
+            scale: [0.5, 1, 0.5],
           }}
           transition={{
-            duration: 3 + Math.random() * 2,
+            duration: 4 + Math.random() * 2,
             repeat: Number.POSITIVE_INFINITY,
             delay: Math.random() * 2,
+            ease: "easeInOut",
           }}
         />
       ))}
