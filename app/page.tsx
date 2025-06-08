@@ -17,7 +17,7 @@ import ConsumptionAnalyticsChart from "@/components/ConsumptionAnalyticsChart"
 
 export default function Home() {
   return (
-     <ClientWrapper>
+     
     <div className="bg-gradient-to-br from-blue-400 to-green-400">
       <WelcomeBackAlert />
       <div className="container mx-auto px-4 py-8">
