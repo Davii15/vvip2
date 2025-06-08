@@ -59,12 +59,29 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "kenyan-red": "#BB0000",
+        "kenyan-green": "#006600",
+        "kenyan-black": "#000000",
+        "kenyan-white": "#FFFFFF",
+        "safari-orange": "#FF8C00",
+        "acacia-gold": "#DAA520",
+        
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      
+      animation: {
+        "spin-slow": "spin 3s linear infinite",
+        "bounce-slow": "bounce 3s infinite",
+        "pulse-slow": "pulse 4s infinite",
+      },
+      backgroundImage: {
+        "african-pattern": "url('/african-pattern.svg')",
+      },
+
     },
   },
   plugins: [require("tailwindcss-animate")],
