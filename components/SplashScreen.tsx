@@ -87,7 +87,7 @@ export default function LoadingPage() {
       >
         <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 shadow-2xl border border-white/30">
           <Image
-            src="/placeholder.svg?height=80&width=200"
+            src="/oneshopdiscountlogo.png"
             alt="OneShopDiscount Logo"
             width={200}
             height={80}
