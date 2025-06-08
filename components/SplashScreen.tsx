@@ -42,22 +42,22 @@ export default function LoadingPage() {
     // Show basket after 2 seconds
     const basketTimer = setTimeout(() => setShowBasket(true), 2000)
 
-    // Progress animation
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(progressInterval)
-          return 100
-        }
-        return prev + 0.42 // Roughly 4 minutes (240 seconds / 100 = 2.4, so 100/240 = 0.42 per second)
-      })
-    }, 1000)
+  // Progress animation
+const progressInterval = setInterval(() => {
+  setProgress((prev) => {
+    if (prev >= 100) {
+      clearInterval(progressInterval)
+      return 100
+    }
+    return prev + 0.83 // Roughly 2 minutes (100 / 120 = 0.83 per second)
+  })
+}, 1000)
 
-    // Redirect after 4 minutes
-    const redirectTimer = setTimeout(() => {
-      router.push("/")
-    }, 240000) // 4 minutes
-
+// Redirect after 2 minutes
+const redirectTimer = setTimeout(() => {
+  router.push("/")
+}, 120000) // 2 minutes
+    
     return () => {
       clearTimeout(basketTimer)
       clearTimeout(redirectTimer)
