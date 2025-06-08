@@ -12,7 +12,7 @@ import MagazineDisplay from "@/components/MagazineDisplay"
 import MovieReelsDisplay from "@/components/MovieReelsDisplay"
 import SellingSoftwareSection from "@/components/SellingSoftwareSection"
 import ConsumptionAnalyticsChart from "@/components/ConsumptionAnalyticsChart"
-
+import ClientWrapper from "@/components/ClientWrapper"
 
 
 
@@ -101,5 +101,6 @@ export default function Home() {
         </div>
       <TrustedPartners />
     </div>
+     </ClientWrapper>
   )
 }
