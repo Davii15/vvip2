@@ -16,7 +16,6 @@ import {
   ShoppingBasket,
   Loader2,
 } from "lucide-react"
-import { useRouter } from "next/navigation"
 import Image from "next/image"
 
 const productIcons = [
@@ -33,41 +32,41 @@ const productIcons = [
   { icon: Dumbbell, color: "#FF5722", name: "Sports & Music", delay: 3.0 },
 ]
 
-export default function LoadingPage() {
+interface SplashScreenProps {
+  onComplete: () => void
+}
+
+export default function SplashScreen({ onComplete }: SplashScreenProps) {
   const [progress, setProgress] = useState(0)
   const [showBasket, setShowBasket] = useState(false)
-  const router = useRouter()
 
   useEffect(() => {
-    // Show basket after 2 seconds
     const basketTimer = setTimeout(() => setShowBasket(true), 2000)
 
-  // Progress animation
-const progressInterval = setInterval(() => {
-  setProgress((prev) => {
-    if (prev >= 100) {
-      clearInterval(progressInterval)
-      return 100
-    }
-    return prev + 0.83 // Roughly 2 minutes (100 / 120 = 0.83 per second)
-  })
-}, 1000)
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(progressInterval)
+          setTimeout(onComplete, 1000)
+          return 100
+        }
+        return prev + 0.42
+      })
+    }, 1000)
 
-// Redirect after 2 minutes
-const redirectTimer = setTimeout(() => {
-  router.push("/")
-}, 120000) // 2 minutes
-    
+    const fallbackTimer = setTimeout(() => {
+      onComplete()
+    }, 240000)
+
     return () => {
       clearTimeout(basketTimer)
-      clearTimeout(redirectTimer)
+      clearTimeout(fallbackTimer)
       clearInterval(progressInterval)
     }
-  }, [])
+  }, [onComplete])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-400 via-red-500 to-yellow-600 relative overflow-hidden">
-      {/* African Pattern Overlay */}
+    <div className="fixed inset-0 z-50 min-h-screen bg-gradient-to-br from-orange-400 via-red-500 to-yellow-600 overflow-hidden">
       <div className="absolute inset-0 opacity-10">
         <div
           className="w-full h-full"
@@ -77,7 +76,6 @@ const redirectTimer = setTimeout(() => {
         />
       </div>
 
-      {/* Header with Logo */}
       <motion.header
         className="flex justify-center pt-8 pb-4"
         initial={{ opacity: 0, y: -50 }}
@@ -95,10 +93,8 @@ const redirectTimer = setTimeout(() => {
         </div>
       </motion.header>
 
-      {/* Main Content Area */}
       <div className="flex-1 flex items-center justify-center px-4 py-8">
         <div className="relative w-full max-w-4xl aspect-square">
-          {/* Central Shopping Basket */}
           <AnimatePresence>
             {showBasket && (
               <motion.div
@@ -110,7 +106,6 @@ const redirectTimer = setTimeout(() => {
                 <div className="relative">
                   <ShoppingBasket className="w-24 h-24 text-amber-800 drop-shadow-2xl" />
 
-                  {/* Overflow Effect */}
                   <motion.div
                     className="absolute -top-4 -left-2 w-8 h-8"
                     animate={{
@@ -148,11 +143,10 @@ const redirectTimer = setTimeout(() => {
             )}
           </AnimatePresence>
 
-          {/* Orbiting Icons */}
           {productIcons.map((item, index) => {
             const Icon = item.icon
             const angle = (index * 360) / productIcons.length
-            const radius = 180 // Distance from center
+            const radius = 180
 
             return (
               <motion.div
@@ -187,7 +181,7 @@ const redirectTimer = setTimeout(() => {
                     transform: `translate(${Math.cos((angle * Math.PI) / 180) * radius}px, ${Math.sin((angle * Math.PI) / 180) * radius}px)`,
                   }}
                   animate={{
-                    rotate: -360, // Counter-rotate to keep icons upright
+                    rotate: -360,
                   }}
                   transition={{
                     duration: 20,
@@ -207,7 +201,6 @@ const redirectTimer = setTimeout(() => {
             )
           })}
 
-          {/* Spilling Animation Particles */}
           {showBasket && (
             <>
               {[...Array(8)].map((_, i) => (
@@ -240,7 +233,6 @@ const redirectTimer = setTimeout(() => {
         </div>
       </div>
 
-      {/* Footer */}
       <motion.footer
         className="text-center pb-8 px-4"
         initial={{ opacity: 0, y: 50 }}
@@ -258,10 +250,9 @@ const redirectTimer = setTimeout(() => {
           }}
           transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
         >
-          It's where experience meets convenience
+          {"It's where experience meets convenience"}
         </motion.p>
 
-        {/* Spinning Wheel */}
         <motion.div className="flex justify-center mb-4">
           <motion.div
             className="w-16 h-16 rounded-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 shadow-2xl flex items-center justify-center"
@@ -278,7 +269,6 @@ const redirectTimer = setTimeout(() => {
           </motion.div>
         </motion.div>
 
-        {/* Progress Bar */}
         <div className="max-w-md mx-auto">
           <div className="bg-white/20 rounded-full h-2 backdrop-blur-sm">
             <motion.div
@@ -292,7 +282,6 @@ const redirectTimer = setTimeout(() => {
         </div>
       </motion.footer>
 
-      {/* Floating Elements */}
       {[...Array(6)].map((_, i) => (
         <motion.div
           key={`float-${i}`}
