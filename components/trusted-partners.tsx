@@ -8,14 +8,14 @@ type Partner = {
 }
 
 const partners: Partner[] = [
-  { name: "Safari Adventures Ltd" },
+  { name: "SA Adventures Ltd" },
   { name: "Nai National Park" },
-  { name: "Ken Tourism Board" },
+  { name: "The Tourism Board" },
   { name: "M Mara Reserve" },
   { name: "Serene Hotels" },
   { name: "Flight Airways" },
-  { name: "Flash Network" },
-  { name: "Reserve Bank" },
+  { name: "FlashLight Network" },
+  { name: "Green Reserve Bank" },
 ]
 
 const partners2: Partner[] = [
@@ -23,13 +23,13 @@ const partners2: Partner[] = [
   { name: "Tsavo East National Park" },
   { name: "Lake Nakuru National Park" },
   { name: "Mount Kenya National Park" },
-  { name: " Beach Resort" },
-  { name: "Girrafe Centre" },
-  { name: " Wildlife  Trust Fund" },
-  { name: "Game park and Orphanges Kenya" },
+  { name: "Diani  Resort" },
+  { name: "Giraffe Centre" },
+  { name: "Mwananchi Wildlife Trust" },
+  { name: "Kenya Wildlife Service" },
 ]
 
-export function trustedPartners() {
+export function TrustedPartners() {
   const scrollRef1 = useRef<HTMLDivElement>(null)
   const scrollRef2 = useRef<HTMLDivElement>(null)
 
