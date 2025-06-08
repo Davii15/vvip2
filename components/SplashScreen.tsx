@@ -16,6 +16,7 @@ import {
   ShoppingBasket,
   Loader2,
 } from "lucide-react"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 
 const productIcons = [
@@ -32,41 +33,41 @@ const productIcons = [
   { icon: Dumbbell, color: "#FF5722", name: "Sports & Music", delay: 3.0 },
 ]
 
-interface SplashScreenProps {
-  onComplete: () => void
-}
-
-export default function SplashScreen({ onComplete }: SplashScreenProps) {
+export default function LoadingPage() {
   const [progress, setProgress] = useState(0)
   const [showBasket, setShowBasket] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
+    // Show basket after 2 seconds
     const basketTimer = setTimeout(() => setShowBasket(true), 2000)
 
+    // Progress animation
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(progressInterval)
-          setTimeout(onComplete, 1000)
           return 100
         }
-        return prev + 0.42
+        return prev + 0.42 // Roughly 4 minutes (240 seconds / 100 = 2.4, so 100/240 = 0.42 per second)
       })
     }, 1000)
 
-    const fallbackTimer = setTimeout(() => {
-      onComplete()
-    }, 240000)
+    // Redirect after 4 minutes
+    const redirectTimer = setTimeout(() => {
+      router.push("/")
+    }, 240000) // 4 minutes
 
     return () => {
       clearTimeout(basketTimer)
-      clearTimeout(fallbackTimer)
+      clearTimeout(redirectTimer)
       clearInterval(progressInterval)
     }
-  }, [onComplete])
+  }, [router])
 
   return (
-    <div className="fixed inset-0 z-50 min-h-screen bg-gradient-to-br from-orange-400 via-red-500 to-yellow-600 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-orange-400 via-red-500 to-yellow-600 relative overflow-hidden">
+      {/* African Pattern Overlay */}
       <div className="absolute inset-0 opacity-10">
         <div
           className="w-full h-full"
@@ -76,6 +77,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         />
       </div>
 
+      {/* Header with Logo */}
       <motion.header
         className="flex justify-center pt-8 pb-4"
         initial={{ opacity: 0, y: -50 }}
@@ -93,8 +95,10 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         </div>
       </motion.header>
 
+      {/* Main Content Area */}
       <div className="flex-1 flex items-center justify-center px-4 py-8">
         <div className="relative w-full max-w-4xl aspect-square">
+          {/* Central Shopping Basket */}
           <AnimatePresence>
             {showBasket && (
               <motion.div
@@ -106,6 +110,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
                 <div className="relative">
                   <ShoppingBasket className="w-24 h-24 text-amber-800 drop-shadow-2xl" />
 
+                  {/* Overflow Effect */}
                   <motion.div
                     className="absolute -top-4 -left-2 w-8 h-8"
                     animate={{
@@ -143,10 +148,11 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             )}
           </AnimatePresence>
 
+          {/* Orbiting Icons */}
           {productIcons.map((item, index) => {
             const Icon = item.icon
             const angle = (index * 360) / productIcons.length
-            const radius = 180
+            const radius = 180 // Distance from center
 
             return (
               <motion.div
@@ -181,7 +187,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
                     transform: `translate(${Math.cos((angle * Math.PI) / 180) * radius}px, ${Math.sin((angle * Math.PI) / 180) * radius}px)`,
                   }}
                   animate={{
-                    rotate: -360,
+                    rotate: -360, // Counter-rotate to keep icons upright
                   }}
                   transition={{
                     duration: 20,
@@ -201,6 +207,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             )
           })}
 
+          {/* Spilling Animation Particles */}
           {showBasket && (
             <>
               {[...Array(8)].map((_, i) => (
@@ -233,6 +240,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         </div>
       </div>
 
+      {/* Footer */}
       <motion.footer
         className="text-center pb-8 px-4"
         initial={{ opacity: 0, y: 50 }}
@@ -250,9 +258,10 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
           }}
           transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
         >
-          {"It's where experience meets convenience"}
+          It's where experience meets convenience
         </motion.p>
 
+        {/* Spinning Wheel */}
         <motion.div className="flex justify-center mb-4">
           <motion.div
             className="w-16 h-16 rounded-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 shadow-2xl flex items-center justify-center"
@@ -269,6 +278,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
           </motion.div>
         </motion.div>
 
+        {/* Progress Bar */}
         <div className="max-w-md mx-auto">
           <div className="bg-white/20 rounded-full h-2 backdrop-blur-sm">
             <motion.div
@@ -282,6 +292,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         </div>
       </motion.footer>
 
+      {/* Floating Elements */}
       {[...Array(6)].map((_, i) => (
         <motion.div
           key={`float-${i}`}
