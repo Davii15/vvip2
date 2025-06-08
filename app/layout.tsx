@@ -54,8 +54,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <head>
-        {/* Preload critical resources for splash screen */}
-        <link rel="preload" href="/placeholder.svg" as="image" />
+        {/* Preconnect to external resources only */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
 
@@ -69,7 +68,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       </head>
       <body className={inter.className}>
         <SplashWrapper>
-          <Suspense>
+          <Suspense fallback={<div>Loading...</div>}>
             <MainApplicationLayout>{children}</MainApplicationLayout>
           </Suspense>
         </SplashWrapper>
