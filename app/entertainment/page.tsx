@@ -1,10 +1,34 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect, useRef, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, useAnimation, useMotionValue, useTransform } from "framer-motion"
 import confetti from "canvas-confetti"
-import { Search, X, Calendar, Check, Users, MapPin, Loader2, TrendingUp , Sparkles , ChevronRight , Music } from "lucide-react"
+import {
+  Search,
+  X,
+  Calendar,
+  Check,
+  Users,
+  MapPin,
+  Loader2,
+  TrendingUp,
+  Sparkles,
+  ChevronRight,
+  Music,
+  Star,
+  Clock,
+  Ticket,
+  Heart,
+  Share2,
+  Info,
+} from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import CountdownTimer from "@/components/CountdownTimer"
 import HotTimeDeals from "@/components/HotTimeDeals"
 import { useCookieTracking } from "@/hooks/useCookieTracking"
@@ -14,12 +38,8 @@ import NewThisWeekBadge from "@/components/NewThisWeekBadge"
 import NewProductsForYou from "@/components/NewProductsForYou"
 import { transformEntertainmentToProducts } from "@/utils/product-transformers"
 import TheatricalEntrance from "@/components/TheatricalEntrance"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import TrendingPopularSection from "@/components/TrendingPopularSection"
-import { trendingProducts, popularProducts } from "./trending-data"
-//import { VerificationBadge } from "@/components/VerificationBadge"
-
+import { trendingProducts, popularProducts } from "../trending-data"
 
 interface Price {
   amount: number
@@ -38,11 +58,10 @@ interface EntertainmentEvent {
   venue: string
   capacity: string
   isAlmostSoldOut?: boolean
-  dateAdded: string //ISO date type
+  dateAdded: string
   isTrending?: boolean
-  isHotDeal?: boolean // Add this field
-  hotDealEnds?: string // Add this field - ISO date string
-  
+  isHotDeal?: boolean
+  hotDealEnds?: string
 }
 
 interface Vendor {
@@ -53,9 +72,7 @@ interface Vendor {
   description: string
   events: EntertainmentEvent[]
   redirectUrl: string
-  verified?:boolean
- // isVerified?:boolean
- // verificationColor?:string
+  verified?: boolean
   mapLink: string
   defaultCurrency: string
 }
@@ -69,9 +86,7 @@ const mockVendors: Vendor[] = [
     logo: "https://your-supabase-project.supabase.co/storage/v1/object/public/vendor-logos/groove-masters-logo.png",
     description: "Bringing you the hottest music shows and live performances!",
     defaultCurrency: "KSH",
-    //isVerified: true,
-    //verificationColor: "purple" ,
-    verified:true,
+    verified: true,
     mapLink: "https://www.google.com/maps/search/?api=1&query=Groove+Masters+Entertainment+Nairobi+Kenya",
     events: [
       {
@@ -87,7 +102,7 @@ const mockVendors: Vendor[] = [
         capacity: "10,000 people",
         dateAdded: "2025-05-15T10:30:00Z",
         isTrending: true,
-        isHotDeal: true, // Mark this as a hot deal
+        isHotDeal: true,
         hotDealEnds: "2025-04-15T23:59:59Z",
       },
       {
@@ -116,9 +131,8 @@ const mockVendors: Vendor[] = [
         capacity: "2,000 people",
         isNew: true,
         dateAdded: "2025-05-15T10:30:00Z",
-        isHotDeal: true, // Mark this as a hot deal
-       hotDealEnds: "2025-04-15T23:59:59Z",
-        
+        isHotDeal: true,
+        hotDealEnds: "2025-04-15T23:59:59Z",
       },
     ],
     redirectUrl: "https://groove-masters.com",
@@ -130,9 +144,7 @@ const mockVendors: Vendor[] = [
     logo: "https://your-supabase-project.supabase.co/storage/v1/object/public/vendor-logos/bookworms-paradise-logo.png",
     description: "Celebrating literature with exciting book launches and author talks!",
     defaultCurrency: "KSH",
-    //isVerified: true,
-    verified:true,
-    //verificationColor: "purple",
+    verified: true,
     mapLink: "https://www.google.com/maps/search/?api=1&query=Groove+Masters+Entertainment+Nairobi+Kenya",
     events: [
       {
@@ -171,9 +183,7 @@ const mockVendors: Vendor[] = [
     logo: "https://your-supabase-project.supabase.co/storage/v1/object/public/vendor-logos/laugh-factory-logo.png",
     description: "Your one-stop shop for hilarious comedy shows and entertaining talk shows!",
     defaultCurrency: "KSH",
-    //isVerified: true,
-    verified:true,
-    //verificationColor: "purple",
+    verified: true,
     mapLink: "https://www.google.com/maps/search/?api=1&query=Groove+Masters+Entertainment+Nairobi+Kenya",
     events: [
       {
@@ -188,7 +198,7 @@ const mockVendors: Vendor[] = [
         capacity: "300 people",
         isAlmostSoldOut: true,
         dateAdded: "2025-05-15T10:30:00Z",
-        isHotDeal: true, // Mark this as a hot deal
+        isHotDeal: true,
         hotDealEnds: "2025-04-15T23:59:59Z",
       },
       {
@@ -204,7 +214,7 @@ const mockVendors: Vendor[] = [
         isAlmostSoldOut: true,
         dateAdded: "2025-05-15T10:30:00Z",
         isTrending: true,
-        isHotDeal: true, // Mark this as a hot deal
+        isHotDeal: true,
         hotDealEnds: "2025-04-15T23:59:59Z",
       },
     ],
@@ -213,17 +223,13 @@ const mockVendors: Vendor[] = [
 ]
 
 const formatPrice = (price: Price): string => {
-  // IMPROVEMENT: Format price to prevent overflow on large screens
-  // For KSH currency with large amounts, use a more compact format
   if (price.currency === "KSH" && price.amount >= 100000) {
-    // Format as "KSH X,XXX,XXX" instead of using the default currency formatter
     return `${price.currency} ${price.amount.toLocaleString()}`
   }
 
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: price.currency,
-    // Add maximumFractionDigits to prevent long decimal places
     maximumFractionDigits: 0,
   }).format(price.amount)
 }
@@ -236,35 +242,49 @@ export default function Entertainment() {
   const [newEventAlert, setNewEventAlert] = useState<EntertainmentEvent | null>(null)
   const entertainmentProducts = transformEntertainmentToProducts(vendors)
   const [isHovered, setIsHovered] = useState(false)
+  const [showContent, setShowContent] = useState(false)
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [scrollY, setScrollY] = useState(0)
+  const headerControls = useAnimation()
 
+  // Handle animation completion
+  const handleAnimationComplete = () => {
+    setShowContent(true)
+    localStorage.setItem("hasSeenTheatricalEntrance", "true")
+  }
 
- // State to control content visibility
- const [showContent, setShowContent] = useState(false)
+  // If user has already seen the animation, show content immediately
+  useEffect(() => {
+    const hasSeenAnimation = localStorage.getItem("hasSeenTheatricalEntrance")
+    if (hasSeenAnimation) {
+      setShowContent(true)
+    }
 
- // Handle animation completion
- const handleAnimationComplete = () => {
-   setShowContent(true)
- }
+    const handleScroll = () => {
+      setScrollY(window.scrollY)
+    }
 
- // If user has already seen the animation, show content immediately
- useEffect(() => {
-   const hasSeenAnimation = localStorage.getItem("hasSeenTheatricalEntrance")
-   if (hasSeenAnimation) {
-     setShowContent(true)
-   }
- }, [])
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
+  // Parallax effect for header based on scroll position
+  useEffect(() => {
+    headerControls.start({
+      opacity: scrollY > 100 ? 0.9 : 1,
+      y: scrollY > 100 ? -10 : 0,
+      scale: scrollY > 100 ? 0.98 : 1,
+    })
+  }, [scrollY, headerControls])
 
-
-
-
-  //adding the hot deals section
+  // Adding the hot deals section
   const hotEntertainmentDeals = entertainmentProducts
-    .filter(product => 
-      product.isHotDeal || 
-      (product.originalPrice.amount - product.currentPrice.amount) / product.originalPrice.amount > 0.2
+    .filter(
+      (product) =>
+        product.isHotDeal ||
+        (product.originalPrice.amount - product.currentPrice.amount) / product.originalPrice.amount > 0.2,
     )
-    .map(product => ({
+    .map((product) => ({
       id: product.id,
       name: product.name,
       imageUrl: product.imageUrl,
@@ -273,12 +293,13 @@ export default function Entertainment() {
       category: product.category,
       expiresAt: product.hotDealEnds || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       description: product.description,
-      discount: Math.round(((product.originalPrice.amount - product.currentPrice.amount) / product.originalPrice.amount) * 100)
+      discount: Math.round(
+        ((product.originalPrice.amount - product.currentPrice.amount) / product.originalPrice.amount) * 100,
+      ),
     }))
-    .slice(0, 4) //limit to 4 Deals
+    .slice(0, 4)
 
-
-  //state for event swapping functionality
+  // State for event swapping functionality
   const [eventTypes, setEventTypes] = useState<string[]>([
     "Music Show",
     "Live Performance",
@@ -297,18 +318,21 @@ export default function Entertainment() {
   const ITEMS_PER_PAGE = 2
 
   useEffect(() => {
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-    })
+    if (showContent) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ["#9333ea", "#6366f1", "#ec4899", "#f59e0b"],
+      })
+    }
 
     // Find a new event to show in the alert
     const newEvent = vendors.flatMap((v) => v.events).find((e) => e.isNew)
     if (newEvent) {
       setNewEventAlert(newEvent)
     }
-  }, [vendors])
+  }, [vendors, showContent])
 
   // IMPROVED SEARCH FUNCTIONALITY FOR ENTERTAINMENT PAGE
   useEffect(() => {
@@ -330,14 +354,14 @@ export default function Entertainment() {
     setFilteredVendors(filtered)
   }, [searchTerm, vendors])
 
- // Custom color scheme for entertainment
- const entertainmentColorScheme = {
-  primary: "from-purple-500 to-indigo-700",
-  secondary: "bg-purple-100",
-  accent: "bg-indigo-600",
-  text: "text-purple-900",
-  background: "bg-purple-50",
-}
+  // Custom color scheme for entertainment
+  const entertainmentColorScheme = {
+    primary: "from-purple-500 to-indigo-700",
+    secondary: "bg-purple-100",
+    accent: "bg-indigo-600",
+    text: "text-purple-900",
+    background: "bg-purple-50",
+  }
 
   // Add swapping effect every 10 minutes
   useEffect(() => {
@@ -420,234 +444,423 @@ export default function Entertainment() {
   }, [searchTerm, eventTypes])
 
   return (
-    <div className="bg-gradient-to-br from-purple-600 to-indigo-800 min-h-screen">
-  <TheatricalEntrance onComplete={handleAnimationComplete} />
-
-{/* Main content - will be shown after animation completes */}
-<div className={`transition-opacity duration-1000 ${showContent ? "opacity-100" : "opacity-0"}`}>
-
-
-      {/* IMPROVEMENT: Added max-width to container to prevent excessive stretching on ultra-wide screens */}
-      <div className="container mx-auto px-4 py-8 max-w-[1920px]">
-        <h1 className="text-4xl font-bold text-center mb-8 text-white italic animate-pulse">
-          Unforgettable Moments, Unbeatable Prices – Entertainment at Its Best!
-        </h1>
-        <CountdownTimer targetDate="2025-12-31T23:59:59" startDate="2025-02-13T00:00:00" />
-        <NewProductsForYou 
-  allProducts={entertainmentProducts}
-  colorScheme="purple"
-  maxProducts={4}
-/>
-<HotTimeDeals 
-        deals={hotEntertainmentDeals}
-        colorScheme="purple"
-        title="Hurry for Hot Entertainment Shows!"
-        subtitle="Limited-time Entertainment Tickets!"
-      />
-{/* Trending and Popular Section */}
-<TrendingPopularSection
-        trendingProducts={trendingProducts}
-        popularProducts={popularProducts}
-        colorScheme={entertainmentColorScheme}
-        title="Entertainment Highlights"
-        subtitle="Discover trending and most popular entertainment options"
-      />
-
-        {/* IMPROVEMENT: Added max-width to search container for better appearance on large screens */}
-        <div className="mb-8 max-w-4xl mx-auto">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search events, artists, or venues..."
-              className="w-full p-4 pr-12 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-black bg-opacity-50 text-white placeholder-gray-300"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-300" />
-          </div>
-        </div>
-        </div>
-        {/*the shop logic*/}
-        <div className="flex justify-center my-8">
-      <Link href="/entertainment/shop">
-        <Button
-          size="lg"
-          className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <motion.div
-            className="absolute inset-0 bg-white opacity-10"
-            initial={{ x: "-100%" }}
-            animate={{ x: isHovered ? "100%" : "-100%" }}
-            transition={{ duration: 1, ease: "easeInOut" }}
-          />
-          <span className="flex items-center text-lg font-medium">
-            <Music className="mr-2 h-5 w-5" />
-            Explore Entertainment Shop
-            <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </motion.div>
-          </span>
-          <motion.div
-            className="absolute -top-1 -right-1"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Sparkles className="h-5 w-5 text-yellow-300" />
-          </motion.div>
-        </Button>
-      </Link>
-    </div>
-{/*THE LIVE STREAM LOGIC*/}
-<div className="flex justify-center my-8">
-      <Link href="/entertainment/live-streaming">
-        <Button
-          size="lg"
-          className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <motion.div
-            className="absolute inset-0 bg-white opacity-10"
-            initial={{ x: "-100%" }}
-            animate={{ x: isHovered ? "100%" : "-100%" }}
-            transition={{ duration: 1, ease: "easeInOut" }}
-          />
-          <span className="flex items-center text-lg font-medium">
-            <Music className="mr-2 h-5 w-5" />
-            Explore our Entertainment Live streams
-            <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </motion.div>
-          </span>
-          <motion.div
-            className="absolute -top-1 -right-1"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Sparkles className="h-5 w-5 text-yellow-300" />
-          </motion.div>
-        </Button>
-      </Link>
-    </div>
-{/*THE LIVE STREAM LOGIC*/}
-<div className="flex justify-center my-8">
-      <Link href="https://www.bit.ly/2cheki">
-        <Button
-          size="lg"
-          className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <motion.div
-            className="absolute inset-0 bg-white opacity-10"
-            initial={{ x: "-100%" }}
-            animate={{ x: isHovered ? "100%" : "-100%" }}
-            transition={{ duration: 1, ease: "easeInOut" }}
-          />
-          <span className="flex items-center text-lg font-medium">
-            <Music className="mr-2 h-5 w-5" />
-            Explore our Movie Trailers Site
-            <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </motion.div>
-          </span>
-          <motion.div
-            className="absolute -top-1 -right-1"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Sparkles className="h-5 w-5 text-yellow-300" />
-          </motion.div>
-        </Button>
-      </Link>
-    </div>
-
-        {/* Infinite scroll implementation */}
-        <AnimatePresence mode="popLayout">
-          {visibleEventTypes.map((type) => (
+    <div className="relative min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-violet-900">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full">
+          {Array.from({ length: 20 }).map((_, i) => (
             <motion.div
-              key={type}
-              className="mb-12"
-              layout
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
-            >
-              <h2 className="text-2xl font-bold text-white mb-6 animate-bounce">{type}</h2>
-              {/* IMPROVEMENT: Adjusted grid to better handle large screens */}
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
-                <AnimatePresence mode="popLayout">
-                  {filteredVendors
-                    .filter((vendor) => vendor.events.some((event) => event.type === type))
-                    .map((vendor) => (
-                      <motion.div
-                        key={`${vendor.id}-${type}-${swapTrigger}`}
-                        layout
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ duration: 0.3 }}
-                        className="h-full"
-                      >
-                        <VendorCard vendor={vendor} eventType={type} />
-                      </motion.div>
-                    ))}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-
-        {/* Loading indicator */}
-        {hasMore && (
-          <div ref={loaderRef} className="flex justify-center items-center py-8">
-            {isLoading ? (
-              <div className="flex flex-col items-center">
-                <Loader2 className="h-8 w-8 animate-spin text-white" />
-                <p className="mt-2 text-white font-medium">Loading more events...</p>
-              </div>
-            ) : (
-              <div className="h-16" />
-            )}
-          </div>
-        )}
-
-        {/* No more items indicator */}
-        {!hasMore && visibleEventTypes.length > 0 && (
-          <div className="text-center py-8">
-            <p className="text-white font-medium">You've seen all available event types!</p>
-          </div>
-        )}
-
-        {/* Keep the original content for backward compatibility (hidden) */}
-        <div className="hidden">
-          {eventTypes.map((type) => (
-            <div key={type} className="mb-12">
-              <h2 className="text-2xl font-bold text-white mb-6 animate-bounce">{type}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
-                {filteredVendors
-                  .filter((vendor) => vendor.events.some((event) => event.type === type))
-                  .map((vendor) => (
-                    <VendorCard key={vendor.id} vendor={vendor} eventType={type} />
-                  ))}
-              </div>
-            </div>
+              key={i}
+              className="absolute rounded-full bg-purple-500 opacity-10"
+              initial={{
+                x: `${Math.random() * 100}%`,
+                y: `${Math.random() * 100}%`,
+                scale: Math.random() * 0.5 + 0.5,
+              }}
+              animate={{
+                x: `${Math.random() * 100}%`,
+                y: `${Math.random() * 100}%`,
+                scale: Math.random() * 0.5 + 0.5,
+              }}
+              transition={{
+                duration: Math.random() * 20 + 10,
+                repeat: Number.POSITIVE_INFINITY,
+                repeatType: "reverse",
+              }}
+              style={{
+                width: `${Math.random() * 300 + 50}px`,
+                height: `${Math.random() * 300 + 50}px`,
+              }}
+            />
           ))}
         </div>
       </div>
+
+      <TheatricalEntrance onComplete={handleAnimationComplete} />
+
+      {/* Main content - will be shown after animation completes */}
+      <div className={`transition-opacity duration-1000 ${showContent ? "opacity-100" : "opacity-0"}`}>
+        {/* Sticky header with glass effect */}
+        <motion.header
+          className="sticky top-0 z-50 backdrop-blur-lg bg-black/30 border-b border-white/10 shadow-lg"
+          animate={headerControls}
+        >
+          <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center">
+              <Music className="h-8 w-8 text-purple-400 mr-3" />
+              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+                Entertainment Hub
+              </h1>
+            </div>
+
+            <div className="relative w-full md:w-96">
+              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-purple-300" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search events, artists, or venues..."
+                className="w-full pl-10 pr-4 py-2 rounded-full border border-purple-500/30 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-black/40 text-white placeholder-purple-300 backdrop-blur-md"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            <div className="flex space-x-2">
+              {eventTypes.slice(0, 3).map((type) => (
+                <Badge
+                  key={type}
+                  variant={activeCategory === type ? "default" : "outline"}
+                  className={`cursor-pointer transition-all ${
+                    activeCategory === type
+                      ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                      : "hover:bg-purple-500/20"
+                  }`}
+                  onClick={() => setActiveCategory(activeCategory === type ? null : type)}
+                >
+                  {type}
+                </Badge>
+              ))}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="outline" className="cursor-pointer hover:bg-purple-500/20">
+                      +{eventTypes.length - 3}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="p-2">
+                      {eventTypes.slice(3).map((type) => (
+                        <div key={type} className="py-1">
+                          {type}
+                        </div>
+                      ))}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+        </motion.header>
+
+        {/* Hero section with 3D effect */}
+        <section className="relative overflow-hidden py-16 md:py-24">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="relative z-10 max-w-4xl mx-auto text-center"
+            >
+              <motion.h1
+                className="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-6 tracking-tight"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.8 }}
+              >
+                <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-amber-400">
+                  Unforgettable Moments
+                </span>
+                <br />
+                <span className="inline-block text-white">Unbeatable Prices</span>
+              </motion.h1>
+
+              <motion.p
+                className="text-xl md:text-2xl text-purple-200 mb-8 max-w-2xl mx-auto"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.8 }}
+              >
+                Discover and book the hottest entertainment events across Kenya
+              </motion.p>
+
+              <motion.div
+                className="flex flex-wrap justify-center gap-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.8 }}
+              >
+                <Link href="/entertainment/shop">
+                  <Button
+                    size="lg"
+                    className="group relative overflow-hidden bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
+                  >
+                    <motion.div
+                      className="absolute inset-0 bg-white opacity-10"
+                      initial={{ x: "-100%" }}
+                      animate={{ x: isHovered ? "100%" : "-100%" }}
+                      transition={{ duration: 1, ease: "easeInOut" }}
+                    />
+                    <span className="flex items-center text-lg font-medium">
+                      <Ticket className="mr-2 h-5 w-5" />
+                      Browse Events
+                      <ChevronRight className="ml-2 h-5 w-5" />
+                    </span>
+                  </Button>
+                </Link>
+
+                <Link href="/entertainment/live-streaming">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="group relative overflow-hidden border-purple-400 text-purple-100 hover:text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
+                  >
+                    <span className="flex items-center text-lg font-medium">
+                      <Music className="mr-2 h-5 w-5" />
+                      Live Streams
+                    </span>
+                  </Button>
+                </Link>
+              </motion.div>
+            </motion.div>
+          </div>
+
+          {/* Floating 3D elements */}
+          <div className="absolute inset-0 pointer-events-none">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <motion.div
+                key={i}
+                className="absolute"
+                initial={{
+                  x: `${Math.random() * 100}%`,
+                  y: `${Math.random() * 100}%`,
+                  rotate: Math.random() * 360,
+                  scale: 0.5,
+                }}
+                animate={{
+                  x: `${Math.random() * 100}%`,
+                  y: `${Math.random() * 100}%`,
+                  rotate: Math.random() * 360,
+                  scale: 0.5,
+                }}
+                transition={{
+                  duration: 15 + Math.random() * 10,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                }}
+              >
+                <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-md" />
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Countdown timer with enhanced styling */}
+        <div className="container mx-auto px-4 py-8 max-w-[1920px]">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-900/80 to-indigo-900/80 backdrop-blur-md border border-purple-500/20 shadow-xl p-6 mb-12">
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute inset-0 bg-[url('/placeholder.svg?height=200&width=1000')] opacity-10 bg-cover bg-center" />
+            </div>
+            <div className="relative z-10">
+              <CountdownTimer targetDate="2025-12-31T23:59:59" startDate="2025-02-13T00:00:00" />
+            </div>
+          </div>
+
+          {/* New Products Section with Glass Morphism */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="mb-16"
+          >
+            <NewProductsForYou allProducts={entertainmentProducts} colorScheme="purple" maxProducts={4} />
+          </motion.div>
+
+          {/* Hot Deals Section with Enhanced Animation */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="mb-16"
+          >
+            <HotTimeDeals
+              deals={hotEntertainmentDeals}
+              colorScheme="purple"
+              title="Hurry for Hot Entertainment Shows!"
+              subtitle="Limited-time Entertainment Tickets!"
+            />
+          </motion.div>
+
+          {/* Trending and Popular Section with 3D Cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mb-16"
+          >
+            <TrendingPopularSection
+              trendingProducts={trendingProducts}
+              popularProducts={popularProducts}
+              colorScheme={entertainmentColorScheme}
+              title="Entertainment Highlights"
+              subtitle="Discover trending and most popular entertainment options"
+            />
+          </motion.div>
+
+          {/* Quick Access Buttons */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+            <QuickAccessButton
+              href="/entertainment/shop"
+              icon={<Ticket />}
+              title="Entertainment Shop"
+              description="Browse and purchase tickets for upcoming events"
+              gradient="from-purple-600 to-indigo-600"
+            />
+
+            <QuickAccessButton
+              href="/entertainment/live-streaming"
+              icon={<Music />}
+              title="Live Streams"
+              description="Watch live performances from the comfort of your home"
+              gradient="from-pink-600 to-purple-600"
+            />
+
+            <QuickAccessButton
+              href="https://www.bit.ly/2cheki"
+              icon={<Sparkles />}
+              title="Movie Trailers"
+              description="Explore our collection of the latest movie trailers"
+              gradient="from-amber-600 to-pink-600"
+            />
+          </div>
+
+          {/* Event Categories Section */}
+          <AnimatePresence mode="popLayout">
+            {visibleEventTypes.map((type) => (
+              <motion.div
+                key={type}
+                className="mb-16"
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl md:text-3xl font-bold text-white">
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+                      {type}
+                    </span>
+                  </h2>
+                  <Link href={`/entertainment/category/${type.toLowerCase().replace(/\s+/g, "-")}`}>
+                    <Button variant="ghost" className="text-purple-300 hover:text-white hover:bg-purple-500/20">
+                      View All <ChevronRight className="ml-1 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
+                  <AnimatePresence mode="popLayout">
+                    {filteredVendors
+                      .filter((vendor) => vendor.events.some((event) => event.type === type))
+                      .map((vendor) => (
+                        <motion.div
+                          key={`${vendor.id}-${type}-${swapTrigger}`}
+                          layout
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          transition={{ duration: 0.3 }}
+                          className="h-full"
+                        >
+                          <VendorCard vendor={vendor} eventType={type} />
+                        </motion.div>
+                      ))}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+
+          {/* Loading indicator */}
+          {hasMore && (
+            <div ref={loaderRef} className="flex justify-center items-center py-8">
+              {isLoading ? (
+                <div className="flex flex-col items-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
+                  <p className="mt-2 text-purple-300 font-medium">Loading more events...</p>
+                </div>
+              ) : (
+                <div className="h-16" />
+              )}
+            </div>
+          )}
+
+          {/* No more items indicator */}
+          {!hasMore && visibleEventTypes.length > 0 && (
+            <div className="text-center py-8">
+              <p className="text-purple-300 font-medium">You've seen all available event types!</p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer with glass effect */}
+        <footer className="mt-16 border-t border-purple-500/20 backdrop-blur-md bg-black/30">
+          <div className="container mx-auto px-4 py-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div>
+                <h3 className="text-xl font-bold text-white mb-4">Entertainment Hub</h3>
+                <p className="text-purple-300 mb-4">
+                  Your one-stop destination for all entertainment events across Kenya.
+                </p>
+                <div className="flex space-x-4">
+                  <SocialIcon icon={<Heart className="h-5 w-5" />} />
+                  <SocialIcon icon={<Share2 className="h-5 w-5" />} />
+                  <SocialIcon icon={<Info className="h-5 w-5" />} />
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-white mb-4">Quick Links</h3>
+                <ul className="space-y-2">
+                  <li>
+                    <Link href="/entertainment/shop" className="text-purple-300 hover:text-white transition-colors">
+                      Entertainment Shop
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/entertainment/live-streaming"
+                      className="text-purple-300 hover:text-white transition-colors"
+                    >
+                      Live Streams
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="https://www.bit.ly/2cheki"
+                      className="text-purple-300 hover:text-white transition-colors"
+                    >
+                      Movie Trailers
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-white mb-4">Contact Us</h3>
+                <p className="text-purple-300">Have questions or need assistance? Reach out to our support team.</p>
+                <Button variant="outline" className="mt-4 border-purple-400 text-purple-300 hover:text-white">
+                  Contact Support
+                </Button>
+              </div>
+            </div>
+
+            <div className="mt-8 pt-8 border-t border-purple-500/20 text-center text-purple-400">
+              <p>© {new Date().getFullYear()} Entertainment Hub. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
+      </div>
+
+      {/* New Event Alert with enhanced animation */}
       <AnimatePresence>
         {newEventAlert && (
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-4 right-4 bg-black bg-opacity-80 rounded-lg shadow-lg p-4 max-w-sm text-white"
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.9 }}
+            className="fixed bottom-4 right-4 backdrop-blur-lg bg-black/70 border border-purple-500/30 rounded-lg shadow-2xl p-4 max-w-sm text-white z-50"
           >
             <button
               onClick={() => setNewEventAlert(null)}
@@ -655,9 +868,25 @@ export default function Entertainment() {
             >
               <X size={20} />
             </button>
-            <h3 className="text-lg font-semibold mb-2">New Event Alert!</h3>
-            <p className="text-gray-300 mb-2">{newEventAlert.name} is now available!</p>
-            <p className="text-purple-400 font-bold">Only {formatPrice(newEventAlert.currentPrice)}</p>
+
+            <div className="flex items-start gap-3">
+              <div className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-full p-3 flex-shrink-0">
+                <Star className="h-5 w-5 text-white" />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-1">New Event Alert!</h3>
+                <p className="text-gray-300 mb-2">{newEventAlert.name} is now available!</p>
+                <div className="flex items-center justify-between">
+                  <p className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+                    {formatPrice(newEventAlert.currentPrice)}
+                  </p>
+                  <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                    View Details
+                  </Button>
+                </div>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -667,131 +896,178 @@ export default function Entertainment() {
 
 function VendorCard({ vendor, eventType }: { vendor: Vendor; eventType: string }) {
   const [imageError, setImageError] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const rotateX = useTransform(y, [-100, 100], [10, -10])
+  const rotateY = useTransform(x, [-100, 100], [-10, 10])
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+    x.set(e.clientX - centerX)
+    y.set(e.clientY - centerY)
+  }
 
   return (
-    <div className="bg-black bg-opacity-50 rounded-lg shadow-md overflow-hidden transform hover:scale-105 transition-transform duration-300 flex flex-col h-full">
-      <div className="p-6">
-        {/* IMPROVEMENT: Made the header more responsive */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-          <div className="flex items-center">
-            {/* IMPROVEMENT: Added flex-shrink-0 to prevent logo from being compressed */}
-            <div className="relative flex-shrink-0">
-              <Image
-                src={imageError ? "/images/vendor-placeholder.png" : vendor.logo}
-                alt={vendor.name}
-                width={60}
-                height={60}
-                className="rounded-full"
-                onError={() => setImageError(true)}
-              />
-        {vendor.verified && (
-                <div className="absolute -bottom-1 -right-1 bg-purple-500 text-white rounded-full p-1">
-                  <Check className="h-3 w-3" />
-                </div>
-              )}
-            </div>
-           {/*logic forbadge*/}
-           {/*
+    <motion.div
+      className="h-full"
+      style={{ perspective: 1000 }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        setIsHovered(false)
+        x.set(0)
+        y.set(0)
+      }}
+    >
+      <motion.div
+        className="bg-black/40 backdrop-blur-md border border-purple-500/20 rounded-xl shadow-xl overflow-hidden h-full flex flex-col transform-gpu"
+        style={{
+          rotateX: isHovered ? rotateX : 0,
+          rotateY: isHovered ? rotateY : 0,
+          transition: "transform 0.3s ease",
+        }}
+      >
+        <div className="p-6 border-b border-purple-500/20">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <div className="flex items-center">
-  <h3>{vendor.name}</h3>
-  {vendor.isVerified && (
-    <VerificationBadge 
-      variant={vendor.verificationColor || "blue"} 
-      size="md" 
-      className="ml-2"
-    />
-  )}
-</div> */}
-            <div className="ml-4">
-              <h3 className="text-xl font-semibold text-white">{vendor.name}</h3>
-              <p className="text-gray-300">{vendor.location}</p>
+              <div className="relative flex-shrink-0">
+                <div className="relative w-16 h-16 rounded-full overflow-hidden bg-gradient-to-r from-purple-500/20 to-pink-500/20 p-0.5">
+                  <Image
+                    src={imageError ? "/placeholder.svg?height=60&width=60" : vendor.logo}
+                    alt={vendor.name}
+                    width={60}
+                    height={60}
+                    className="rounded-full object-cover"
+                    onError={() => setImageError(true)}
+                  />
+                </div>
+                {vendor.verified && (
+                  <motion.div
+                    className="absolute -bottom-1 -right-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full p-1"
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      boxShadow: [
+                        "0 0 0 0 rgba(147, 51, 234, 0.7)",
+                        "0 0 0 10px rgba(147, 51, 234, 0)",
+                        "0 0 0 0 rgba(147, 51, 234, 0)",
+                      ],
+                    }}
+                    transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+                  >
+                    <Check className="h-3 w-3" />
+                  </motion.div>
+                )}
+              </div>
+              <div className="ml-4">
+                <h3 className="text-xl font-semibold text-white">{vendor.name}</h3>
+                <div className="flex items-center text-purple-300">
+                  <MapPin className="h-4 w-4 mr-1" />
+                  <span className="text-sm">{vendor.location}</span>
+                </div>
+              </div>
             </div>
+            <a
+              href={vendor.redirectUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full hover:from-purple-600 hover:to-pink-600 transition duration-300 whitespace-nowrap text-sm font-medium"
+            >
+              Visit Website
+            </a>
           </div>
+          <p className="text-purple-200 mb-4 line-clamp-2">{vendor.description}</p>
           <a
-            href={vendor.redirectUrl}
+            href={vendor.mapLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-purple-500 text-white px-4 py-2 rounded-full hover:bg-purple-600 transition duration-300 animate-pulse whitespace-nowrap"
+            className="inline-flex items-center text-purple-400 hover:text-purple-300 transition-colors duration-300"
           >
-            Visit Website
+            <MapPin size={16} className="mr-1" />
+            Find on Maps
           </a>
         </div>
-        <p className="text-gray-300 mb-4 line-clamp-2 md:line-clamp-none">{vendor.description}</p>
-        <a
-          href={vendor.mapLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors duration-300"
-        >
-          <MapPin size={16} className="mr-1" />
-          Find on Maps
-        </a>
-      </div>
-      <div className="bg-gray-900 p-6 flex-grow">
-        <h4 className="text-lg font-semibold mb-4 text-white">Featured Events</h4>
-        {/* IMPROVEMENT: Simplified grid for better responsiveness */}
-        <div className="grid grid-cols-1 gap-4 h-full">
-          {vendor.events
-            .filter((event) => event.type === eventType)
-            .map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
+        <div className="bg-black/60 p-6 flex-grow">
+          <h4 className="text-lg font-semibold mb-4 text-white flex items-center">
+            <Star className="h-4 w-4 mr-2 text-purple-400" />
+            Featured Events
+          </h4>
+          <div className="grid grid-cols-1 gap-4 h-full">
+            {vendor.events
+              .filter((event) => event.type === eventType)
+              .map((event) => (
+                <EventCard key={event.id} event={event} />
+              ))}
+          </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
+
 function TrendingBadge() {
   return (
     <motion.div
-      className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg flex items-center"
-      animate={{ 
+      className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 to-pink-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg flex items-center z-10"
+      animate={{
         scale: [1, 1.1, 1],
-        boxShadow: [
-          "0 4px 6px rgba(0, 0, 0, 0.1)",
-          "0 10px 15px rgba(0, 0, 0, 0.2)",
-          "0 4px 6px rgba(0, 0, 0, 0.1)"
-        ]
+        boxShadow: ["0 4px 6px rgba(0, 0, 0, 0.1)", "0 10px 15px rgba(0, 0, 0, 0.2)", "0 4px 6px rgba(0, 0, 0, 0.1)"],
       }}
-      transition={{ 
+      transition={{
         duration: 2,
-        repeat: Infinity,
-        repeatType: "reverse"
+        repeat: Number.POSITIVE_INFINITY,
+        repeatType: "reverse",
       }}
     >
       <TrendingUp className="h-3 w-3 mr-1" />
       <span>Trending</span>
     </motion.div>
-  );
+  )
 }
 
 function EventCard({ event }: { event: EntertainmentEvent }) {
   const [imageError, setImageError] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
   const savings: Price = {
     amount: event.originalPrice.amount - event.currentPrice.amount,
     currency: event.currentPrice.currency,
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col h-full">
-      <div className="relative w-full pt-[75%]">
+    <motion.div
+      className="bg-black/60 rounded-lg overflow-hidden flex flex-col h-full border border-purple-500/20 transform-gpu"
+      whileHover={{ scale: 1.02, boxShadow: "0 10px 30px -10px rgba(147, 51, 234, 0.5)" }}
+      transition={{ duration: 0.2 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+    >
+      <div className="relative w-full pt-[75%] overflow-hidden">
         <Image
-          src={imageError ? "/images/event-placeholder.png" : event.imageUrl}
+          src={imageError ? "/placeholder.svg?height=300&width=400" : event.imageUrl}
           alt={event.name}
           layout="fill"
           objectFit="cover"
-          loading="lazy" // Add lazy loading
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Optimize loading sizes
-          quality={80} // Slightly reduce quality for better performance
+          loading="lazy"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          quality={80}
           onError={() => setImageError(true)}
+          className="transition-transform duration-700 ease-in-out"
+          style={{ transform: isHovered ? "scale(1.1)" : "scale(1)" }}
         />
+
+        {/* Overlay gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-70" />
+
         {event.isNew && (
-          <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-bounce">
+          <div className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white px-2 py-1 rounded-full text-xs font-bold z-10 shadow-lg">
             NEW
           </div>
         )}
-{/* Add the trending badge */}
-{event.isTrending && <TrendingBadge />}
+
+        {/* Add the trending badge */}
+        {event.isTrending && <TrendingBadge />}
 
         {/* Almost Sold Out sticker with animation */}
         {event.isAlmostSoldOut && (
@@ -801,7 +1077,7 @@ function EventCard({ event }: { event: EntertainmentEvent }) {
             animate={{ opacity: 1 }}
           >
             <motion.div
-              className="bg-amber-500 text-white px-4 py-2 rounded-lg font-bold text-lg transform rotate-[-30deg] shadow-lg"
+              className="bg-gradient-to-r from-amber-500 to-red-500 text-white px-4 py-2 rounded-lg font-bold text-lg transform rotate-[-30deg] shadow-lg"
               animate={{
                 scale: [0.9, 1.1, 0.9],
                 boxShadow: [
@@ -820,58 +1096,170 @@ function EventCard({ event }: { event: EntertainmentEvent }) {
             </motion.div>
           </motion.div>
         )}
+
         {/* New This Week badge - positioned differently to avoid overlap */}
         {event.dateAdded && isNewThisWeek(event.dateAdded) && (
-          <div className="absolute bottom-2 left-2">
+          <div className="absolute bottom-2 left-2 z-10">
             <NewThisWeekBadge />
           </div>
         )}
+
+        {/* Hot deal countdown */}
+        {event.isHotDeal && event.hotDealEnds && (
+          <div className="absolute bottom-2 right-2 bg-black/70 backdrop-blur-sm rounded-lg px-2 py-1 text-xs font-medium text-white flex items-center z-10">
+            <Clock className="h-3 w-3 mr-1 text-red-400" />
+            <HotDealCountdown endDate={event.hotDealEnds} />
+          </div>
+        )}
       </div>
+
       <div className="p-4 flex-grow flex flex-col">
         <h5 className="font-semibold mb-2 text-white truncate">{event.name}</h5>
-        {/* IMPROVEMENT: Better price display to prevent overflow */}
-        <div className="flex flex-col mb-2">
-          <span className="text-lg font-bold text-purple-400 break-words">{formatPrice(event.currentPrice)}</span>
-          <span className="text-sm text-gray-400 line-through break-words">{formatPrice(event.originalPrice)}</span>
+
+        {/* Price display with discount badge */}
+        <div className="flex items-end justify-between mb-3">
+          <div className="flex flex-col">
+            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+              {formatPrice(event.currentPrice)}
+            </span>
+            <span className="text-sm text-gray-400 line-through">{formatPrice(event.originalPrice)}</span>
+          </div>
+
+          {savings.amount > 0 && (
+            <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0">
+              {Math.round((savings.amount / event.originalPrice.amount) * 100)}% OFF
+            </Badge>
+          )}
         </div>
-        <div className="text-sm text-gray-300 mb-2">
+
+        <div className="text-sm text-purple-200 mb-4 space-y-1.5">
           <div className="flex items-center">
-            <Calendar size={16} className="mr-1 flex-shrink-0" />
+            <Calendar size={14} className="mr-1.5 flex-shrink-0 text-purple-400" />
             <span className="truncate">{event.date}</span>
           </div>
           <div className="flex items-center">
-            <MapPin size={16} className="mr-1 flex-shrink-0" />
+            <MapPin size={14} className="mr-1.5 flex-shrink-0 text-purple-400" />
             <span className="truncate">{event.venue}</span>
           </div>
           <div className="flex items-center">
-            <Users size={16} className="mr-1 flex-shrink-0" />
+            <Users size={14} className="mr-1.5 flex-shrink-0 text-purple-400" />
             <span className="truncate">{event.capacity}</span>
           </div>
         </div>
-        {/* IMPROVEMENT: Added min-width-0 to buttons to prevent overflow */}
+
         <div className="mt-auto space-y-2">
-          <motion.button
-            className="w-full bg-blue-500 text-white px-4 py-2 rounded-full min-w-0"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-            animate={{ rotateZ: [0, 5, 0, -5, 0] }}
-            transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-          >
-            Save {formatPrice(savings)}
-          </motion.button>
-          <motion.button
-            className="w-full bg-green-500 text-white px-4 py-2 rounded-full min-w-0"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
+          <Button
+            className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white border-0"
+            size="sm"
           >
             Book Now
-          </motion.button>
-          <button className="w-full bg-gradient-to-r from-pink-500 to-yellow-500 text-white px-4 py-2 rounded-full animate-pulse hover:from-pink-600 hover:to-yellow-600 transition-all duration-300 transform hover:scale-105 min-w-0">
-            Grab them
-          </button>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="w-full border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:text-white"
+            size="sm"
+          >
+            Save {formatPrice(savings)}
+          </Button>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
+function HotDealCountdown({ endDate }: { endDate: string }) {
+  const [timeLeft, setTimeLeft] = useState("")
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const difference = new Date(endDate).getTime() - new Date().getTime()
+
+      if (difference <= 0) {
+        setTimeLeft("Expired")
+        return
+      }
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24))
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+
+      if (days > 0) {
+        setTimeLeft(`${days}d ${hours}h left`)
+      } else {
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
+        setTimeLeft(`${hours}h ${minutes}m left`)
+      }
+    }
+
+    calculateTimeLeft()
+    const timer = setInterval(calculateTimeLeft, 60000)
+
+    return () => clearInterval(timer)
+  }, [endDate])
+
+  return <span>{timeLeft}</span>
+}
+
+function QuickAccessButton({
+  href,
+  icon,
+  title,
+  description,
+  gradient,
+}: {
+  href: string
+  icon: React.ReactNode
+  title: string
+  description: string
+  gradient: string
+}) {
+  const [isHovered, setIsHovered] = useState(false)
+
+  return (
+    <Link href={href}>
+      <motion.div
+        className={`relative overflow-hidden rounded-xl bg-gradient-to-r ${gradient} p-0.5 shadow-lg`}
+        whileHover={{ scale: 1.02 }}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
+      >
+        <div className="h-full bg-black/60 backdrop-blur-md rounded-[calc(0.75rem-1px)] p-6 flex flex-col items-center text-center">
+          <motion.div
+            className="absolute inset-0 bg-white/10"
+            initial={{ x: "-100%" }}
+            animate={{ x: isHovered ? "100%" : "-100%" }}
+            transition={{ duration: 1, ease: "easeInOut" }}
+          />
+
+          <div className="relative z-10 mb-4 bg-black/30 p-3 rounded-full">
+            <div className="text-white">{icon}</div>
+          </div>
+
+          <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
+          <p className="text-purple-200 text-sm">{description}</p>
+
+          <motion.div
+            className="mt-4 flex items-center text-purple-300"
+            animate={{ x: isHovered ? 5 : 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <span className="mr-1">Explore</span>
+            <ChevronRight className="h-4 w-4" />
+          </motion.div>
+        </div>
+      </motion.div>
+    </Link>
+  )
+}
+
+function SocialIcon({ icon }: { icon: React.ReactNode }) {
+  return (
+    <motion.div
+      className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-300 hover:bg-purple-500/40 hover:text-white cursor-pointer"
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      {icon}
+    </motion.div>
+  )
+}
