@@ -39,7 +39,7 @@ import NewProductsForYou from "@/components/NewProductsForYou"
 import { transformEntertainmentToProducts } from "@/utils/product-transformers"
 import TheatricalEntrance from "@/components/TheatricalEntrance"
 import TrendingPopularSection from "@/components/TrendingPopularSection"
-import { trendingProducts, popularProducts } from "../trending-data"
+//import { trendingProducts, popularProducts } from "../trending-data"
 
 interface Price {
   amount: number
@@ -355,14 +355,14 @@ export default function Entertainment() {
   }, [searchTerm, vendors])
 
   // Custom color scheme for entertainment
-  const entertainmentColorScheme = {
+  {/* const entertainmentColorScheme = {
     primary: "from-purple-500 to-indigo-700",
     secondary: "bg-purple-100",
     accent: "bg-indigo-600",
     text: "text-purple-900",
     background: "bg-purple-50",
   }
-
+*/}
   // Add swapping effect every 10 minutes
   useEffect(() => {
     // Set up interval for swapping categories
@@ -680,8 +680,8 @@ export default function Entertainment() {
               subtitle="Limited-time Entertainment Tickets!"
             />
           </motion.div>
-
-          {/* Trending and Popular Section with 3D Cards */}
+      
+          {/* Trending and Popular Section with 3D Cards */}{/*
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -696,7 +696,7 @@ export default function Entertainment() {
               subtitle="Discover trending and most popular entertainment options"
             />
           </motion.div>
-
+*/}
           {/* Quick Access Buttons */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
             <QuickAccessButton
