@@ -52,12 +52,16 @@ export default function SplashWrapper({ children }: SplashWrapperProps): JSX.Ele
       sessionStorage.setItem("oneShopSplashTimestamp", Date.now().toString())
 
       // Track splash completion for analytics
-      if (typeof (window as any).gtag !== "undefined") {
-        ;(window as any).gtag("event", "splash_completed", {
-          event_category: "engagement",
-          event_label: "african_splash_screen",
-          value: 1,
-        })
+      try {
+        if (typeof (window as any).gtag !== "undefined") {
+          ;(window as any).gtag("event", "splash_completed", {
+            event_category: "engagement",
+            event_label: "african_splash_screen",
+            value: 1,
+          })
+        }
+      } catch (error) {
+        console.log("Analytics tracking failed:", error)
       }
     }
 

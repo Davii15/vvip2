@@ -23,7 +23,7 @@ export default function CategoriesPage() {
     { name:"Construction Materials Deals", icon:"Hammer", imageSrc:"/images/construction-and-materials.png"},
     { name:"Electronics Product Deals", icon:"TvIcon", imageSrc:"/images/electronics.png"},
     { name: "Other Business Venture Deals", icon: "Package", imageSrc: "/images/otherbusiness.png" },
-    
+    { name: "AgriProducts Deals", icon: " ShoppingBag", imageSrc: "/images/agricultureproduct.png" },
   ]
 
   const [categories, setCategories] = useState(initialCategories)

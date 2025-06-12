@@ -51,7 +51,10 @@ export default function CategorySection({ name, icon, imageSrc }: CategorySectio
       router.push("/construction-materials")
   } else if(name === "Electronics Product Deals"){
       router.push("/electronics")
+} else if(name === "AgriProduct Deals"){
+  router.push("/agriculture-products")
 }
+ 
   }
 
   return (
