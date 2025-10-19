@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Play, Pause, Volume2, VolumeX, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react"
+import { Play, Pause, Volume2, VolumeX, ChevronLeft, ChevronRight, ExternalLink, X, Clock, Tag } from "lucide-react"
 import Link from "next/link"
 
 // Types for our video reels
@@ -18,7 +18,7 @@ interface VideoReel {
   category: "movie" | "business" | "product" | "event"
 }
 
-// Sample data 
+// Sample data
 const sampleReels: VideoReel[] = [
   {
     id: "reel-001",
@@ -94,6 +94,7 @@ export default function MovieReelsDisplay() {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [filteredReels, setFilteredReels] = useState(sampleReels)
   const [isHovering, setIsHovering] = useState(false)
+  const [selectedReel, setSelectedReel] = useState<VideoReel | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -205,6 +206,16 @@ export default function MovieReelsDisplay() {
 
   const currentCategoryColor = getCategoryColor(currentReel.category)
 
+  const openReelModal = (reel: VideoReel) => {
+    setSelectedReel(reel)
+  }
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, "0")}`
+  }
+
   return (
     <motion.div
       className="w-full bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-8 mb-8 border border-white/20 overflow-hidden"
@@ -256,9 +267,10 @@ export default function MovieReelsDisplay() {
         {filteredReels.length > 0 ? (
           <div className="max-w-md mx-auto">
             <div
-              className="relative rounded-xl overflow-hidden aspect-[9/16] bg-black shadow-xl"
+              className="relative rounded-xl overflow-hidden aspect-[9/16] bg-black shadow-xl cursor-pointer"
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
+              onClick={() => openReelModal(currentReel)}
             >
               {/* Video */}
               <AnimatePresence mode="wait">
@@ -365,6 +377,7 @@ export default function MovieReelsDisplay() {
                     href={currentReel.ctaLink}
                     target="_blank"
                     className="bg-white/20 backdrop-blur-sm rounded-full p-1.5 text-white hover:bg-white/30 transition-colors"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <ExternalLink size={14} />
                   </Link>
@@ -407,10 +420,143 @@ export default function MovieReelsDisplay() {
         {/* Disclaimer */}
         <div className="mt-8 text-center text-xs text-gray-400">
           <p>
-           The videos used here are Purely for Advertisement section Only, for more you can watch it or get in the Advertisers Website or their place of operation.
+            The videos used here are Purely for Advertisement section Only, for more you can watch it or get in the
+            Advertisers Website or their place of operation.
           </p>
         </div>
       </div>
+
+      <AnimatePresence>
+        {selectedReel && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedReel(null)}
+          >
+            <motion.div
+              className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className={`${getCategoryColor(selectedReel.category)} p-6 text-white relative`}>
+                <button
+                  onClick={() => setSelectedReel(null)}
+                  className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors"
+                >
+                  <X size={20} />
+                </button>
+                <div className="flex gap-4">
+                  <div className="w-24 h-32 rounded-lg overflow-hidden shadow-lg flex-shrink-0">
+                    <img
+                      src={selectedReel.thumbnailUrl || "/placeholder.svg"}
+                      alt={selectedReel.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold mb-2">{selectedReel.title}</h2>
+                    <p className="text-white/90 mb-3">{selectedReel.description}</p>
+                    <div className="flex items-center gap-4 text-sm text-white/80">
+                      <div className="flex items-center gap-1">
+                        <Clock size={16} />
+                        {formatDuration(selectedReel.duration)}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Tag size={16} />
+                        {categories.find((cat) => cat.id === selectedReel.category)?.name}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Video Details</h3>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-500">Category:</span>
+                        <p className="font-medium capitalize">{selectedReel.category}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Duration:</span>
+                        <p className="font-medium">{formatDuration(selectedReel.duration)}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Video ID:</span>
+                        <p className="font-medium">{selectedReel.id}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Type:</span>
+                        <p className="font-medium">Promotional Video</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Description</h3>
+                    <p className="text-gray-600 leading-relaxed">{selectedReel.description}</p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Call to Action</h3>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-gray-700 mb-3">{selectedReel.ctaText}</p>
+                      <Link
+                        href={selectedReel.ctaLink}
+                        target="_blank"
+                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium ${getCategoryColor(selectedReel.category)} hover:opacity-90 transition-opacity`}
+                      >
+                        <ExternalLink size={16} />
+                        Visit Website
+                      </Link>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Video Preview</h3>
+                    <div className="bg-gray-50 rounded-lg p-4 text-center">
+                      <div className="w-32 h-48 mx-auto rounded-lg overflow-hidden shadow-md mb-3">
+                        <img
+                          src={selectedReel.thumbnailUrl || "/placeholder.svg"}
+                          alt={selectedReel.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <p className="text-sm text-gray-500">Return to main view to watch the full video</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 mt-8">
+                  <Link
+                    href={selectedReel.ctaLink}
+                    target="_blank"
+                    className={`flex-1 py-3 px-4 rounded-lg text-white font-medium flex items-center justify-center gap-2 ${getCategoryColor(selectedReel.category)} hover:opacity-90 transition-opacity`}
+                  >
+                    <ExternalLink size={18} />
+                    {selectedReel.ctaText}
+                  </Link>
+                  <button
+                    onClick={() => setSelectedReel(null)}
+                    className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }

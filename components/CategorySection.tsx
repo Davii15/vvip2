@@ -14,7 +14,9 @@ interface CategorySectionProps {
 }
 
 export default function CategorySection({ name, icon, imageSrc }: CategorySectionProps) {
-  const LucideIcon = Icons[icon as keyof typeof Icons] as Icon
+  const fallbackIcon = Icons.HelpCircle
+  const LucideIcon = (Icons[icon as keyof typeof Icons] as Icon) || fallbackIcon
+
   const [imageError, setImageError] = useState(false)
   const router = useRouter()
 
@@ -52,7 +54,7 @@ export default function CategorySection({ name, icon, imageSrc }: CategorySectio
   } else if(name === "Electronics Product Deals"){
       router.push("/electronics")
 } else if(name === "AgriProduct Deals"){
-  router.push("/agriculture-products")
+      router.push("/agriculture-products")
 }
  
   }

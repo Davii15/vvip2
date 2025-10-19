@@ -917,7 +917,7 @@ export default function DrinksPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            Refreshing Drinks & Premium Spirits
+            Refreshing Drinks & Premium Spirits,Aaawh! we got your taste👌
           </motion.h1>
           <motion.p
             className="text-xl text-gray-600 max-w-3xl mx-auto"

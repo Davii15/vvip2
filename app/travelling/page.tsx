@@ -126,7 +126,7 @@ interface Vendor {
   defaultCurrency: string
   rating?: number
   reviewCount?: number
-  verified?:boolean
+  verified?: boolean
   establishedYear?: number
   contactNumber?: string
   email?: string
@@ -222,7 +222,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.8,
     reviewCount: 356,
-    verified:true,
+    verified: true,
     establishedYear: 2010,
     contactNumber: "+254 712 345 678",
     email: "info@globaladventures.com",
@@ -327,7 +327,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.7,
     reviewCount: 245,
-    verified:true,
+    verified: true,
     establishedYear: 2012,
     contactNumber: "+254 723 456 789",
     email: "info@africanhorizons.com",
@@ -434,7 +434,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.9,
     reviewCount: 412,
-    verified:true,
+    verified: true,
     establishedYear: 2008,
     contactNumber: "+254 734 567 890",
     email: "info@kenyaexplorer.com",
@@ -539,7 +539,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.7,
     reviewCount: 328,
-    verified:true,
+    verified: true,
     establishedYear: 2014,
     contactNumber: "+254 745 678 901",
     email: "info@upcountryescapes.com",
@@ -646,7 +646,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.5,
     reviewCount: 876,
-    verified:true,
+    verified: true,
     establishedYear: 2010,
     contactNumber: "+254 756 789 012",
     email: "info@supermetro.co.ke",
@@ -850,7 +850,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.8,
     reviewCount: 1215,
-    verified:true,
+    verified: true,
     establishedYear: 2016,
     contactNumber: "+254 778 901 234",
     email: "support@safariride.co.ke",
@@ -1051,7 +1051,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.6,
     reviewCount: 1542,
-    verified:true,
+    verified: true,
     establishedYear: 2017,
     contactNumber: "+254 790 123 456",
     email: "info@madarakaexpress.co.ke",
@@ -1150,7 +1150,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.3,
     reviewCount: 967,
-    verified:true,
+    verified: true,
     establishedYear: 2020,
     contactNumber: "+254 701 234 567",
     email: "info@cityrail.co.ke",
@@ -1293,7 +1293,6 @@ function TrendingSectionFallback() {
   return <div className="h-64 bg-gray-200 animate-pulse rounded-lg"></div>
 }
 
-
 export default function TravellingPage() {
   useCookieTracking("travelling")
 
@@ -1304,14 +1303,14 @@ export default function TravellingPage() {
   const [newOfferingAlert, setNewOfferingAlert] = useState<TravelData | null>(null)
   const [swapTrigger, setSwapTrigger] = useState(0)
 
-// Custom color scheme for travelling
-const travellingColorScheme = {
-  primary: "from-purple-500 to-indigo-700",
-  secondary: "bg-purple-100",
-  accent: "bg-indigo-600",
-  text: "text-purple-900",
-  background: "bg-purple-50",
-}
+  // Custom color scheme for travelling
+  const travellingColorScheme = {
+    primary: "from-purple-500 to-indigo-700",
+    secondary: "bg-purple-100",
+    accent: "bg-indigo-600",
+    text: "text-purple-900",
+    background: "bg-purple-50",
+  }
 
   // State for active category and subcategory
   const [activeCategory, setActiveCategory] = useState<string>("")
@@ -1329,6 +1328,37 @@ const travellingColorScheme = {
   const [isLoading, setIsLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const loaderRef = useRef<HTMLDivElement>(null)
+
+  const [showContactModal, setShowContactModal] = useState(false)
+  const [selectedContactVendor, setSelectedContactVendor] = useState<string>("")
+
+  // Mock contact data for travel vendors
+  const vendorContacts = {
+    "Super Metro": {
+      whatsapp: "+254756789012",
+      phone: "+254756789012",
+      email: "info@supermetro.co.ke",
+      website: "https://supermetro.co.ke",
+    },
+    "City Shuttle": {
+      whatsapp: "+254701234567",
+      phone: "+254701234567",
+      email: "bookings@cityshuttle.co.ke",
+      website: "https://cityshuttle.co.ke",
+    },
+    "Kenya Airways": {
+      whatsapp: "+254722000000",
+      phone: "+254722000000",
+      email: "reservations@kenya-airways.com",
+      website: "https://www.kenya-airways.com",
+    },
+    "Safari Tours Kenya": {
+      whatsapp: "+254733111222",
+      phone: "+254733111222",
+      email: "info@safaritours.co.ke",
+      website: "https://safaritours.co.ke",
+    },
+  }
 
   // Get hot deals
   const hotDeals = useMemo(() => {
@@ -1606,7 +1636,7 @@ const travellingColorScheme = {
           </motion.p>
         </div>
 
-    {/* Countdown Timer - Wrapped in Suspense */}
+        {/* Countdown Timer - Wrapped in Suspense */}
         <div className="mb-8">
           <Suspense fallback={<CountdownTimerFallback />}>
             <CountdownTimer targetDate="2025-05-31T23:59:59" startDate="2025-03-01T00:00:00" />
@@ -1630,7 +1660,7 @@ const travellingColorScheme = {
           <NewProductsForYou allProducts={newProducts} colorScheme="blue" maxProducts={4} />
         </Suspense>
 
-  {/* Trending and Popular Section - Wrapped in Suspense */}
+        {/* Trending and Popular Section - Wrapped in Suspense */}
         <Suspense fallback={<TrendingSectionFallback />}>
           <TrendingPopularSection
             trendingProducts={trendingProducts}
@@ -1640,30 +1670,30 @@ const travellingColorScheme = {
             subtitle="Discover most popular travelling options"
           />
         </Suspense>
-        
-    <div className="flex flex-wrap gap-4 animate-fadeIn" style={{ animationDelay: "0.4s" }}>
-              <Link href="/travelling/shop">
-                <Button
-                  size="lg"
-                  className="bg-white text-green-600 hover:bg-gray-100 transition-transform hover:scale-105"
-                >
-                  Check out our Travel shop
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              </div>
-              
-    <div className="flex flex-wrap gap-4 animate-fadeIn" style={{ animationDelay: "0.4s" }}>
-              <Link href="/travelling/media">
-                <Button
-                  size="lg"
-                  className="bg-white text-green-600 hover:bg-gray-100 transition-transform hover:scale-105"
-                >
-                  Check out our Travel Media
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              </div>
+
+        <div className="flex flex-wrap gap-4 animate-fadeIn" style={{ animationDelay: "0.4s" }}>
+          <Link href="/travelling/shop">
+            <Button
+              size="lg"
+              className="bg-green text-white-600 hover:bg-gray-100 transition-transform hover:scale-105"
+            >
+              Check out our Travel shop
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+        </div>
+
+        <div className="flex flex-wrap gap-4 animate-fadeIn" style={{ animationDelay: "0.4s" }}>
+          <Link href="/travelling/media">
+            <Button
+              size="lg"
+              className="bg-green text-white-600 hover:bg-gray-100 transition-transform hover:scale-105"
+            >
+              Check out our Travel Media
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+        </div>
 
         {/* Enhanced search section */}
         <div className="mb-10 bg-white bg-opacity-80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-blue-100">
@@ -1823,6 +1853,93 @@ const travellingColorScheme = {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Contact Modal */}
+      <Dialog open={showContactModal} onOpenChange={setShowContactModal}>
+        <DialogContent className="sm:max-w-md bg-gradient-to-br from-slate-900 to-blue-900 border-blue-500/30">
+          <div className="p-6">
+            <div className="text-center mb-6">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
+                <Phone className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2">Contact {selectedContactVendor}</h3>
+              <p className="text-blue-200">Choose your preferred way to get in touch</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* WhatsApp */}
+              <motion.a
+                href={`https://wa.me/${vendorContacts[selectedContactVendor as keyof typeof vendorContacts]?.whatsapp?.replace("+", "") || "254700000000"}?text=Hi, I'm interested in your travel services`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-3 p-4 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 shadow-lg"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488" />
+                </svg>
+                WhatsApp
+              </motion.a>
+
+              {/* Phone */}
+              <motion.a
+                href={`tel:${vendorContacts[selectedContactVendor as keyof typeof vendorContacts]?.phone || "+254700000000"}`}
+                className="flex items-center justify-center gap-3 p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 shadow-lg"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Phone className="w-6 h-6" />
+                Call Now
+              </motion.a>
+
+              {/* Email */}
+              <motion.a
+                href={`mailto:${vendorContacts[selectedContactVendor as keyof typeof vendorContacts]?.email || "info@travel.co.ke"}?subject=Travel Inquiry&body=Hi, I'm interested in your travel services and would like more information.`}
+                className="flex items-center justify-center gap-3 p-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all duration-200 shadow-lg"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+                Email
+              </motion.a>
+
+              {/* Website */}
+              <motion.a
+                href={
+                  vendorContacts[selectedContactVendor as keyof typeof vendorContacts]?.website ||
+                  "https://travel.co.ke"
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-3 p-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all duration-200 shadow-lg"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Globe className="w-6 h-6" />
+                Visit Website
+              </motion.a>
+            </div>
+
+            <div className="mt-6 text-center">
+              <Button
+                variant="outline"
+                onClick={() => setShowContactModal(false)}
+                className="border-blue-500 text-blue-300 hover:bg-blue-800/50"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
@@ -1868,12 +1985,11 @@ function VendorSection({
                 className="rounded-full border-2 border-white shadow-md"
                 onError={() => setImageError(true)}
               />
- {vendor.verified && (
+              {vendor.verified && (
                 <div className="absolute -bottom-1 -right-1 bg-blue-500 text-white rounded-full p-1">
                   <Check className="h-3 w-3" />
                 </div>
               )}
-            
             </div>
             <div className="ml-4">
               <h3 className="text-xl font-bold text-blue-800">{vendor.name}</h3>
@@ -1972,24 +2088,20 @@ function OfferingCard({ offering, onClick }: { offering: TravelData; onClick: ()
     return (
       <motion.div
         className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg flex items-center"
-        animate={{ 
+        animate={{
           scale: [1, 1.1, 1],
-          boxShadow: [
-            "0 4px 6px rgba(0, 0, 0, 0.1)",
-            "0 10px 15px rgba(0, 0, 0, 0.2)",
-            "0 4px 6px rgba(0, 0, 0, 0.1)"
-          ]
+          boxShadow: ["0 4px 6px rgba(0, 0, 0, 0.1)", "0 10px 15px rgba(0, 0, 0, 0.2)", "0 4px 6px rgba(0, 0, 0, 0.1)"],
         }}
-        transition={{ 
+        transition={{
           duration: 2,
-          repeat: Infinity,
-          repeatType: "reverse"
+          repeat: Number.POSITIVE_INFINITY,
+          repeatType: "reverse",
         }}
       >
         <TrendingUp className="h-3 w-3 mr-1" />
         <span>most preferred</span>
       </motion.div>
-    );
+    )
   }
 
   return (
@@ -2037,7 +2149,7 @@ function OfferingCard({ offering, onClick }: { offering: TravelData; onClick: ()
         {/* Most preferred badge */}
         {offering.isPopular && (
           <div className="absolute top-2 left-2">
-            <MostPreferredBadge  />
+            <MostPreferredBadge />
           </div>
         )}
 
@@ -2171,13 +2283,16 @@ function OfferingCard({ offering, onClick }: { offering: TravelData; onClick: ()
               Save {discountPercentage}%
             </motion.button>
 
+            {/* Modified the "Have Safe Travel" button to open contact modal */}
             <motion.button
-              className="bg-gradient-to-r from-blue-500 to-sky-500 text-white px-2 py-1.5 rounded-md text-xs font-medium flex items-center"
+              className="bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white px-2 py-1.5 rounded-md text-xs font-medium flex items-center"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={(e) => {
                 e.stopPropagation()
-                // Book date functionality would go here
+                const vendor = vendors.find((v) => v.offerings.some((o) => o.id === offering.id))
+                setSelectedContactVendor(vendor?.name || "Travel Provider")
+                setShowContactModal(true)
               }}
             >
               <ShieldCheck className="h-3 w-3 mr-1" />
@@ -2269,15 +2384,15 @@ function OfferingDetailView({ offering, onClose }: { offering: TravelData; onClo
 
         {/* Quick actions */}
         <div className="flex gap-2 mt-4">
-          <Button variant="outline" className="flex-1 text-blue-700 border-blue-200">
+          <Button variant="outline" className="flex-1 text-blue-700 border-blue-200 bg-transparent">
             <Heart className="h-4 w-4 mr-2" />
             Save
           </Button>
-          <Button variant="outline" className="flex-1 text-blue-700 border-blue-200">
+          <Button variant="outline" className="flex-1 text-blue-700 border-blue-200 bg-transparent">
             <Share2 className="h-4 w-4 mr-2" />
             Share
           </Button>
-          <Button variant="outline" className="flex-1 text-blue-700 border-blue-200">
+          <Button variant="outline" className="flex-1 text-blue-700 border-blue-200 bg-transparent">
             <Phone className="h-4 w-4 mr-2" />
             Contact
           </Button>
@@ -2402,7 +2517,7 @@ function OfferingDetailView({ offering, onClose }: { offering: TravelData; onClo
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 rounded-l-md"
+              className="h-8 w-8 rounded-l-md bg-transparent"
               onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
             >
               <Minus className="h-4 w-4" />
@@ -2413,7 +2528,7 @@ function OfferingDetailView({ offering, onClose }: { offering: TravelData; onClo
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 rounded-r-md"
+              className="h-8 w-8 rounded-r-md bg-transparent"
               onClick={() => setQuantity((prev) => Math.min(offering.capacity || 10, prev + 1))}
             >
               <Plus className="h-4 w-4" />
@@ -2512,4 +2627,3 @@ function OfferingDetailView({ offering, onClose }: { offering: TravelData; onClo
     </div>
   )
 }
-

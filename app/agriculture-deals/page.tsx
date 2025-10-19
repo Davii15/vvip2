@@ -13,7 +13,7 @@ import {
   Tractor,
   Leaf,
   Droplets,
-  FlaskRoundIcon as Flask,
+  Flag as Flask,
   Wheat,
   Filter,
   Sun,
@@ -48,7 +48,6 @@ import TrendingPopularSection from "@/components/TrendingPopularSection"
 import { trendingProducts, popularProducts } from "./trending-data"
 import Link from "next/link"
 import AgricultureRecommendations from "@/components/recommendations/agriculture-recommendations"
-
 
 interface Price {
   amount: number
@@ -85,7 +84,7 @@ interface Vendor {
   redirectUrl: string
   mapLink: string
   defaultCurrency: string
-  verified?:boolean
+  verified?: boolean
   established?: string
   specialties?: string[]
   isMostPreferred?: boolean
@@ -103,7 +102,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     established: "2005",
     isMostPreferred: true,
-    verified:true,
+    verified: true,
     specialties: ["Precision Agriculture", "Smart Farming", "Irrigation Systems"],
     products: [
       {
@@ -117,7 +116,7 @@ const mockVendors: Vendor[] = [
         dateAdded: "2025-03-15T10:30:00Z",
         rating: 4.8,
         bestSeason: "All Year",
-        isHotDeal: true, 
+        isHotDeal: true,
         hotDealEnds: "2025-04-15T23:59:59Z",
         farmSize: "2-10 acres",
         specifications: {
@@ -203,7 +202,7 @@ const mockVendors: Vendor[] = [
         isLimitedStock: true,
         dateAdded: "2025-03-05T10:30:00Z",
         rating: 4.9,
-        isHotDeal: true, 
+        isHotDeal: true,
         hotDealEnds: "2025-04-15T23:59:59Z",
         bestSeason: "Early Spring",
         specifications: {
@@ -278,7 +277,7 @@ const mockVendors: Vendor[] = [
     mapLink: "https://www.google.com/maps/search/?api=1&query=AgriGrow+Experts+Eldoret+Kenya",
     defaultCurrency: "KSH",
     established: "2008",
-    verified:true,
+    verified: true,
     specialties: ["Crop Protection", "Soil Fertility", "Precision Farming"],
     products: [
       {
@@ -310,7 +309,7 @@ const mockVendors: Vendor[] = [
         type: "Consultancy",
         description: "Six-month program for identifying, preventing, and managing crop diseases.",
         dateAdded: "2025-01-20T10:30:00Z",
-        isHotDeal: true, 
+        isHotDeal: true,
         hotDealEnds: "2025-04-15T23:59:59Z",
         rating: 4.7,
         bestSeason: "All Year",
@@ -486,34 +485,42 @@ export default function AgricultureDeals() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filteredVendors, setFilteredVendors] = useState<Vendor[]>(mockVendors)
   const [newProductAlert, setNewProductAlert] = useState<Product | null>(null)
+
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null)
+
   const agricultureProducts = transformAgricultureToProducts(vendors)
 
   //adding hotdeal stuff
-  const hotAgricultureDeals = agricultureProducts.filter(product => 
-    product.isHotDeal || 
-    (product.originalPrice.amount - product.currentPrice.amount) / product.originalPrice.amount > 0.2 // 20% discount
-  )
-  .map(product => ({
-    id: product.id,
-    name: product.name,
-    imageUrl: product.imageUrl,
-    currentPrice: product.currentPrice,
-    originalPrice: product.originalPrice,
-    category: product.category,
-    expiresAt: product.hotDealEnds || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    description: product.description,
-    discount: Math.round(((product.originalPrice.amount - product.currentPrice.amount) / product.originalPrice.amount) * 100)
-  }))
-  .slice(0, 4) // Limit to 4 hot deals
+  const hotAgricultureDeals = agricultureProducts
+    .filter(
+      (product) =>
+        product.isHotDeal ||
+        (product.originalPrice.amount - product.currentPrice.amount) / product.originalPrice.amount > 0.2, // 20% discount
+    )
+    .map((product) => ({
+      id: product.id,
+      name: product.name,
+      imageUrl: product.imageUrl,
+      currentPrice: product.currentPrice,
+      originalPrice: product.originalPrice,
+      category: product.category,
+      expiresAt: product.hotDealEnds || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      description: product.description,
+      discount: Math.round(
+        ((product.originalPrice.amount - product.currentPrice.amount) / product.originalPrice.amount) * 100,
+      ),
+    }))
+    .slice(0, 4) // Limit to 4 hot deals
 
- // Custom color scheme for agriculture
- const agricultureColorScheme = {
-  primary: "from-emerald-500 to-green-700",
-  secondary: "bg-emerald-100",
-  accent: "bg-green-600",
-  text: "text-emerald-900",
-  background: "bg-emerald-50",
-}
+  // Custom color scheme for agriculture
+  const agricultureColorScheme = {
+    primary: "from-emerald-500 to-green-700",
+    secondary: "bg-emerald-100",
+    accent: "bg-green-600",
+    text: "text-emerald-900",
+    background: "bg-emerald-50",
+  }
 
   // Simple search states
   const [selectedProductType, setSelectedProductType] = useState("")
@@ -700,6 +707,282 @@ export default function AgricultureDeals() {
   // Get current season tips
   const currentSeasonTips = farmingTips.find((tip) => tip.season === currentSeason)
 
+  function ProductDetailModal({
+    product,
+    vendor,
+    isOpen,
+    onClose,
+  }: {
+    product: Product | null
+    vendor: Vendor | null
+    isOpen: boolean
+    onClose: () => void
+  }) {
+    const [imageError, setImageError] = useState(false)
+    const [activeImageIndex, setActiveImageIndex] = useState(0)
+
+    if (!product || !vendor) return null
+
+    const savings: Price = {
+      amount: product.originalPrice.amount - product.currentPrice.amount,
+      currency: product.currentPrice.currency,
+    }
+    const discountPercentage = Math.round((savings.amount / product.originalPrice.amount) * 100)
+
+    // Mock additional images for gallery
+    const productImages = [
+      product.imageUrl,
+      "/product-detail-1.png",
+      "/product-detail-2.png",
+      "/product-detail-3.png",
+    ]
+
+    return (
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={onClose}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-lime-50">
+                <div className="flex items-center space-x-3">
+                  <Image
+                    src={vendor.logo || "/placeholder.svg"}
+                    alt={vendor.name}
+                    width={40}
+                    height={40}
+                    className="rounded-full border-2 border-green-300"
+                  />
+                  <div>
+                    <h3 className="font-semibold text-green-800">{vendor.name}</h3>
+                    <p className="text-sm text-green-600 flex items-center">
+                      <MapPin size={12} className="mr-1" />
+                      {vendor.location}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onClose}
+                  className="text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
+                  {/* Left Column - Images */}
+                  <div className="space-y-4">
+                    {/* Main Image */}
+                    <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-100">
+                      <Image
+                        src={imageError ? "/images/product-placeholder.png" : productImages[activeImageIndex]}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                        onError={() => setImageError(true)}
+                      />
+
+                      {/* Badges */}
+                      <div className="absolute top-4 left-4 flex flex-col gap-2">
+                        {product.isNew && <Badge className="bg-green-500 text-white">NEW</Badge>}
+                        {product.isMostPreferred && (
+                          <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+                            <TrendingUp className="h-3 w-3 mr-1" />
+                            Most Preferred
+                          </Badge>
+                        )}
+                        {discountPercentage >= 20 && (
+                          <Badge className="bg-gradient-to-r from-yellow-500 to-amber-500 text-white">
+                            {discountPercentage}% OFF
+                          </Badge>
+                        )}
+                      </div>
+
+                      {product.rating && (
+                        <div className="absolute top-4 right-4 bg-white/90 text-yellow-500 px-3 py-1 rounded-full text-sm font-bold shadow-md flex items-center">
+                          <Star className="h-4 w-4 mr-1 fill-yellow-500" />
+                          {product.rating}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Image Thumbnails */}
+                    <div className="grid grid-cols-4 gap-2">
+                      {productImages.map((image, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setActiveImageIndex(index)}
+                          className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                            activeImageIndex === index
+                              ? "border-green-500 ring-2 ring-green-200"
+                              : "border-gray-200 hover:border-green-300"
+                          }`}
+                        >
+                          <Image
+                            src={image || "/placeholder.svg"}
+                            alt={`${product.name} view ${index + 1}`}
+                            fill
+                            className="object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right Column - Product Details */}
+                  <div className="space-y-6">
+                    {/* Product Title and Type */}
+                    <div>
+                      <div className="flex items-center mb-2">
+                        {getProductTypeIcon(product.type)}
+                        <Badge variant="outline" className="text-green-700 border-green-300">
+                          {product.type}
+                        </Badge>
+                      </div>
+                      <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+                      <p className="text-gray-600 leading-relaxed">{product.description}</p>
+                    </div>
+
+                    {/* Pricing */}
+                    <div className="bg-gradient-to-r from-green-50 to-lime-50 p-4 rounded-xl border border-green-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-3xl font-bold text-green-600">{formatPrice(product.currentPrice)}</span>
+                        <span className="text-xl text-gray-500 line-through">{formatPrice(product.originalPrice)}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-green-700 font-semibold">
+                          You save {formatPrice(savings)} ({discountPercentage}% off)
+                        </span>
+                        {product.isLimitedStock && <Badge className="bg-red-500 text-white">Limited Stock</Badge>}
+                      </div>
+                    </div>
+
+                    {/* Product Information */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {product.bestSeason && (
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="h-5 w-5 text-green-600" />
+                          <div>
+                            <p className="text-sm text-gray-500">Best Season</p>
+                            <p className="font-medium">{product.bestSeason}</p>
+                          </div>
+                        </div>
+                      )}
+                      {product.farmSize && (
+                        <div className="flex items-center space-x-2">
+                          <MapPin className="h-5 w-5 text-green-600" />
+                          <div>
+                            <p className="text-sm text-gray-500">Farm Size</p>
+                            <p className="font-medium">{product.farmSize}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Specifications */}
+                    {product.specifications && (
+                      <div className="bg-gray-50 p-4 rounded-xl">
+                        <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
+                          <Info className="h-5 w-5 mr-2 text-green-600" />
+                          Specifications
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {Object.entries(product.specifications).map(([key, value]) => (
+                            <div key={key} className="flex justify-between">
+                              <span className="text-gray-600">{key}:</span>
+                              <span className="font-medium text-gray-900">{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="space-y-3">
+                      <Button className="w-full bg-gradient-to-r from-green-500 to-lime-500 hover:from-green-600 hover:to-lime-600 text-white py-3 text-lg font-semibold">
+                        Order Now - Save {formatPrice(savings)}
+                      </Button>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button
+                          variant="outline"
+                          className="border-green-300 text-green-700 hover:bg-green-50 bg-transparent"
+                        >
+                          Add to Cart
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="border-green-300 text-green-700 hover:bg-green-50 bg-transparent"
+                        >
+                          Contact Vendor
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Vendor Information */}
+                    <div className="bg-gradient-to-r from-green-50 to-lime-50 p-4 rounded-xl border border-green-200">
+                      <h3 className="font-semibold text-green-800 mb-2">About the Vendor</h3>
+                      <p className="text-gray-600 text-sm mb-3">{vendor.description}</p>
+                      {vendor.specialties && (
+                        <div className="mb-3">
+                          <p className="text-sm font-medium text-green-800 mb-1">Specialties:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {vendor.specialties.map((specialty, index) => (
+                              <Badge
+                                key={index}
+                                variant="outline"
+                                className="text-xs bg-green-100 text-green-800 border-green-300"
+                              >
+                                {specialty}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex space-x-4">
+                        <a
+                          href={vendor.redirectUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-green-600 hover:text-green-800 text-sm font-medium"
+                        >
+                          Visit Website →
+                        </a>
+                        <a
+                          href={vendor.mapLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-green-600 hover:text-green-800 text-sm font-medium flex items-center"
+                        >
+                          <MapPin className="h-4 w-4 mr-1" />
+                          View Location
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    )
+  }
+
   return (
     <div className="bg-gradient-to-br from-green-500 to-lime-600 min-h-screen">
       {/* Decorative agriculture-themed elements */}
@@ -731,21 +1014,17 @@ export default function AgricultureDeals() {
             </p>
             <div className="bg-white/20 backdrop-blur-sm p-6 rounded-xl mb-4 shadow-lg border border-green-200 max-w-2xl mx-auto">
               <CountdownTimer targetDate="2025-05-25T23:59:59" startDate="2025-02-13T00:00:00" />
-              <NewProductsForYou 
-  allProducts={agricultureProducts}
-  colorScheme="green"
-  maxProducts={4}
-/>
+              <NewProductsForYou allProducts={agricultureProducts} colorScheme="green" maxProducts={4} />
 
- {/* Trending and Popular Section */}
- <TrendingPopularSection
-        trendingProducts={trendingProducts}
-        popularProducts={popularProducts}
-        colorScheme={agricultureColorScheme}
-        title="Best Agriculture Products"
-        subtitle="See what's most popular in Agriculture"
-      />
-      </div>
+              {/* Trending and Popular Section */}
+              <TrendingPopularSection
+                trendingProducts={trendingProducts}
+                popularProducts={popularProducts}
+                colorScheme={agricultureColorScheme}
+                title="Best Agriculture Products"
+                subtitle="See what's most popular in Agriculture"
+              />
+            </div>
 
             {/* Weather widget */}
             <div className="bg-white/20 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-green-200 max-w-md mx-auto">
@@ -765,17 +1044,16 @@ export default function AgricultureDeals() {
             </div>
           </div>
         </div>
-        
-<HotTimeDeals 
-  deals={hotAgricultureDeals}
-  colorScheme="green"
-  title="Agriculture Special Offers"
-  subtitle="Limited-time deals on agricultural products and equipment!"
-/>
 
-{/* Add the recommendations component */}
-<AgricultureRecommendations allProducts={agricultureProducts} />
+        <HotTimeDeals
+          deals={hotAgricultureDeals}
+          colorScheme="green"
+          title="Agriculture Special Offers"
+          subtitle="Limited-time deals on agricultural products and equipment!"
+        />
 
+        {/* Add the recommendations component */}
+        <AgricultureRecommendations allProducts={agricultureProducts} />
 
         {/* Seasonal farming tips section */}
         <div className="mb-8 bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-green-200 shadow-lg">
@@ -813,30 +1091,30 @@ export default function AgricultureDeals() {
             </motion.div>
           )}
         </div>
-{/*Agriculture Deals shop*/}
-<div className="flex flex-wrap gap-4 animate-fadeIn" style={{ animationDelay: "0.4s" }}>
-              <Link href="/agriculture-deals/shop">
-                <Button
-                  size="lg"
-                  className="bg-green text-amber-600 hover:bg-gray-100 transition-transform hover:scale-105"
-                >
-                  Check out more  Agriculture Products from Our shops!
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              </div>
-         {/*Agriculture Deals shop Media*/}
-    <div className="flex flex-wrap gap-4 animate-fadeIn" style={{ animationDelay: "0.4s" }}>
-              <Link href="/agriculture-deals/media">
-                <Button
-                  size="lg"
-                  className="bg-green text-amber-600 hover:bg-gray-100 transition-transform hover:scale-105"
-                >
-                  Check out more  Agriculture Products from Our Media!
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              </div>
+        {/*Agriculture Deals shop*/}
+        <div className="flex flex-wrap gap-4 animate-fadeIn" style={{ animationDelay: "0.4s" }}>
+          <Link href="/agriculture-deals/shop">
+            <Button
+              size="lg"
+              className="bg-green text-amber-600 hover:bg-gray-100 transition-transform hover:scale-105"
+            >
+              Check out more Agriculture Products from Our shops!
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+        </div>
+        {/*Agriculture Deals shop Media*/}
+        <div className="flex flex-wrap gap-4 animate-fadeIn" style={{ animationDelay: "0.4s" }}>
+          <Link href="/agriculture-deals/media">
+            <Button
+              size="lg"
+              className="bg-green text-amber-600 hover:bg-gray-100 transition-transform hover:scale-105"
+            >
+              Check out more Agriculture Products from Our Media!
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+        </div>
         {/* Simple search section */}
         <div className="mb-8 max-w-4xl mx-auto">
           <div className="relative" ref={searchInputRef}>
@@ -990,7 +1268,12 @@ export default function AgricultureDeals() {
                               transition={{ duration: 0.3 }}
                               className="h-full"
                             >
-                              <VendorCard vendor={vendor} productType={type} />
+                              <VendorCard
+                                vendor={vendor}
+                                productType={type}
+                                setSelectedProduct={setSelectedProduct}
+                                setSelectedVendor={setSelectedVendor}
+                              />
                             </motion.div>
                           ))}
                       </AnimatePresence>
@@ -1190,11 +1473,32 @@ export default function AgricultureDeals() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Product Detail Modal */}
+      <ProductDetailModal
+        product={selectedProduct}
+        vendor={selectedVendor}
+        isOpen={!!selectedProduct}
+        onClose={() => {
+          setSelectedProduct(null)
+          setSelectedVendor(null)
+        }}
+      />
     </div>
   )
 }
 
-function VendorCard({ vendor, productType }: { vendor: Vendor; productType: string }) {
+function VendorCard({
+  vendor,
+  productType,
+  setSelectedProduct,
+  setSelectedVendor,
+}: {
+  vendor: Vendor
+  productType: string
+  setSelectedProduct: (product: Product | null) => void
+  setSelectedVendor: (vendor: Vendor | null) => void
+}) {
   const [imageError, setImageError] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -1212,7 +1516,7 @@ function VendorCard({ vendor, productType }: { vendor: Vendor; productType: stri
                 className="rounded-full border-2 border-green-300"
                 onError={() => setImageError(true)}
               />
-          {vendor.verified && (
+              {vendor.verified && (
                 <div className="absolute -bottom-1 -right-1 bg-green-500 text-white rounded-full p-1">
                   <Check className="h-3 w-3" />
                 </div>
@@ -1307,7 +1611,13 @@ function VendorCard({ vendor, productType }: { vendor: Vendor; productType: stri
           {vendor.products
             .filter((product) => product.type === productType)
             .map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard
+                key={product.id}
+                product={product}
+                setSelectedProduct={setSelectedProduct}
+                setSelectedVendor={setSelectedVendor}
+                vendor={vendor}
+              />
             ))}
         </div>
       </div>
@@ -1318,27 +1628,33 @@ function MostPreferredBadge() {
   return (
     <motion.div
       className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg flex items-center"
-      animate={{ 
+      animate={{
         scale: [1, 1.1, 1],
-        boxShadow: [
-          "0 4px 6px rgba(0, 0, 0, 0.1)",
-          "0 10px 15px rgba(0, 0, 0, 0.2)",
-          "0 4px 6px rgba(0, 0, 0, 0.1)"
-        ]
+        boxShadow: ["0 4px 6px rgba(0, 0, 0, 0.1)", "0 10px 15px rgba(0, 0, 0, 0.2)", "0 4px 6px rgba(0, 0, 0, 0.1)"],
       }}
-      transition={{ 
+      transition={{
         duration: 2,
-        repeat: Infinity,
-        repeatType: "reverse"
+        repeat: Number.POSITIVE_INFINITY,
+        repeatType: "reverse",
       }}
     >
       <TrendingUp className="h-3 w-3 mr-1" />
       <span>most Preffered</span>
     </motion.div>
-  );
+  )
 }
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({
+  product,
+  setSelectedProduct,
+  setSelectedVendor,
+  vendor,
+}: {
+  product: Product
+  setSelectedProduct: (product: Product | null) => void
+  setSelectedVendor: (vendor: Vendor | null) => void
+  vendor: Vendor
+}) {
   const [imageError, setImageError] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
   const savings: Price = {
@@ -1350,7 +1666,13 @@ function ProductCard({ product }: { product: Product }) {
   const isHighDiscount = discountPercentage >= 20
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full border border-green-100 hover:shadow-xl transition-all duration-300">
+    <div
+      className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full border border-green-100 hover:shadow-xl transition-all duration-300"
+      onClick={() => {
+        setSelectedProduct(product)
+        setSelectedVendor(vendor)
+      }}
+    >
       <div className="relative w-full pt-[60%] overflow-hidden group">
         <Image
           src={imageError ? "/images/product-placeholder.png" : product.imageUrl}
@@ -1370,7 +1692,6 @@ function ProductCard({ product }: { product: Product }) {
         )}
 
         {product.isMostPreferred && <MostPreferredBadge />}
-
 
         {isHighDiscount && (
           <div className="absolute top-2 left-2 bg-gradient-to-r from-yellow-500 to-amber-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-md flex items-center">
@@ -1519,4 +1840,3 @@ function Check({ className }: { className?: string }) {
     </svg>
   )
 }
-

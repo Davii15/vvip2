@@ -7,17 +7,13 @@ import { motion, AnimatePresence } from "framer-motion"
 import confetti from "canvas-confetti"
 import {
   Search,
-  Star,
   Stethoscope,
   Building2,
   Brain,
   MapPin,
   Clock,
   ArrowRight,
-  ChevronDown,
-  ChevronUp,
   X,
-  Check,
   Phone,
   Globe,
   Percent,
@@ -33,9 +29,11 @@ import {
   Calendar,
   HeartPulse,
   UserPlus,
-  AmbulanceIcon as FirstAid,
+  FileStack as FirstAid,
   ShieldPlus,
   Bookmark,
+  MessageCircle,
+  Mail,
 } from "lucide-react"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
@@ -43,19 +41,24 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader as DialogHeaderComponent,
+  DialogTitle as DialogTitleComponent,
+  DialogDescription as DialogDescriptionComponent,
+} from "@/components/ui/dialog"
 import CountdownTimer from "@/components/CountdownTimer"
 import HotTimeDeals from "@/components/HotTimeDeals"
 import NewProductsForYou from "@/components/NewProductsForYou"
 import { useCookieTracking } from "@/hooks/useCookieTracking"
 import { swapArrayElementsRandomly } from "@/utils/swap-utils"
 import { isNewThisWeek } from "@/utils/date-utils"
-import NewThisWeekBadge from "@/components/NewThisWeekBadge"
 import MostPreferredBadge from "@/components/most-preferred-badge"
 import TrendingPopularSection from "@/components/TrendingPopularSection"
 import { trendingProducts, popularProducts } from "./trending-data"
 import Link from "next/link"
-
+import VendorSection from "@/components/VendorSection"
 
 // Types
 interface Price {
@@ -115,7 +118,7 @@ interface Vendor {
   defaultCurrency: string
   rating?: number
   reviewCount?: number
-  verified?:boolean
+  verified?: boolean
   establishedYear?: number
   contactNumber?: string
   email?: string
@@ -210,7 +213,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.8,
     reviewCount: 356,
-    verified:true,
+    verified: true,
     establishedYear: 2010,
     contactNumber: "+254 712 345 678",
     email: "info@elitemedical.co.ke",
@@ -314,7 +317,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.7,
     reviewCount: 245,
-    verified:true,
+    verified: true,
     establishedYear: 2012,
     contactNumber: "+254 723 456 789",
     email: "info@womenshealth.co.ke",
@@ -418,7 +421,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.9,
     reviewCount: 412,
-    verified:true,
+    verified: true,
     establishedYear: 2008,
     contactNumber: "+254 734 567 890",
     email: "info@nairobipremier.co.ke",
@@ -518,7 +521,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.7,
     reviewCount: 328,
-    verified:true,
+    verified: true,
     establishedYear: 2005,
     contactNumber: "+254 745 678 901",
     email: "info@coastalhospital.co.ke",
@@ -626,7 +629,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.8,
     reviewCount: 376,
-    verified:true,
+    verified: true,
     establishedYear: 2015,
     contactNumber: "+254 756 789 012",
     email: "info@vitalitywellness.co.ke",
@@ -737,7 +740,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.6,
     reviewCount: 289,
-    verified:true,
+    verified: true,
     establishedYear: 2017,
     contactNumber: "+254 767 890 123",
     email: "info@healthtrack.co.ke",
@@ -840,7 +843,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.9,
     reviewCount: 215,
-    verified:true,
+    verified: true,
     establishedYear: 2016,
     contactNumber: "+254 778 901 234",
     email: "info@mindwellness.co.ke",
@@ -1061,7 +1064,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.6,
     reviewCount: 156,
-    verified:true,
+    verified: true,
     establishedYear: 2018,
     contactNumber: "+254 790 123 456",
     email: "info@holistichealing.co.ke",
@@ -1171,7 +1174,7 @@ const mockVendors: Vendor[] = [
     defaultCurrency: "KSH",
     rating: 4.5,
     reviewCount: 142,
-    verified:true,
+    verified: true,
     establishedYear: 2016,
     contactNumber: "+254 701 234 567",
     email: "info@naturalwellness.co.ke",
@@ -1312,6 +1315,40 @@ const transformForNewProducts = (vendors: Vendor[]) => {
   )
 }
 
+// Mock contact data for health service providers
+const providerContacts = {
+  "HealthCare Plus": {
+    whatsapp: "+254701234567",
+    phone: "+254701234567",
+    email: "appointments@healthcareplus.co.ke",
+    website: "https://www.healthcareplus.co.ke",
+  },
+  "MediCare Center": {
+    whatsapp: "+254702345678",
+    phone: "+254702345678",
+    email: "bookings@medicarecenter.co.ke",
+    website: "https://www.medicarecenter.co.ke",
+  },
+  WellnessHub: {
+    whatsapp: "+254703456789",
+    phone: "+254703456789",
+    email: "contact@wellnesshub.co.ke",
+    website: "https://www.wellnesshub.co.ke",
+  },
+  "FamilyHealth Clinic": {
+    whatsapp: "+254704567890",
+    phone: "+254704567890",
+    email: "appointments@familyhealth.co.ke",
+    website: "https://www.familyhealth.co.ke",
+  },
+  SpecialistCare: {
+    whatsapp: "+254705678901",
+    phone: "+254705678901",
+    email: "bookings@specialistcare.co.ke",
+    website: "https://www.specialistcare.co.ke",
+  },
+}
+
 export default function HealthServicesPage() {
   useCookieTracking("health-services")
 
@@ -1326,14 +1363,16 @@ export default function HealthServicesPage() {
   const [activeCategory, setActiveCategory] = useState<string>("")
   const [activeSubcategory, setActiveSubcategory] = useState<string>("")
 
-// Custom color scheme for health-services providers
-const healthColorScheme = {
-  primary: "from-purple-500 to-blue-700",
-  secondary: "bg-purple-100",
-  accent: "bg-amber-600",
-  text: "text-purple-900",
-  background: "bg-blue-50",
-}
+  const [showContactModal, setShowContactModal] = useState(false)
+
+  // Custom color scheme for health-services providers
+  const healthColorScheme = {
+    primary: "from-purple-500 to-blue-700",
+    secondary: "bg-purple-100",
+    accent: "bg-amber-600",
+    text: "text-purple-900",
+    background: "bg-blue-50",
+  }
 
   // State for filters
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 30000])
@@ -1629,50 +1668,39 @@ const healthColorScheme = {
 
         {/* New Products For You Section */}
         <NewProductsForYou allProducts={newProducts} colorScheme="blue" maxProducts={4} />
-     
-     {/* Trending and Popular Section */}
-       <TrendingPopularSection
-        trendingProducts={trendingProducts}
-        popularProducts={popularProducts}
-        colorScheme={healthColorScheme}
-        title="Check the best Health care services providers Today!"
-        subtitle="Discover  most popular adventure options"
-      />
-{/*health-services*/}
-<div className="flex flex-wrap gap-4 animate-fadeIn" style={{ animationDelay: "0.4s" }}>
-              <Link href="/health-services/shop">
-                <Button
-                  size="lg"
-                  className="bg-white text-green-600 hover:bg-gray-100 transition-transform hover:scale-105"
-                >
-                  Shop for the best Health Service Providers
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              </div>
-{/*health-services*/}
-<div className="flex flex-wrap gap-4 animate-fadeIn" style={{ animationDelay: "0.4s" }}>
-              <Link href="/health-services/media">
-                <Button
-                  size="lg"
-                  className="bg-white text-green-600 hover:bg-gray-100 transition-transform hover:scale-105"
-                >
-                  Watch more from our health services media shop
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              </div>
 
-
-
-
-
-
-
-
-
-
-
+        {/* Trending and Popular Section */}
+        <TrendingPopularSection
+          trendingProducts={trendingProducts}
+          popularProducts={popularProducts}
+          colorScheme={healthColorScheme}
+          title="Check the best Health care services providers Today!"
+          subtitle="Discover  most popular adventure options"
+        />
+        {/*health-services*/}
+        <div className="flex flex-wrap gap-4 animate-fadeIn" style={{ animationDelay: "0.4s" }}>
+          <Link href="/health-services/shop">
+            <Button
+              size="lg"
+              className="bg-white text-green-600 hover:bg-gray-100 transition-transform hover:scale-105"
+            >
+              Shop for the best Health Service Providers
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+        </div>
+        {/*health-services*/}
+        <div className="flex flex-wrap gap-4 animate-fadeIn" style={{ animationDelay: "0.4s" }}>
+          <Link href="/health-services/media">
+            <Button
+              size="lg"
+              className="bg-white text-green-600 hover:bg-gray-100 transition-transform hover:scale-105"
+            >
+              Watch more from our health services media shop
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+        </div>
 
         {/* Enhanced search section */}
         <div className="mb-10 bg-gradient-to-r from-blue-900/70 via-cyan-800/70 to-blue-900/70 p-6 rounded-xl shadow-lg border border-blue-300/30 backdrop-blur-sm">
@@ -2015,7 +2043,7 @@ const healthColorScheme = {
                       {selectedOffering.originalPrice.amount !== selectedOffering.currentPrice.amount && (
                         <Button
                           variant="outline"
-                          className="border-blue-500 text-blue-200 hover:bg-blue-800/50 flex-1 flex items-center justify-center gap-2"
+                          className="border-blue-500 text-blue-200 hover:bg-blue-800/50 flex-1 flex items-center justify-center gap-2 bg-transparent"
                         >
                           <Percent className="h-4 w-4" />
                           <span>
@@ -2030,7 +2058,10 @@ const healthColorScheme = {
                         </Button>
                       )}
 
-                      <Button className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white flex-1 flex items-center justify-center gap-2">
+                      <Button
+                        className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white flex-1 flex items-center justify-center gap-2"
+                        onClick={() => setShowContactModal(true)}
+                      >
                         <CalendarClock className="h-4 w-4" />
                         <span>Book Appointment</span>
                       </Button>
@@ -2074,377 +2105,93 @@ const healthColorScheme = {
           )}
         </DialogContent>
       </Dialog>
-    </div>
-  )
-}
 
-// Vendor Section Component
-function VendorSection({
-  vendor,
-  activeCategory,
-  activeSubcategory,
-  onOfferingClick,
-  isExpanded,
-  onToggle,
-}: {
-  vendor: Vendor
-  activeCategory: string
-  activeSubcategory: string
-  onOfferingClick: (offering: HealthServiceData) => void
-  isExpanded: boolean
-  onToggle: () => void
-}) {
-  const [imageError, setImageError] = useState(false)
+      <Dialog open={showContactModal} onOpenChange={setShowContactModal}>
+        <DialogContent className="max-w-md bg-gradient-to-r from-blue-900/95 via-cyan-800/95 to-blue-900/95 border border-blue-300/30 text-white backdrop-blur-sm">
+          <DialogHeaderComponent>
+            <DialogTitleComponent className="text-xl font-bold text-blue-100 flex items-center gap-2">
+              <Phone className="h-5 w-5 text-blue-300" />
+              Contact {selectedOffering?.provider || "Provider"}
+            </DialogTitleComponent>
+            <DialogDescriptionComponent className="text-blue-200">
+              Choose your preferred way to get in touch
+            </DialogDescriptionComponent>
+          </DialogHeaderComponent>
 
-  // Filter offerings based on active filters
-  const filteredOfferings = vendor.offerings.filter(
-    (offering) =>
-      (!activeCategory || offering.category.toLowerCase() === activeCategory.toLowerCase()) &&
-      (!activeSubcategory || offering.subcategory.toLowerCase() === activeSubcategory.toLowerCase()),
-  )
-
-  if (filteredOfferings.length === 0) return null
-
-  return (
-    <div className="bg-gradient-to-r from-blue-900/70 via-cyan-800/70 to-blue-900/70 rounded-xl shadow-lg overflow-hidden border border-blue-300/30 backdrop-blur-sm">
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <div className="relative flex-shrink-0">
-              <Image
-                src={imageError ? "/placeholder.svg?height=60&width=60" : vendor.logo}
-                alt={vendor.name}
-                width={60}
-                height={60}
-                className="rounded-full border-2 border-blue-300 shadow-md"
-                onError={() => setImageError(true)}
-              />
-               {vendor.verified && (
-                <div className="absolute -bottom-1 -right-1 bg-blue-500 text-white rounded-full p-1">
-                  <Check className="h-3 w-3" />
-                </div>
-              )}
-            </div>
-            <div className="ml-4">
-              <h3 className="text-xl font-bold text-blue-100">{vendor.name}</h3>
-              <div className="flex items-center">
-                <MapPin className="h-4 w-4 text-blue-300 mr-1" />
-                <p className="text-blue-200 text-sm mr-2">{vendor.location}</p>
-                {vendor.rating && (
-                  <div className="flex items-center">
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-3 w-3 ${
-                            i < Math.floor(vendor.rating || 0) ? "text-blue-300 fill-blue-300" : "text-blue-800"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="ml-1 text-xs text-blue-200">
-                      {vendor.rating.toFixed(1)} ({vendor.reviewCount})
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="text-sm text-blue-200 hidden md:block">
-              {vendor.establishedYear && (
-                <div className="flex items-center gap-1 mb-1">
-                  <Calendar className="h-3 w-3" />
-                  <span>Est. {vendor.establishedYear}</span>
-                </div>
-              )}
-              {vendor.contactNumber && (
-                <div className="flex items-center gap-1">
-                  <Phone className="h-3 w-3" />
-                  <span>{vendor.contactNumber}</span>
-                </div>
-              )}
-            </div>
-            <a
-              href={vendor.redirectUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md hover:shadow-lg transition-all duration-300 whitespace-nowrap"
-            >
-              Visit Website
-            </a>
-          </div>
-        </div>
-        <p className="text-blue-100 mb-4 line-clamp-2">{vendor.description}</p>
-
-        {/* Accreditations */}
-        {vendor.accreditations && vendor.accreditations.length > 0 && (
-          <div className="mb-4">
-            <div className="flex flex-wrap gap-2">
-              {vendor.accreditations.map((accreditation, index) => (
-                <Badge key={index} variant="outline" className="text-xs border-blue-500 text-blue-200">
-                  {accreditation}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Emergency services badge */}
-        {vendor.emergencyServices && (
-          <div className="mb-4">
-            <Badge className="bg-red-500 text-white">
-              <FirstAid className="h-3 w-3 mr-1" />
-              Emergency Services Available
-            </Badge>
-          </div>
-        )}
-
-        {/* Accordion control */}
-        <button
-          onClick={onToggle}
-          className="flex items-center justify-center w-full mt-2 text-sm font-medium text-blue-200 hover:text-blue-100"
-        >
-          {isExpanded ? (
-            <>
-              <ChevronUp className="h-4 w-4 mr-1" />
-              <span>Show Less</span>
-            </>
-          ) : (
-            <>
-              <ChevronDown className="h-4 w-4 mr-1" />
-              <span>Show More</span>
-            </>
-          )}
-        </button>
-      </div>
-
-      {/* Offerings grid */}
-      <div
-        className={`p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 transition-all duration-300 ${
-          isExpanded ? "max-h-[2000px]" : "max-h-[400px] overflow-hidden"
-        }`}
-      >
-        {filteredOfferings.map((offering) => (
-          <OfferingCard key={offering.id} offering={offering} onClick={() => onOfferingClick(offering)} />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// Offering Card Component
-function OfferingCard({ offering, onClick }: { offering: HealthServiceData; onClick: () => void }) {
-  const [imageError, setImageError] = useState(false)
-
-  // Calculate discount percentage
-  const discountPercentage = Math.round(
-    ((offering.originalPrice.amount - offering.currentPrice.amount) / offering.originalPrice.amount) * 100,
-  )
-
-  return (
-    <motion.div
-      className="bg-gradient-to-r from-blue-800/80 to-cyan-900/80 rounded-lg shadow-sm overflow-hidden flex flex-col h-full border border-blue-500/30 hover:border-blue-400 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 backdrop-blur-sm"
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
-    >
-      <div className="relative">
-        <div className="relative pt-[75%]">
-          <Image
-            src={imageError ? "/placeholder.svg?height=300&width=400" : offering.imageUrl}
-            alt={offering.name}
-            layout="fill"
-            objectFit="cover"
-            className="transition-transform duration-500 hover:scale-110"
-            onError={() => setImageError(true)}
-          />
-        </div>
-
-        {/* Badges */}
-        <div className="absolute top-2 right-2 flex flex-col gap-2">
-          {discountPercentage >= 10 && (
-            <div className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold shadow-md">
-              {discountPercentage}% OFF
-            </div>
-          )}
-
-          {offering.isNew && (
-            <div className="bg-blue-500 text-white px-2 py-1 rounded-md text-xs font-bold shadow-md flex items-center">
-              <Sparkles className="h-3 w-3 mr-1" />
-              <span>NEW</span>
-            </div>
-          )}
-
-          {offering.isTrending && (
-            <div className="bg-orange-500 text-white px-2 py-1 rounded-md text-xs font-bold shadow-md flex items-center">
-              <Flame className="h-3 w-3 mr-1" />
-              <span>TRENDING</span>
-            </div>
-          )}
-        </div>
-
-        {/* Most preferred badge */}
-        {offering.isPopular && (
-          <div className="absolute top-2 left-2">
-            <MostPreferredBadge colorScheme="blue" size="sm" />
-          </div>
-        )}
-
-        {/* Almost fully booked badge */}
-        {offering.isAlmostFullyBooked && (
-          <div className="absolute bottom-2 left-2">
-            <Badge className="bg-red-500 text-white flex items-center gap-1 px-2 py-1 text-xs font-medium">
-              <Clock className="h-3 w-3" />
-              Almost Fully Booked
-            </Badge>
-          </div>
-        )}
-
-        {/* New this week badge */}
-        {isNewThisWeek(offering.dateAdded) && !offering.isNew && (
-          <div className="absolute bottom-2 left-2">
-            <NewThisWeekBadge />
-          </div>
-        )}
-      </div>
-
-      <div className="p-3 flex-grow flex flex-col">
-        <div className="mb-1 flex items-center">
-          <Badge variant="outline" className="text-xs border-blue-500 text-blue-200">
-            {offering.subcategory}
-          </Badge>
-        </div>
-
-        <h4 className="font-semibold text-blue-100 mb-1 line-clamp-1">{offering.name}</h4>
-
-        <div className="flex items-center text-xs text-blue-200 mb-1">
-          <MapPin className="h-3 w-3 mr-1 text-blue-300" />
-          {offering.location}
-        </div>
-
-        <p className="text-xs text-blue-200 mb-2 line-clamp-2 flex-grow">{offering.description}</p>
-
-        {/* Service details */}
-        <div className="flex flex-wrap gap-2 mb-2">
-          {offering.duration && (
-            <div className="flex items-center text-xs text-blue-200">
-              <Clock className="h-3 w-3 mr-1 text-blue-300" />
-              <span>{offering.duration}</span>
-            </div>
-          )}
-          {offering.provider && (
-            <div className="flex items-center text-xs text-blue-200">
-              <User className="h-3 w-3 mr-1 text-blue-300" />
-              <span>{offering.provider}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Rating */}
-        {offering.rating && (
-          <div className="flex items-center mb-2">
-            <div className="flex">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-3 w-3 ${
-                    i < Math.floor(offering.rating || 0) ? "text-blue-300 fill-blue-300" : "text-blue-800"
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="ml-1 text-xs text-blue-200">
-              {offering.rating.toFixed(1)} ({offering.reviewCount})
-            </span>
-          </div>
-        )}
-
-        {/* Features */}
-        {offering.features && offering.features.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-2">
-            {offering.features.slice(0, 3).map((feature, index) => (
-              <Badge key={index} variant="outline" className="text-[10px] border-blue-700 text-blue-300">
-                {feature}
-              </Badge>
-            ))}
-            {offering.features.length > 3 && (
-              <Badge variant="outline" className="text-[10px] border-blue-700 text-blue-300">
-                +{offering.features.length - 3} more
-              </Badge>
-            )}
-          </div>
-        )}
-
-        {/* Availability */}
-        {offering.availableSlots !== undefined && offering.totalSlots !== undefined && (
-          <div className="mb-2 text-xs">
-            <div className="flex justify-between items-center">
-              <span className="text-blue-200">Availability:</span>
-              <span
-                className={`font-medium ${
-                  offering.availableSlots < offering.totalSlots * 0.2
-                    ? "text-red-400"
-                    : offering.availableSlots < offering.totalSlots * 0.5
-                      ? "text-blue-300"
-                      : "text-green-400"
-                }`}
+          {selectedOffering && providerContacts[selectedOffering.provider] && (
+            <div className="space-y-3 mt-4">
+              {/* WhatsApp */}
+              <Button
+                onClick={() => {
+                  const contact = providerContacts[selectedOffering.provider]
+                  const message = `Hi! I would like to book an appointment for ${selectedOffering.name}. Please let me know your available slots.`
+                  window.open(
+                    `https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(message)}`,
+                    "_blank",
+                  )
+                }}
+                className="w-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-3 py-3"
               >
-                {offering.availableSlots} of {offering.totalSlots} slots
-              </span>
+                <MessageCircle className="h-5 w-5" />
+                <div className="text-left">
+                  <div className="font-medium">WhatsApp</div>
+                  <div className="text-sm opacity-90">{providerContacts[selectedOffering.provider].whatsapp}</div>
+                </div>
+              </Button>
+
+              {/* Phone */}
+              <Button
+                onClick={() => {
+                  window.open(`tel:${providerContacts[selectedOffering.provider].phone}`, "_self")
+                }}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-3 py-3"
+              >
+                <Phone className="h-5 w-5" />
+                <div className="text-left">
+                  <div className="font-medium">Call Now</div>
+                  <div className="text-sm opacity-90">{providerContacts[selectedOffering.provider].phone}</div>
+                </div>
+              </Button>
+
+              {/* Email */}
+              <Button
+                onClick={() => {
+                  const contact = providerContacts[selectedOffering.provider]
+                  const subject = `Appointment Request - ${selectedOffering.name}`
+                  const body = `Dear ${selectedOffering.provider},\n\nI would like to book an appointment for ${selectedOffering.name}.\n\nService Details:\n- Service: ${selectedOffering.name}\n- Location: ${selectedOffering.location}\n- Price: ${formatPrice(selectedOffering.currentPrice)}\n\nPlease let me know your available time slots.\n\nThank you!`
+                  window.open(
+                    `mailto:${contact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
+                    "_self",
+                  )
+                }}
+                className="w-full bg-cyan-600 hover:bg-cyan-700 text-white flex items-center justify-center gap-3 py-3"
+              >
+                <Mail className="h-5 w-5" />
+                <div className="text-left">
+                  <div className="font-medium">Email</div>
+                  <div className="text-sm opacity-90">{providerContacts[selectedOffering.provider].email}</div>
+                </div>
+              </Button>
+
+              {/* Website */}
+              <Button
+                onClick={() => {
+                  window.open(providerContacts[selectedOffering.provider].website, "_blank")
+                }}
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center gap-3 py-3"
+              >
+                <Globe className="h-5 w-5" />
+                <div className="text-left">
+                  <div className="font-medium">Visit Website</div>
+                  <div className="text-sm opacity-90">
+                    {providerContacts[selectedOffering.provider].website.replace(/^https?:\/\//, "")}
+                  </div>
+                </div>
+              </Button>
             </div>
-            <div className="w-full bg-blue-800 rounded-full h-1.5 mt-1">
-              <div
-                className={`h-1.5 rounded-full ${
-                  offering.availableSlots < offering.totalSlots * 0.2
-                    ? "bg-red-500"
-                    : offering.availableSlots < offering.totalSlots * 0.5
-                      ? "bg-blue-500"
-                      : "bg-green-500"
-                }`}
-                style={{ width: `${(offering.availableSlots / offering.totalSlots) * 100}%` }}
-              ></div>
-            </div>
-          </div>
-        )}
-
-        {/* Price */}
-        <div className="flex items-center justify-between mt-auto">
-          <div>
-            <div className="text-base font-bold text-blue-100">{formatPrice(offering.currentPrice)}</div>
-            <div className="text-xs text-blue-300 line-through">{formatPrice(offering.originalPrice)}</div>
-          </div>
-
-          <div className="flex gap-1">
-            <motion.button
-              className="bg-blue-800 text-blue-200 px-2 py-1.5 rounded-md text-xs font-medium flex items-center border border-blue-600"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={(e) => {
-                e.stopPropagation()
-                // Save functionality would go here
-              }}
-            >
-              <Percent className="h-3 w-3 mr-1" />
-              <span>Save {discountPercentage}%</span>
-            </motion.button>
-
-            <motion.button
-              className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-1.5 rounded-md text-xs font-medium flex items-center"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={(e) => {
-                e.stopPropagation()
-                // Book appointment functionality would go here
-              }}
-            >
-              <CalendarClock className="h-3 w-3 mr-1" />
-              <span>Book</span>
-            </motion.button>
-          </div>
-        </div>
-      </div>
-    </motion.div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }
-

@@ -101,7 +101,7 @@ export default function SeasonalRecommendationBanner({
               <h3 className={`font-medium text-lg mb-2 capitalize ${colors.text}`}>{product.category}</h3>
               <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.reason}</p>
               <div className="flex justify-between items-center">
-             {/*   <span className={`text-sm ${colors.muted}`}>{product.relevanceScore}% Relevant</span>*/}
+                <span className={`text-sm ${colors.muted}`}>{product.relevanceScore}% Relevant</span>
                 <ChevronRight className={`h-4 w-4 ${colors.muted}`} />
               </div>
             </Link>

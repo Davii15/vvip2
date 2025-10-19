@@ -1330,7 +1330,6 @@ export default function BeautyShopProducts() {
   const [showFilters, setShowFilters] = useState(false)
   const [activeBeautyTipCategory, setActiveBeautyTipCategory] = useState("All")
 
- 
   // State for product detail modal
   const [selectedProduct, setSelectedProduct] = useState<BeautyProduct | null>(null)
   const [productRotation, setProductRotation] = useState(0)
@@ -1585,8 +1584,8 @@ export default function BeautyShopProducts() {
 
   // Get vendor for a product
   const getVendorForProduct = (productId: number | string) => {
-    return vendors.find((vendor) => vendor.products.some((product) => product.id === productId))}
-  
+    return vendors.find((vendor) => vendor.products.some((product) => product.id === productId))
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-pink-800 relative overflow-hidden">
@@ -1654,7 +1653,6 @@ export default function BeautyShopProducts() {
                 </div>
               </div>
             </div>
-            
           </motion.div>
         </div>
 
@@ -1682,8 +1680,6 @@ export default function BeautyShopProducts() {
         </div>
       )}
 
-      
-
       {/* New Products For You Section */}
       <div className="container mx-auto px-4 max-w-7xl">
         <NewProductsForYou allProducts={newProducts} colorScheme="pink" maxProducts={4} />
@@ -1703,43 +1699,43 @@ export default function BeautyShopProducts() {
         <div className="mb-6">
           <Tabs defaultValue="All" className="w-full">
             <TabsList className="grid grid-cols-3 md:grid-cols-6 bg-slate-800/50 p-1 rounded-xl">
-              <TabsTrigger 
-                value="All" 
+              <TabsTrigger
+                value="All"
                 onClick={() => setActiveBeautyTipCategory("All")}
                 className="data-[state=active]:bg-pink-600 data-[state=active]:text-white"
               >
                 All
               </TabsTrigger>
-              <TabsTrigger 
-                value="Skincare" 
+              <TabsTrigger
+                value="Skincare"
                 onClick={() => setActiveBeautyTipCategory("Skincare")}
                 className="data-[state=active]:bg-pink-600 data-[state=active]:text-white"
               >
                 Skincare
               </TabsTrigger>
-              <TabsTrigger 
-                value="Makeup" 
+              <TabsTrigger
+                value="Makeup"
                 onClick={() => setActiveBeautyTipCategory("Makeup")}
                 className="data-[state=active]:bg-pink-600 data-[state=active]:text-white"
               >
                 Makeup
               </TabsTrigger>
-              <TabsTrigger 
-                value="Haircare" 
+              <TabsTrigger
+                value="Haircare"
                 onClick={() => setActiveBeautyTipCategory("Haircare")}
                 className="data-[state=active]:bg-pink-600 data-[state=active]:text-white"
               >
                 Haircare
               </TabsTrigger>
-              <TabsTrigger 
-                value="Fragrances" 
+              <TabsTrigger
+                value="Fragrances"
                 onClick={() => setActiveBeautyTipCategory("Fragrances")}
                 className="data-[state=active]:bg-pink-600 data-[state=active]:text-white"
               >
                 Fragrances
               </TabsTrigger>
-              <TabsTrigger 
-                value="Bodycare" 
+              <TabsTrigger
+                value="Bodycare"
                 onClick={() => setActiveBeautyTipCategory("Bodycare")}
                 className="data-[state=active]:bg-pink-600 data-[state=active]:text-white"
               >
@@ -1759,9 +1755,7 @@ export default function BeautyShopProducts() {
               className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm rounded-xl p-6 border border-pink-500/20 shadow-xl hover:shadow-pink-500/10 transition-all duration-300 hover:-translate-y-1"
             >
               <div className="flex items-start mb-4">
-                <div className="bg-pink-600/20 p-3 rounded-lg mr-4">
-                  {tip.icon}
-                </div>
+                <div className="bg-pink-600/20 p-3 rounded-lg mr-4">{tip.icon}</div>
                 <div>
                   <h3 className="text-xl font-semibold text-pink-100 mb-1">{tip.title}</h3>
                   <Badge className="bg-pink-600/80 text-white">{tip.category}</Badge>
@@ -1772,7 +1766,7 @@ export default function BeautyShopProducts() {
           ))}
         </div>
       </div>
- {/* Shop navigation buttons */}
+      {/* Shop navigation buttons */}
       <div className="flex justify-center my-8">
         <Link href="/beauty-and-massage/shop/beauty-shop">
           <Button
@@ -2042,7 +2036,11 @@ export default function BeautyShopProducts() {
                 )}
 
                 {/* Active filters */}
-                {(selectedBrands.length > 0 || selectedGender.length > 0 || activeCategory || priceRange[0] > 0 || priceRange[1] < 10000) && (
+                {(selectedBrands.length > 0 ||
+                  selectedGender.length > 0 ||
+                  activeCategory ||
+                  priceRange[0] > 0 ||
+                  priceRange[1] < 10000) && (
                   <div className="bg-slate-700/40 rounded-xl p-5 border border-slate-700/60">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-lg font-medium text-white flex items-center">
@@ -2151,13 +2149,15 @@ export default function BeautyShopProducts() {
                             )}
                             {product.isPopular && <MostPreferredBadge colorScheme="pink" size="sm" />}
                             {product.gender && (
-                              <Badge className={`${
-                                product.gender === "Female" 
-                                  ? "bg-pink-500" 
-                                  : product.gender === "Male" 
-                                    ? "bg-blue-500" 
-                                    : "bg-purple-500"
-                              } text-white`}>
+                              <Badge
+                                className={`${
+                                  product.gender === "Female"
+                                    ? "bg-pink-500"
+                                    : product.gender === "Male"
+                                      ? "bg-blue-500"
+                                      : "bg-purple-500"
+                                } text-white`}
+                              >
                                 {product.gender}
                               </Badge>
                             )}
@@ -2166,9 +2166,7 @@ export default function BeautyShopProducts() {
                           {/* Discount badge */}
                           {product.discount && product.discount > 0 && (
                             <div className="absolute top-2 right-2">
-                              <Badge className="bg-red-500 hover:bg-red-600 text-white">
-                                {product.discount}% OFF
-                              </Badge>
+                              <Badge className="bg-red-500 hover:bg-red-600 text-white">{product.discount}% OFF</Badge>
                             </div>
                           )}
 
@@ -2207,12 +2205,14 @@ export default function BeautyShopProducts() {
                                 {vendor.name.substring(0, 2).toUpperCase()}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium text-pink-200 truncate">{vendor.name}
-                                {vendor.verified && (
-                    <Badge className="ml-1 bg-pink-500 text-white flex items-center gap-0.5 px-1 py-0 text-xs">
-                           <Check className="h-2 w-2" />
-                             </Badge>
-                                 )}</p>
+                                <p className="text-xs font-medium text-pink-200 truncate">
+                                  {vendor.name}
+                                  {vendor.verified && (
+                                    <Badge className="ml-1 bg-pink-500 text-white flex items-center gap-0.5 px-1 py-0 text-xs">
+                                      <Check className="h-2 w-2" />
+                                    </Badge>
+                                  )}
+                                </p>
                                 <p className="text-xs text-pink-400 flex items-center">
                                   <MapPin className="h-3 w-3 mr-1" />
                                   <span className="truncate">{vendor.location}</span>
@@ -2282,9 +2282,7 @@ export default function BeautyShopProducts() {
                           {/* Price */}
                           <div className="flex items-end justify-between mb-3">
                             <div>
-                              <div className="text-lg font-bold text-pink-100">
-                                {formatPrice(product.currentPrice)}
-                              </div>
+                              <div className="text-lg font-bold text-pink-100">{formatPrice(product.currentPrice)}</div>
                               {product.originalPrice.amount !== product.currentPrice.amount && (
                                 <div className="text-sm text-pink-400 line-through">
                                   {formatPrice(product.originalPrice)}
@@ -2292,9 +2290,7 @@ export default function BeautyShopProducts() {
                               )}
                             </div>
 
-                            {product.volume && (
-                              <div className="text-xs text-pink-300">{product.volume}</div>
-                            )}
+                            {product.volume && <div className="text-xs text-pink-300">{product.volume}</div>}
                           </div>
                         </CardContent>
                       </div>
@@ -2303,7 +2299,7 @@ export default function BeautyShopProducts() {
                       <CardFooter className="p-4 pt-0 grid grid-cols-2 gap-2">
                         <Button
                           variant="outline"
-                          className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white hover:border-pink-500 flex items-center justify-center gap-1 transition-all"
+                          className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white hover:border-pink-500 flex items-center justify-center gap-1 transition-all bg-transparent"
                           onClick={() => handleProductClick(product)}
                         >
                           <Info className="h-4 w-4" />
@@ -2329,11 +2325,12 @@ export default function BeautyShopProducts() {
                 </div>
                 <h3 className="text-2xl font-medium text-white mb-3">No products found</h3>
                 <p className="text-slate-300 max-w-md mx-auto">
-                  We couldn't find any beauty products matching your criteria. Try adjusting your filters or search term.
+                  We couldn't find any beauty products matching your criteria. Try adjusting your filters or search
+                  term.
                 </p>
                 <Button
                   variant="outline"
-                  className="mt-6 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white hover:border-pink-500"
+                  className="mt-6 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white hover:border-pink-500 bg-transparent"
                   onClick={() => {
                     setActiveCategory("")
                     setSelectedBrands([])
@@ -2385,9 +2382,9 @@ export default function BeautyShopProducts() {
                     />
                   </motion.div>
                   <div className="absolute bottom-4 right-4 flex items-center gap-2">
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
+                    <Button
+                      size="sm"
+                      variant="outline"
                       className="bg-slate-800/70 border-slate-600 text-white hover:bg-slate-700 hover:text-white rounded-full h-8 w-8 p-0"
                       onClick={() => {
                         if (rotationInterval.current) {
@@ -2417,13 +2414,15 @@ export default function BeautyShopProducts() {
                       </Badge>
                     )}
                     {selectedProduct.gender && (
-                      <Badge className={`${
-                        selectedProduct.gender === "Female" 
-                          ? "bg-pink-500" 
-                          : selectedProduct.gender === "Male" 
-                            ? "bg-blue-500" 
-                            : "bg-purple-500"
-                      } text-white`}>
+                      <Badge
+                        className={`${
+                          selectedProduct.gender === "Female"
+                            ? "bg-pink-500"
+                            : selectedProduct.gender === "Male"
+                              ? "bg-blue-500"
+                              : "bg-purple-500"
+                        } text-white`}
+                      >
                         {selectedProduct.gender}
                       </Badge>
                     )}
@@ -2456,9 +2455,7 @@ export default function BeautyShopProducts() {
                           {getVendorForProduct(selectedProduct.id)?.name.substring(0, 2).toUpperCase()}
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-pink-200">
-                            {getVendorForProduct(selectedProduct.id)?.name}
-                          </p>
+                          <p className="font-medium text-pink-200">{getVendorForProduct(selectedProduct.id)?.name}</p>
                           <p className="text-sm text-pink-400 flex items-center">
                             <MapPin className="h-3 w-3 mr-1" />
                             <span>{getVendorForProduct(selectedProduct.id)?.location}</span>
@@ -2467,10 +2464,8 @@ export default function BeautyShopProducts() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="border-pink-700 text-pink-300 hover:bg-pink-800"
-                          onClick={() =>
-                            window.open(getVendorForProduct(selectedProduct.id)?.redirectUrl, "_blank")
-                          }
+                          className="border-pink-700 text-pink-300 hover:bg-pink-800 bg-transparent"
+                          onClick={() => window.open(getVendorForProduct(selectedProduct.id)?.redirectUrl, "_blank")}
                         >
                           <Store className="h-4 w-4 mr-1" />
                           Visit Store
@@ -2506,12 +2501,8 @@ export default function BeautyShopProducts() {
                       {selectedProduct.organicCertified && (
                         <Badge className="bg-green-600 text-white">Organic Certified</Badge>
                       )}
-                      {selectedProduct.crueltyfree && (
-                        <Badge className="bg-purple-600 text-white">Cruelty-Free</Badge>
-                      )}
-                      {selectedProduct.vegan && (
-                        <Badge className="bg-green-600 text-white">Vegan</Badge>
-                      )}
+                      {selectedProduct.crueltyfree && <Badge className="bg-purple-600 text-white">Cruelty-Free</Badge>}
+                      {selectedProduct.vegan && <Badge className="bg-green-600 text-white">Vegan</Badge>}
                     </div>
 
                     {/* Specifications */}
@@ -2582,16 +2573,15 @@ export default function BeautyShopProducts() {
                         <h3 className="text-lg font-medium text-pink-200">Beauty Tip</h3>
                       </div>
                       <p className="text-pink-200 text-sm italic">
-                        {selectedProduct.category === "Skincare" 
+                        {selectedProduct.category === "Skincare"
                           ? "Apply skincare products in order of thinnest to thickest consistency for maximum absorption."
                           : selectedProduct.category === "Makeup"
-                          ? "For longer-lasting makeup, apply setting spray in an 'X' and 'T' formation across your face."
-                          : selectedProduct.category === "Haircare"
-                          ? "Apply hair products to damp, not wet hair, for better absorption and distribution."
-                          : selectedProduct.category === "Fragrances"
-                          ? "Apply fragrance to pulse points where the skin is warmer to help diffuse the scent better."
-                          : "Store beauty products away from direct sunlight and heat to preserve their efficacy and extend shelf life."
-                        }
+                            ? "For longer-lasting makeup, apply setting spray in an 'X' and 'T' formation across your face."
+                            : selectedProduct.category === "Haircare"
+                              ? "Apply hair products to damp, not wet hair, for better absorption and distribution."
+                              : selectedProduct.category === "Fragrances"
+                                ? "Apply fragrance to pulse points where the skin is warmer to help diffuse the scent better."
+                                : "Store beauty products away from direct sunlight and heat to preserve their efficacy and extend shelf life."}
                       </p>
                     </div>
 
@@ -2637,7 +2627,9 @@ export default function BeautyShopProducts() {
                             <div className="text-sm text-pink-300">Volume: {selectedProduct.volume}</div>
                           )}
                           {selectedProduct.expiryDate && (
-                            <div className="text-sm text-pink-300">Expires: {new Date(selectedProduct.expiryDate).toLocaleDateString()}</div>
+                            <div className="text-sm text-pink-300">
+                              Expires: {new Date(selectedProduct.expiryDate).toLocaleDateString()}
+                            </div>
                           )}
                         </div>
                       </div>
@@ -2646,7 +2638,7 @@ export default function BeautyShopProducts() {
                       <div className="flex flex-col sm:flex-row gap-3">
                         <Button
                           variant="outline"
-                          className="border-pink-500 text-pink-200 hover:bg-pink-800/50 flex-1 flex items-center justify-center gap-2"
+                          className="border-pink-500 text-pink-200 hover:bg-pink-800/50 flex-1 flex items-center justify-center gap-2 bg-transparent"
                         >
                           <Heart className="h-4 w-4" />
                           <span>Add to Wishlist</span>
@@ -2703,7 +2695,7 @@ export default function BeautyShopProducts() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="border-pink-700 text-pink-300 hover:bg-pink-800"
+                        className="border-pink-700 text-pink-300 hover:bg-pink-800 bg-transparent"
                         onClick={closeNewProductAlert}
                       >
                         Dismiss
@@ -2733,9 +2725,6 @@ export default function BeautyShopProducts() {
           )}
         </AnimatePresence>
       </div>
-      </div>
-    
-    
+    </div>
   )
 }
-

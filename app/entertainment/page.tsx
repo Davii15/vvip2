@@ -40,6 +40,8 @@ import { transformEntertainmentToProducts } from "@/utils/product-transformers"
 import TheatricalEntrance from "@/components/TheatricalEntrance"
 import TrendingPopularSection from "@/components/TrendingPopularSection"
 //import { trendingProducts, popularProducts } from "../trending-data"
+import QuickAccessButton from "@/components/QuickAccessButton"
+
 
 interface Price {
   amount: number
@@ -355,14 +357,14 @@ export default function Entertainment() {
   }, [searchTerm, vendors])
 
   // Custom color scheme for entertainment
-  {/* const entertainmentColorScheme = {
-    primary: "from-purple-500 to-indigo-700",
-    secondary: "bg-purple-100",
-    accent: "bg-indigo-600",
-    text: "text-purple-900",
-    background: "bg-purple-50",
-  }
-*/}
+ // {/* const entertainmentColorScheme = {
+ //   primary: "from-purple-500 to-indigo-700",
+  //  secondary: "bg-purple-100",
+   // accent: "bg-indigo-600",
+   // text: "text-purple-900",
+   // background: "bg-purple-50",
+  //}
+ //*/}
   // Add swapping effect every 10 minutes
   useEffect(() => {
     // Set up interval for swapping categories
@@ -804,9 +806,9 @@ export default function Entertainment() {
                   Your one-stop destination for all entertainment events across Kenya.
                 </p>
                 <div className="flex space-x-4">
-                  <SocialIcon icon={<Heart className="h-5 w-5" />} />
-                  <SocialIcon icon={<Share2 className="h-5 w-5" />} />
-                  <SocialIcon icon={<Info className="h-5 w-5" />} />
+                <Heart className="h-5 w-5 text-purple-300 hover:text-white transition-colors" />
+                 <Share2 className="h-5 w-5 text-purple-300 hover:text-white transition-colors" />
+                 <Info className="h-5 w-5 text-purple-300 hover:text-white transition-colors" />
                 </div>
               </div>
 
@@ -1104,13 +1106,13 @@ function EventCard({ event }: { event: EntertainmentEvent }) {
           </div>
         )}
 
-        {/* Hot deal countdown */}
+        {/* Hot deal countdown */}{/*
         {event.isHotDeal && event.hotDealEnds && (
           <div className="absolute bottom-2 right-2 bg-black/70 backdrop-blur-sm rounded-lg px-2 py-1 text-xs font-medium text-white flex items-center z-10">
             <Clock className="h-3 w-3 mr-1 text-red-400" />
             <HotDealCountdown endDate={event.hotDealEnds} />
           </div>
-        )}
+        )}*/}
       </div>
 
       <div className="p-4 flex-grow flex flex-col">
@@ -1164,7 +1166,7 @@ function EventCard({ event }: { event: EntertainmentEvent }) {
           </Button>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 

@@ -12,7 +12,7 @@ import MagazineDisplay from "@/components/MagazineDisplay"
 import MovieReelsDisplay from "@/components/MovieReelsDisplay"
 import SellingSoftwareSection from "@/components/SellingSoftwareSection"
 import ConsumptionAnalyticsChart from "@/components/ConsumptionAnalyticsChart"
-
+import MiniPrograms from "@/components/mini-programs"
 
 
 export default function Home() {
@@ -42,6 +42,10 @@ export default function Home() {
           
           <Talktobot />
 
+         {/* Mini Programs Section */}
+         <MiniPrograms />       
+
+            
 
           {/* Two-column layout for content and recommendations */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">

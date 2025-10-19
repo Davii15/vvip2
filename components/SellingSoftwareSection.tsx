@@ -22,6 +22,11 @@ import {
   Shield,
   Code,
   Layers,
+  X,
+  Calendar,
+  Users,
+  Monitor,
+  Smartphone,
 } from "lucide-react"
 
 // Types for our software products
@@ -220,6 +225,290 @@ const platformIcons: Record<string, string> = {
   ios: "fab fa-app-store-ios",
 }
 
+const ProductModal = ({
+  product,
+  isOpen,
+  onClose,
+  onToggleFavorite,
+  isFavorite,
+}: {
+  product: SoftwareProduct | null
+  isOpen: boolean
+  onClose: () => void
+  onToggleFavorite: (id: string) => void
+  isFavorite: boolean
+}) => {
+  if (!product || !isOpen) return null
+
+  const systemRequirements = {
+    windows: {
+      os: "Windows 10/11 (64-bit)",
+      processor: "Intel Core i5-8400 / AMD Ryzen 5 2600",
+      memory: "8 GB RAM",
+      graphics: "DirectX 11 compatible",
+      storage: "25 GB available space",
+    },
+    mac: {
+      os: "macOS 10.15 or later",
+      processor: "Intel Core i5 / Apple M1",
+      memory: "8 GB RAM",
+      graphics: "Metal compatible",
+      storage: "25 GB available space",
+    },
+  }
+
+  const renderRating = (rating: number) => {
+    const fullStars = Math.floor(rating)
+    const hasHalfStar = rating % 1 >= 0.5
+
+    return (
+      <div className="flex items-center">
+        {[...Array(fullStars)].map((_, i) => (
+          <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+        ))}
+        {hasHalfStar && <StarHalf className="w-5 h-5 fill-yellow-400 text-yellow-400" />}
+        {[...Array(5 - fullStars - (hasHalfStar ? 1 : 0))].map((_, i) => (
+          <Star key={i + fullStars + (hasHalfStar ? 1 : 0)} className="w-5 h-5 text-gray-300" />
+        ))}
+        <span className="ml-2 text-lg font-semibold text-gray-700">({rating})</span>
+      </div>
+    )
+  }
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+      >
+        <motion.div
+          className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Modal Header */}
+          <div className="relative">
+            <div className="h-64 bg-gradient-to-br from-purple-600 to-blue-600 relative overflow-hidden">
+              <Image
+                src={product.imageUrl || "/placeholder.svg"}
+                alt={product.name}
+                fill
+                className="object-cover opacity-80"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+
+              {/* Close button */}
+              <button
+                onClick={onClose}
+                className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm p-2 rounded-full text-white hover:bg-white/30 transition-colors"
+              >
+                <X size={24} />
+              </button>
+
+              {/* Discount badge */}
+              {product.discount && (
+                <div className="absolute top-4 left-4 bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full">
+                  {product.discount}% OFF
+                </div>
+              )}
+
+              {/* Product title overlay */}
+              <div className="absolute bottom-4 left-4 right-4">
+                <h2 className="text-3xl font-bold text-white mb-2">{product.name}</h2>
+                <p className="text-white/90 text-lg">{product.developer}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Modal Content */}
+          <div className="p-6">
+            {/* Product Info Row */}
+            <div className="flex flex-col lg:flex-row gap-6 mb-8">
+              {/* Left Column - Main Info */}
+              <div className="flex-1">
+                {/* Rating and Reviews */}
+                <div className="flex items-center gap-4 mb-4">
+                  {renderRating(product.rating)}
+                  <span className="text-gray-600">{product.reviewCount.toLocaleString()} reviews</span>
+                </div>
+
+                {/* Price */}
+                <div className="flex items-center gap-3 mb-6">
+                  {product.price === 0 ? (
+                    <span className="text-3xl font-bold text-green-600">Free</span>
+                  ) : (
+                    <>
+                      <span className="text-3xl font-bold text-gray-900">${product.price.toFixed(2)}</span>
+                      {product.originalPrice && (
+                        <span className="text-xl text-gray-500 line-through">${product.originalPrice.toFixed(2)}</span>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 mb-6">
+                  <Link
+                    href={product.downloadUrl}
+                    target="_blank"
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <Download size={20} />
+                    {product.price === 0 ? "Download Now" : "Buy & Download"}
+                  </Link>
+                  <button
+                    onClick={() => onToggleFavorite(product.id)}
+                    className="px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    {isFavorite ? (
+                      <Heart className="w-5 h-5 fill-red-500 text-red-500" />
+                    ) : (
+                      <Heart className="w-5 h-5 text-gray-600" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Description */}
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold mb-3">Description</h3>
+                  <p className="text-gray-700 leading-relaxed">{product.description}</p>
+                </div>
+
+                {/* Tags */}
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold mb-3">Tags</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {product.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column - Details */}
+              <div className="lg:w-80">
+                {/* Product Details Card */}
+                <div className="bg-gray-50 rounded-xl p-6 mb-6">
+                  <h3 className="text-lg font-semibold mb-4">Product Details</h3>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Calendar className="w-5 h-5 text-gray-500" />
+                      <div>
+                        <span className="text-sm text-gray-500">Release Date</span>
+                        <p className="font-medium">{new Date(product.releaseDate).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <Users className="w-5 h-5 text-gray-500" />
+                      <div>
+                        <span className="text-sm text-gray-500">Category</span>
+                        <p className="font-medium capitalize">{product.category}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <Monitor className="w-5 h-5 text-gray-500 mt-1" />
+                      <div>
+                        <span className="text-sm text-gray-500">Platforms</span>
+                        <div className="flex gap-2 mt-1">
+                          {product.platforms.map((platform) => (
+                            <span key={platform} className="bg-white px-2 py-1 rounded text-sm font-medium capitalize">
+                              {platform}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* System Requirements */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold mb-4">System Requirements</h3>
+
+                  {product.platforms.includes("windows") && (
+                    <div className="mb-4">
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <Monitor className="w-4 h-4" />
+                        Windows
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">OS:</span>
+                          <span>{systemRequirements.windows.os}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Processor:</span>
+                          <span className="text-right">{systemRequirements.windows.processor}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Memory:</span>
+                          <span>{systemRequirements.windows.memory}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Graphics:</span>
+                          <span className="text-right">{systemRequirements.windows.graphics}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Storage:</span>
+                          <span>{systemRequirements.windows.storage}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {product.platforms.includes("mac") && (
+                    <div>
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <Smartphone className="w-4 h-4" />
+                        macOS
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">OS:</span>
+                          <span>{systemRequirements.mac.os}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Processor:</span>
+                          <span className="text-right">{systemRequirements.mac.processor}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Memory:</span>
+                          <span>{systemRequirements.mac.memory}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Graphics:</span>
+                          <span className="text-right">{systemRequirements.mac.graphics}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Storage:</span>
+                          <span>{systemRequirements.mac.storage}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
 export default function SellingSoftwareSection() {
   const [selectedCategory, setSelectedCategory] = useState<SoftwareCategory>("all")
   const [searchQuery, setSearchQuery] = useState("")
@@ -228,6 +517,8 @@ export default function SellingSoftwareSection() {
   const [favorites, setFavorites] = useState<string[]>([])
   const [activeProduct, setActiveProduct] = useState<string | null>(null)
   const [visibleProducts, setVisibleProducts] = useState(8)
+  const [selectedProduct, setSelectedProduct] = useState<SoftwareProduct | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const carouselRef = useRef<HTMLDivElement>(null)
 
   // Filter products based on category and search query
@@ -288,6 +579,16 @@ export default function SellingSoftwareSection() {
   // Load more products
   const loadMore = () => {
     setVisibleProducts((prev) => Math.min(prev + 4, filteredProducts.length))
+  }
+
+  const openProductModal = (product: SoftwareProduct) => {
+    setSelectedProduct(product)
+    setIsModalOpen(true)
+  }
+
+  const closeProductModal = () => {
+    setIsModalOpen(false)
+    setSelectedProduct(null)
   }
 
   // Render star rating
@@ -406,8 +707,9 @@ export default function SellingSoftwareSection() {
                 .map((product) => (
                   <motion.div
                     key={product.id}
-                    className="min-w-[300px] md:min-w-[350px] bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 flex flex-col snap-start"
+                    className="min-w-[300px] md:min-w-[350px] bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 flex flex-col snap-start cursor-pointer"
                     whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                    onClick={() => openProductModal(product)}
                     layout
                   >
                     {/* Product image with discount badge */}
@@ -521,7 +823,7 @@ export default function SellingSoftwareSection() {
                 {filteredProducts.slice(0, visibleProducts).map((product) => (
                   <motion.div
                     key={product.id}
-                    className={`bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 flex flex-col transition-all duration-300 ${
+                    className={`bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 flex flex-col transition-all duration-300 cursor-pointer ${
                       activeProduct === product.id ? "ring-2 ring-purple-500 ring-offset-2" : ""
                     }`}
                     initial={{ opacity: 0, y: 20 }}
@@ -530,6 +832,7 @@ export default function SellingSoftwareSection() {
                     whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
                     onMouseEnter={() => setActiveProduct(product.id)}
                     onMouseLeave={() => setActiveProduct(null)}
+                    onClick={() => openProductModal(product)}
                     layout
                   >
                     {/* Product image with discount badge */}
@@ -641,6 +944,14 @@ export default function SellingSoftwareSection() {
           </>
         )}
       </div>
+
+      <ProductModal
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={closeProductModal}
+        onToggleFavorite={toggleFavorite}
+        isFavorite={selectedProduct ? favorites.includes(selectedProduct.id) : false}
+      />
 
       {/* CSS for loader and scrollbar hiding */}
       <style jsx>{`

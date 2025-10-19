@@ -1618,7 +1618,24 @@ export default function RetailAndSupermarketPage() {
                 </Button>
               </Link>
               </div>
-              
+
+
+{/*retail-and-supermarket Clothing shop*/}
+<div className="flex flex-wrap gap-4 animate-fadeIn" style={{ animationDelay: "0.4s" }}>
+              <Link href="/retail-and-supermarket/clothing-showcase">
+                <Button
+                  size="lg"
+                  className="bg-amber text-green-600 hover:bg-gray-100 transition-transform hover:scale-105"
+                >
+                  Check Now Also  Our New Clothing-Media Section!
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              </div>
+
+
+
+
               
         {/* Enhanced search section */}
         <div className="mb-10 bg-white bg-opacity-80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-purple-100">

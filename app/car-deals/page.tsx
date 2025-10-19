@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import confetti from "canvas-confetti"
 import Image from "next/image"
 import { useInView } from "react-intersection-observer"
 import {
@@ -35,14 +34,15 @@ import {
   Cog,
   Palette,
   Users,
+  MessageCircle,
+  Mail,
+  Globe,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import HotTimeDeals from "@/components/HotTimeDeals"
 import NewProductsForYou from "@/components/NewProductsForYou"
@@ -55,7 +55,9 @@ import TrendingPopularSection from "@/components/TrendingPopularSection"
 import { trendingProducts, popularProducts } from "./trending-data"
 import Link from "next/link"
 import CarRecommendations from "@/components/recommendations/car-recommendations"
-
+import confetti from "canvas-confetti"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // Types
 interface CarProduct {
@@ -99,7 +101,6 @@ interface CarProduct {
   financingAvailable: boolean
   warrantyIncluded: boolean
   tags: string[]
-  
 }
 
 // Mock data for car products
@@ -484,15 +485,51 @@ export default function CarDealsPage() {
   const [sortOrder, setSortOrder] = useState("default")
   const [isHovered, setIsHovered] = useState(false)
 
+  const [showContactModal, setShowContactModal] = useState(false)
+  const [selectedDealer, setSelectedDealer] = useState<string | null>(null)
 
-// Custom color scheme for car trending part
-const carColorScheme = {
-  primary: "from-blue-500 to-purple-700",
-  secondary: "bg-emerald-100",
-  accent: "bg-green-600",
-  text: "text-emerald-900",
-  background: "bg-purple-50",
-}
+  // Mock contact data for car dealers
+  const dealerContacts = {
+    "Premium Auto Gallery": {
+      whatsapp: "+254711234567",
+      phone: "+254711234567",
+      email: "sales@premiumautogallery.co.ke",
+      website: "https://www.premiumautogallery.co.ke",
+    },
+    "Elite Motors": {
+      whatsapp: "+254712345678",
+      phone: "+254712345678",
+      email: "contact@elitemotors.co.ke",
+      website: "https://www.elitemotors.co.ke",
+    },
+    "AutoMax Dealership": {
+      whatsapp: "+254713456789",
+      phone: "+254713456789",
+      email: "info@automax.co.ke",
+      website: "https://www.automax.co.ke",
+    },
+    "CarWorld Kenya": {
+      whatsapp: "+254714567890",
+      phone: "+254714567890",
+      email: "sales@carworldkenya.co.ke",
+      website: "https://www.carworldkenya.co.ke",
+    },
+    "Luxury Auto Hub": {
+      whatsapp: "+254715678901",
+      phone: "+254715678901",
+      email: "contact@luxuryautohub.co.ke",
+      website: "https://www.luxuryautohub.co.ke",
+    },
+  }
+
+  // Custom color scheme for car trending part
+  const carColorScheme = {
+    primary: "from-blue-500 to-purple-700",
+    secondary: "bg-emerald-100",
+    accent: "bg-green-600",
+    text: "text-emerald-900",
+    background: "bg-purple-50",
+  }
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -683,33 +720,121 @@ const carColorScheme = {
     return (
       <motion.div
         className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg flex items-center"
-        animate={{ 
+        animate={{
           scale: [1, 1.1, 1],
-          boxShadow: [
-            "0 4px 6px rgba(0, 0, 0, 0.1)",
-            "0 10px 15px rgba(0, 0, 0, 0.2)",
-            "0 4px 6px rgba(0, 0, 0, 0.1)"
-          ]
+          boxShadow: ["0 4px 6px rgba(0, 0, 0, 0.1)", "0 10px 15px rgba(0, 0, 0, 0.2)", "0 4px 6px rgba(0, 0, 0, 0.1)"],
         }}
-        transition={{ 
+        transition={{
           duration: 2,
-          repeat: Infinity,
-          repeatType: "reverse"
+          repeat: Number.POSITIVE_INFINITY,
+          repeatType: "reverse",
         }}
       >
         <TrendingUp className="h-3 w-3 mr-1" />
         <span>most preferred</span>
       </motion.div>
-    );
+    )
   }
 
+  const ContactModal = ({
+    dealerName,
+    selectedProduct,
+    isOpen,
+    onClose,
+  }: {
+    dealerName: string | null
+    selectedProduct: any
+    isOpen: boolean
+    onClose: () => void
+  }) => {
+    if (!dealerName || !isOpen || !selectedProduct) return null
+
+    const contacts = dealerContacts[dealerName as keyof typeof dealerContacts] || dealerContacts["Premium Auto Gallery"]
+
+    const handleWhatsApp = () => {
+      const message = encodeURIComponent(
+        `Hi! I'm interested in the ${selectedProduct.name} (${selectedProduct.make} ${selectedProduct.model} ${selectedProduct.year}). Could you provide more details and arrange a viewing?`,
+      )
+      window.open(`https://wa.me/${contacts.whatsapp.replace("+", "")}?text=${message}`, "_blank")
+    }
+
+    const handlePhone = () => {
+      window.open(`tel:${contacts.phone}`, "_self")
+    }
+
+    const handleEmail = () => {
+      const subject = encodeURIComponent(`Inquiry - ${selectedProduct.name}`)
+      const body = encodeURIComponent(
+        `Dear ${dealerName},\n\nI am interested in the following vehicle:\n\n- Vehicle: ${selectedProduct.name}\n- Make/Model: ${selectedProduct.make} ${selectedProduct.model}\n- Year: ${selectedProduct.year}\n- Price: ${formatCurrency(selectedProduct.currentPrice)}\n- Location: ${selectedProduct.location}\n\nCould you please provide more information and arrange a viewing/test drive?\n\nThank you!`,
+      )
+      window.open(`mailto:${contacts.email}?subject=${subject}&body=${body}`, "_self")
+    }
+
+    const handleWebsite = () => {
+      window.open(contacts.website, "_blank")
+    }
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.9 }}
+          className="bg-white rounded-2xl p-6 w-full max-w-md mx-auto shadow-2xl"
+        >
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-bold text-indigo-800">Contact {dealerName}</h3>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors">
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <button
+              onClick={handleWhatsApp}
+              className="w-full flex items-center justify-center space-x-3 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg"
+            >
+              <MessageCircle className="w-6 h-6" />
+              <span className="font-semibold">WhatsApp</span>
+            </button>
+
+            <button
+              onClick={handlePhone}
+              className="w-full flex items-center justify-center space-x-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg"
+            >
+              <Phone className="w-6 h-6" />
+              <span className="font-semibold">Call Now</span>
+            </button>
+
+            <button
+              onClick={handleWebsite}
+              className="w-full flex items-center justify-center space-x-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-4 rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg"
+            >
+              <Globe className="w-6 h-6" />
+              <span className="font-semibold">Visit Website</span>
+            </button>
+
+            <button
+              onClick={handleEmail}
+              className="w-full flex items-center justify-center space-x-3 bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 px-4 rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg"
+            >
+              <Mail className="w-6 h-6" />
+              <span className="font-semibold">Send Email</span>
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-indigo-900 to-purple-900 text-white">
       {/* Page header */}
       <div className="bg-gradient-to-r from-indigo-800 to-purple-800 py-8 px-4 md:px-8 shadow-lg">
         <div className="container mx-auto max-w-7xl">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-blue-100">Premium Automotive Product Deals</h1>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-blue-100">
+            Premium Automotive Product Deals
+          </h1>
           <p className="text-indigo-200 mb-4">Discover exceptional vehicles and automotive products</p>
 
           <div className="flex justify-center mb-2">
@@ -737,11 +862,7 @@ const carColorScheme = {
       {/* Countdown Timer */}
       <div className="container mx-auto max-w-7xl px-4 md:px-8 mt-8">
         <CountdownTimer targetDate="2025-05-31T23:59:59" startDate="2025-03-01T00:00:00" />
-        <NewProductsForYou 
-        allProducts={newProducts}
-        colorScheme="blue"
-        maxProducts={4}
-      />
+        <NewProductsForYou allProducts={newProducts} colorScheme="blue" maxProducts={4} />
         <HotTimeDeals
           deals={hotDeals}
           colorScheme="purple"
@@ -749,89 +870,85 @@ const carColorScheme = {
           subtitle="Exclusive deals on premium vehicles and accessories - act fast before they're gone!"
         />
 
- {/* Add the recommendations component after the countdown timer */}
- <div className="container mx-auto max-w-7xl px-4 md:px-8">
-        <CarRecommendations products={mockCarProducts} colorScheme="indigo" />
-      </div>
+        {/* Add the recommendations component after the countdown timer */}
+        <div className="container mx-auto max-w-7xl px-4 md:px-8">
+          <CarRecommendations products={mockCarProducts} colorScheme="indigo" />
+        </div>
 
-
-
-
-
-{/* Trending and Popular Section */}
-<TrendingPopularSection
-        trendingProducts={trendingProducts}
-        popularProducts={popularProducts}
-        colorScheme={carColorScheme}
-        title=" Best Cars and Dealers Today"
-        subtitle="See what's trending and most popular in the Auto market"
-      />
-    {/*the shop logic*/}
-    <div className="flex justify-center my-8">
-      <Link href="/car-deals/shop">
-        <Button
-          size="lg"
-          className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <motion.div
-            className="absolute inset-0 bg-white opacity-10"
-            initial={{ x: "-100%" }}
-            animate={{ x: isHovered ? "100%" : "-100%" }}
-            transition={{ duration: 1, ease: "easeInOut" }}
-          />
-          <span className="flex items-center text-lg font-medium">
-            <Car className="mr-2 h-5 w-5" />
-            Explore Car deals Shop
-            <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </motion.div>
-          </span>
-          <motion.div
-            className="absolute -top-1 -right-1"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Sparkles className="h-5 w-5 text-yellow-300" />
-          </motion.div>
-        </Button>
-      </Link>
-    </div>
-     {/*the  Car shop Media logic*/}
-     <div className="flex justify-center my-8">
-      <Link href="/car-deals/media">
-        <Button
-          size="lg"
-          className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <motion.div
-            className="absolute inset-0 bg-white opacity-10"
-            initial={{ x: "-100%" }}
-            animate={{ x: isHovered ? "100%" : "-100%" }}
-            transition={{ duration: 1, ease: "easeInOut" }}
-          />
-          <span className="flex items-center text-lg font-medium">
-            <Car className="mr-2 h-5 w-5" />
-            Explore Car deals Media Shop
-            <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </motion.div>
-          </span>
-          <motion.div
-            className="absolute -top-1 -right-1"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Sparkles className="h-5 w-5 text-yellow-300" />
-          </motion.div>
-        </Button>
-      </Link>
-    </div>
+        {/* Trending and Popular Section */}
+        <TrendingPopularSection
+          trendingProducts={trendingProducts}
+          popularProducts={popularProducts}
+          colorScheme={carColorScheme}
+          title=" Best Cars and Dealers Today"
+          subtitle="See what's trending and most popular in the Auto market"
+        />
+        {/*the shop logic*/}
+        <div className="flex justify-center my-8">
+          <Link href="/car-deals/shop">
+            <Button
+              size="lg"
+              className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              <motion.div
+                className="absolute inset-0 bg-white opacity-10"
+                initial={{ x: "-100%" }}
+                animate={{ x: isHovered ? "100%" : "-100%" }}
+                transition={{ duration: 1, ease: "easeInOut" }}
+              />
+              <span className="flex items-center text-lg font-medium">
+                <Car className="mr-2 h-5 w-5" />
+                Explore Car deals Shop
+                <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </motion.div>
+              </span>
+              <motion.div
+                className="absolute -top-1 -right-1"
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Sparkles className="h-5 w-5 text-yellow-300" />
+              </motion.div>
+            </Button>
+          </Link>
+        </div>
+        {/*the  Car shop Media logic*/}
+        <div className="flex justify-center my-8">
+          <Link href="/car-deals/media">
+            <Button
+              size="lg"
+              className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white px-8 py-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              <motion.div
+                className="absolute inset-0 bg-white opacity-10"
+                initial={{ x: "-100%" }}
+                animate={{ x: isHovered ? "100%" : "-100%" }}
+                transition={{ duration: 1, ease: "easeInOut" }}
+              />
+              <span className="flex items-center text-lg font-medium">
+                <Car className="mr-2 h-5 w-5" />
+                Explore Car deals Media Shop
+                <motion.div animate={{ x: isHovered ? 5 : 0 }} transition={{ duration: 0.2 }}>
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </motion.div>
+              </span>
+              <motion.div
+                className="absolute -top-1 -right-1"
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Sparkles className="h-5 w-5 text-yellow-300" />
+              </motion.div>
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* New product alert */}
@@ -1059,7 +1176,9 @@ const carColorScheme = {
                                 <Star
                                   key={i}
                                   className={`h-3 w-3 ${
-                                    i < Math.floor(product.rating ?? 0) ? "text-yellow-400 fill-yellow-400" : "text-gray-600"
+                                    i < Math.floor(product.rating ?? 0)
+                                      ? "text-yellow-400 fill-yellow-400"
+                                      : "text-gray-600"
                                   }`}
                                 />
                               ))}
@@ -1103,7 +1222,7 @@ const carColorScheme = {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50 flex items-center justify-center gap-1"
+                                className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50 flex items-center justify-center gap-1 bg-transparent"
                               >
                                 <Percent className="h-3 w-3" />
                                 <span>Save {product.discount}%</span>
@@ -1112,12 +1231,25 @@ const carColorScheme = {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50 flex items-center justify-center gap-1"
+                                className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50 flex items-center justify-center gap-1 bg-transparent"
                               >
                                 <Shield className="h-3 w-3" />
                                 <span>Best Value</span>
                               </Button>
                             )}
+
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50 bg-transparent"
+                              onClick={() => {
+                                setSelectedDealer(product.dealerName)
+                                setShowContactModal(true)
+                              }}
+                            >
+                              <Phone className="h-4 w-4 mr-2" />
+                              <span>Contact Dealer</span>
+                            </Button>
 
                             <Button
                               size="sm"
@@ -1166,7 +1298,7 @@ const carColorScheme = {
                 ) : (
                   <Button
                     variant="outline"
-                    className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50"
+                    className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50 bg-transparent"
                     onClick={loadMoreProducts}
                   >
                     Load More
@@ -1177,6 +1309,16 @@ const carColorScheme = {
           </Tabs>
         </div>
       </div>
+
+      <ContactModal
+        dealerName={selectedDealer}
+        selectedProduct={selectedProduct}
+        isOpen={showContactModal}
+        onClose={() => {
+          setShowContactModal(false)
+          setSelectedDealer(null)
+        }}
+      />
 
       {/* Product detail modal */}
       <Dialog open={!!selectedProduct} onOpenChange={(open) => !open && closeProductModal()}>
@@ -1315,7 +1457,7 @@ const carColorScheme = {
                       {selectedProduct.discount && selectedProduct.discount > 0 ? (
                         <Button
                           variant="outline"
-                          className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50 flex-1 flex items-center justify-center gap-2"
+                          className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50 flex-1 flex items-center justify-center gap-2 bg-transparent"
                         >
                           <Percent className="h-4 w-4" />
                           <span>
@@ -1326,7 +1468,7 @@ const carColorScheme = {
                       ) : (
                         <Button
                           variant="outline"
-                          className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50 flex-1 flex items-center justify-center gap-2"
+                          className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50 flex-1 flex items-center justify-center gap-2 bg-transparent"
                         >
                           <Shield className="h-4 w-4" />
                           <span>Premium Quality Guaranteed</span>
@@ -1379,15 +1521,24 @@ const carColorScheme = {
 
               {/* Contact buttons */}
               <div className="flex flex-wrap gap-3 mt-4">
-                <Button variant="outline" className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50">
+                <Button
+                  variant="outline"
+                  className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50 bg-transparent"
+                >
                   <Phone className="h-4 w-4 mr-2" />
                   <span>Contact Dealer</span>
                 </Button>
-                <Button variant="outline" className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50">
+                <Button
+                  variant="outline"
+                  className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50 bg-transparent"
+                >
                   <Heart className="h-4 w-4 mr-2" />
                   <span>Save to Favorites</span>
                 </Button>
-                <Button variant="outline" className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50">
+                <Button
+                  variant="outline"
+                  className="border-indigo-600 text-indigo-300 hover:bg-indigo-800/50 bg-transparent"
+                >
                   <Share2 className="h-4 w-4 mr-2" />
                   <span>Share</span>
                 </Button>
@@ -1399,4 +1550,3 @@ const carColorScheme = {
     </div>
   )
 }
-

@@ -233,7 +233,7 @@ export default function MonthlyRecommendations({
                             {product.category}
                           </Link>
                           <div className="flex items-center">
-                         {/*   <Badge className={colors.badge}>{product.relevanceScore}% Relevant</Badge> */}
+                            <Badge className={colors.badge}>{product.relevanceScore}% Relevant</Badge> 
                             <ChevronDown
                               className={`h-4 w-4 ml-2 ${colors.muted} transition-transform duration-200 ${
                                 expandedCategories.includes(product.category) ? "rotate-180" : ""
