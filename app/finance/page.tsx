@@ -2,24 +2,61 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import Image from "next/image"
 import { useInView } from "react-intersection-observer"
 import {
+  Search,
+  Filter,
   X,
+  Star,
+  ChevronDown,
   DollarSign,
+  TrendingUp,
+  Percent,
+  Shield,
+  Clock,
+  ChevronRight,
+  Bell,
   CreditCard,
+  Wallet,
+  Building,
+  Briefcase,
   PiggyBank,
   BarChart4,
+  BadgePercent,
+  Quote,
+  Lightbulb,
+  RefreshCw,
+  ArrowRight,
   LineChart,
   ShieldIcon,
   PiggyBankIcon,
-  Phone,
-  Mail,
-  MessageCircle,
-  Globe,
+  TrendingUpIcon,
 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Slider } from "@/components/ui/slider"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription ,CardFooter , CardHeader , CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Tabs,TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { cn } from "@/lib/utils"
+import CountdownTimer from "@/components/CountdownTimer"
 import { useCookieTracking } from "@/hooks/useCookieTracking"
+import { swapArrayElementsRandomly, swapVendorsWithinCategory } from "@/utils/swap-utils"
+import { isNewThisWeek } from "@/utils/date-utils"
+import NewThisWeekBadge from "@/components/NewThisWeekBadge"
 import confetti from "canvas-confetti"
-import { TrendingUpIcon } from "lucide-react" // Import TrendingUpIcon
+import FinancialHotDeals from "@/components/FinancialHotDeals"
+import Link from "next/link"
+import TrendingPopularSection from "@/components/TrendingPopularSection"
+import { trendingProducts, popularProducts } from "./trending-data"
+import FinanceRecommendations from "@/components/recommendations/finance-recommendations"
+import CalendarBasedRecommendations from "@/components/recommendations/calendar-based-recommendations"
+
+
+
+
 
 // Types
 interface FinancialProduct {
@@ -43,53 +80,6 @@ interface FinancialProduct {
   isLimitedTime: boolean
   expiresAt?: string
   discount?: number
-}
-
-const institutionContacts: Record<
-  string,
-  {
-    whatsapp: string
-    phone: string
-    email: string
-    website: string
-  }
-> = {
-  GreenBank: {
-    whatsapp: "+254712345678",
-    phone: "+254712345678",
-    email: "contact@greenbank.co.ke",
-    website: "https://www.greenbank.co.ke",
-  },
-  "WealthWise Finance": {
-    whatsapp: "+254723456789",
-    phone: "+254723456789",
-    email: "info@wealthwise.co.ke",
-    website: "https://www.wealthwise.co.ke",
-  },
-  "EcoInvest Capital": {
-    whatsapp: "+254734567890",
-    phone: "+254734567890",
-    email: "invest@ecoinvest.co.ke",
-    website: "https://www.ecoinvest.co.ke",
-  },
-  "Property Capital": {
-    whatsapp: "+254745678901",
-    phone: "+254745678901",
-    email: "realestate@propertycapital.co.ke",
-    website: "https://www.propertycapital.co.ke",
-  },
-  ProsperityBank: {
-    whatsapp: "+254756789012",
-    phone: "+254756789012",
-    email: "savings@prosperitybank.co.ke",
-    website: "https://www.prosperitybank.co.ke",
-  },
-  "FutureFirst Finance": {
-    whatsapp: "+254767890123",
-    phone: "+254767890123",
-    email: "goals@futurefirst.co.ke",
-    website: "https://www.futurefirst.co.ke",
-  },
 }
 
 // Mock data for financial products
@@ -370,23 +360,21 @@ const hotDeals = mockFinancialProducts
     id: product.id,
     name: product.name,
     imageUrl: product.imageUrl,
-    currentRate: {
-      // Changed from currentPrice to currentRate
+    currentRate: {  // Changed from currentPrice to currentRate
       amount: product.currentRate,
-      currency: "KES", // Changed from "% p.a." to "KES"
+      currency: "KES",  // Changed from "% p.a." to "KES"
     },
-    originalRate: {
-      // Changed from originalPrice to originalRate
+    originalRate: {  // Changed from originalPrice to originalRate
       amount: product.originalRate,
-      currency: "KES", // Changed from "% p.a." to "KES"
+      currency: "KES",  // Changed from "% p.a." to "KES"
     },
     category: product.category,
     expiresAt: product.expiresAt || "2025-04-30T23:59:59",
     description: product.description,
     discount: product.discount,
-    institution: product.institution, // Added institution
+    institution: product.institution,  // Added institution
   }))
-
+  
 export default function FinancePage() {
   useCookieTracking("finance")
   const [searchTerm, setSearchTerm] = useState("")
@@ -403,11 +391,7 @@ export default function FinancePage() {
   const [showFilters, setShowFilters] = useState(false)
   const [currentExpertQuote, setCurrentExpertQuote] = useState(0)
   const [activeTab, setActiveTab] = useState("overview")
-  const [showContactModal, setShowContactModal] = useState(false)
-  const [selectedInstitution, setSelectedInstitution] = useState<FinancialProduct | null>(null)
-  const [rateRange, setRateRange] = useState([0, 20])
-  const [amountRange, setAmountRange] = useState([0, 20000000])
-  const [sortBy, setSortBy] = useState("rate")
+
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -422,7 +406,7 @@ export default function FinancePage() {
       colors: ["#f59e0b", "#d97706", "#b45309"], // Amber colors
     })
   }, [])
-
+  
   const productsPerPage = 6
 
   // Categories and subcategories
@@ -591,144 +575,23 @@ export default function FinancePage() {
     setShowNewProductAlert(false)
   }
   //logic to show the AlertBox message
-  // Custom color scheme for finance trending
-  const financeColorScheme = {
-    primary: "from-purple-500 to-indigo-700",
-    secondary: "bg-purple-100",
-    accent: "bg-indigo-600",
-    text: "text-purple-900",
-    background: "bg-purple-50",
-  }
+ // Custom color scheme for finance trending
+const financeColorScheme = {
+  primary: "from-purple-500 to-indigo-700",
+  secondary: "bg-purple-100",
+  accent: "bg-indigo-600",
+  text: "text-purple-900",
+  background: "bg-purple-50",
+}
 
-  const handleGrowWealthClick = () => {
-    setShowContactModal(true)
-  }
-
-  const handleWhatsAppContact = (whatsapp: string, productName: string) => {
-    const message = encodeURIComponent(
-      `Hi! I'm interested in the ${productName} product. Could you please provide more information?`,
-    )
-    window.open(`https://wa.me/${whatsapp.replace("+", "")}?text=${message}`, "_blank")
-  }
-
-  const handlePhoneCall = (phone: string) => {
-    window.open(`tel:${phone}`, "_self")
-  }
-
-  const handleEmailContact = (email: string, productName: string) => {
-    const subject = encodeURIComponent(`Inquiry about ${productName}`)
-    const body = encodeURIComponent(
-      `Dear Team,\n\nI am interested in learning more about the ${productName} product. Could you please provide me with detailed information and next steps?\n\nThank you for your time.\n\nBest regards`,
-    )
-    window.open(`mailto:${email}?subject=${subject}&body=${body}`, "_self")
-  }
-
-  const handleWebsiteVisit = (website: string) => {
-    window.open(website, "_blank")
-  }
-
-  const ContactModal = () => (
-    <AnimatePresence>
-      {showContactModal && selectedInstitution && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setShowContactModal(false)}
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Contact {selectedInstitution.institution}</h3>
-              <p className="text-gray-600">Get in touch about {selectedInstitution.name}</p>
-            </div>
-
-            <div className="space-y-4">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() =>
-                  window.open(
-                    `https://wa.me/1234567890?text=Hi, I'm interested in ${selectedInstitution.name} from ${selectedInstitution.institution}`,
-                    "_blank",
-                  )
-                }
-                className="w-full p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl flex items-center justify-center space-x-3 hover:from-green-600 hover:to-green-700 transition-all duration-200"
-              >
-                <MessageCircle className="h-5 w-5" />
-                <span className="font-semibold">WhatsApp</span>
-              </motion.button>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => window.open("tel:+1234567890", "_self")}
-                className="w-full p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl flex items-center justify-center space-x-3 hover:from-blue-600 hover:to-blue-700 transition-all duration-200"
-              >
-                <Phone className="h-5 w-5" />
-                <span className="font-semibold">Call Now</span>
-              </motion.button>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() =>
-                  window.open(
-                    `mailto:info@${selectedInstitution.institution
-                      .toLowerCase()
-                      .replace(/\s+/g, "")}.com?subject=Inquiry about ${
-                      selectedInstitution.name
-                    }&body=Hi, I'm interested in learning more about ${selectedInstitution.name}. Please provide more details.`,
-                    "_blank",
-                  )
-                }
-                className="w-full p-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl flex items-center justify-center space-x-3 hover:from-purple-600 hover:to-purple-700 transition-all duration-200"
-              >
-                <Mail className="h-5 w-5" />
-                <span className="font-semibold">Send Email</span>
-              </motion.button>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() =>
-                  window.open(
-                    `https://${selectedInstitution.institution.toLowerCase().replace(/\s+/g, "")}.com`,
-                    "_blank",
-                  )
-                }
-                className="w-full p-4 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl flex items-center justify-center space-x-3 hover:from-gray-600 hover:to-gray-700 transition-all duration-200"
-              >
-                <Globe className="h-5 w-5" />
-                <span className="font-semibold">Visit Website</span>
-              </motion.button>
-            </div>
-
-            <button
-              onClick={() => setShowContactModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <X className="h-6 w-6" />
-            </button>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  )
-
-  return <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100">
-     {/* Page header */}
-     <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white py-8 px-4 md:px-8">
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+      {/* Page header */}
+      <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white py-8 px-4 md:px-8">
         <div className="container mx-auto max-w-7xl">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center mb-8 text-white italic animate-pulse">
-            FINANCE DEALS - Discover the best financial products to grow your wealth
-          </h1>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center mb-8 text-white italic animate-pulse">
+          FINANCE DEALS - Discover the best financial products to grow your wealth
+        </h1>
           <div className="flex justify-center mb-2">
             {[1, 2, 3, 4, 5].map((star) => (
               <DollarSign key={star} className="h-5 w-5 text-yellow-300 mx-1" />
@@ -737,38 +600,47 @@ export default function FinancePage() {
           <div className="mb-8">
             <CountdownTimer targetDate="2025-12-31T23:59:59" startDate="2025-02-13T00:00:00" />
             {/* Hot deals section */}
-            <div className="container mx-auto max-w-7xl px-4 md:px-8 mt-8">
-              <FinancialHotDeals
-                deals={hotDeals}
-                colorScheme="green"
-                title="Limited Time Financial Offers"
-                subtitle="Lock in these special rates before they expire!"
-              />
-            </div>
-          </div>
+      <div className="container mx-auto max-w-7xl px-4 md:px-8 mt-8">
+        <FinancialHotDeals
+          deals={hotDeals}
+          colorScheme="green"
+          title="Limited Time Financial Offers"
+          subtitle="Lock in these special rates before they expire!"
+        />
+      </div>
+           </div>
 
-          {/* Finance Recommendations */}
-          <FinanceRecommendations
-            allProducts={mockFinancialProducts}
-            title="Recommended for You"
-            subtitle="Financial products tailored to your needs and goals"
-          />
 
-          {/* Calendar-based Recommendations */}
-          <CalendarBasedRecommendations
-            allProducts={mockFinancialProducts}
-            title="Seasonal Financial Recommendations"
-            subtitle="Financial products that match your current needs based on the calendar"
-          />
+{/* Finance Recommendations */}
+<FinanceRecommendations 
+  allProducts={mockFinancialProducts}
+  title="Recommended for You"
+  subtitle="Financial products tailored to your needs and goals"
+/>
 
-          {/* Trending and Popular Section */}
-          <TrendingPopularSection
-            trendingProducts={trendingProducts}
-            popularProducts={popularProducts}
-            colorScheme={financeColorScheme}
-            title="Best and Trending Finance Deals Today"
-            subtitle="Discover  most popular Finance Deals"
-          />
+{/* Calendar-based Recommendations */}
+<CalendarBasedRecommendations 
+  allProducts={mockFinancialProducts}
+  title="Seasonal Financial Recommendations"
+  subtitle="Financial products that match your current needs based on the calendar"
+/>
+
+
+
+
+
+
+
+
+
+  {/* Trending and Popular Section */}
+ <TrendingPopularSection
+        trendingProducts={trendingProducts}
+        popularProducts={popularProducts}
+        colorScheme={financeColorScheme}
+        title="Best and Trending Finance Deals Today"
+        subtitle="Discover  most popular Finance Deals"
+      />
           {/* Search bar */}
           <div className="relative max-w-2xl mx-auto mt-6">
             <div className="relative">
@@ -785,24 +657,24 @@ export default function FinancePage() {
         </div>
       </div>
       <div className="mt-6">
-        <Link href="/finance/shop">
-          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
-            <DollarSign className="mr-2 h-4 w-4" />
-            Browse Finance Shop
-            <ChevronRight className="ml-2 h-4 w-4" />
-          </Button>
-        </Link>
-      </div>
-
-      <div className="mt-6">
-        <Link href="/finance/media">
-          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
-            <DollarSign className="mr-2 h-4 w-4" />
-            Browse our Finance Media Shop
-            <ChevronRight className="ml-2 h-4 w-4" />
-          </Button>
-        </Link>
-      </div>
+            <Link href="/finance/shop">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <DollarSign className="mr-2 h-4 w-4" />
+                Browse Finance Shop
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+          
+       <div className="mt-6">
+            <Link href="/finance/media">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <DollarSign className="mr-2 h-4 w-4" />
+                Browse our Finance Media Shop
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
 
       {/* New product alert */}
       <AnimatePresence>
@@ -933,7 +805,7 @@ export default function FinancePage() {
           </div>
 
           <div className="mt-6 text-center">
-            <Button variant="outline" className="text-green-700 border-green-300 bg-transparent">
+            <Button variant="outline" className="text-green-700 border-green-300">
               <RefreshCw className="mr-2 h-4 w-4" />
               Refresh Rates
             </Button>
@@ -1130,7 +1002,7 @@ export default function FinancePage() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="border-green-300 text-green-700 hover:bg-green-50 flex items-center justify-center gap-1 bg-transparent"
+                                className="border-green-300 text-green-700 hover:bg-green-50 flex items-center justify-center gap-1"
                               >
                                 <Percent className="h-3 w-3" />
                                 <span>Save {product.discount}%</span>
@@ -1139,7 +1011,7 @@ export default function FinancePage() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="border-green-300 text-green-700 hover:bg-green-50 flex items-center justify-center gap-1 bg-transparent"
+                                className="border-green-300 text-green-700 hover:bg-green-50 flex items-center justify-center gap-1"
                               >
                                 <Shield className="h-3 w-3" />
                                 <span>Best Value</span>
@@ -1180,7 +1052,7 @@ export default function FinancePage() {
                 ) : (
                   <Button
                     variant="outline"
-                    className="border-green-300 text-green-700 hover:bg-green-50 bg-transparent"
+                    className="border-green-300 text-green-700 hover:bg-green-50"
                     onClick={loadMoreProducts}
                   >
                     Load More
@@ -1282,7 +1154,7 @@ export default function FinancePage() {
                       {selectedProduct.discount && selectedProduct.discount > 0 ? (
                         <Button
                           variant="outline"
-                          className="border-green-300 text-green-700 hover:bg-green-50 flex-1 flex items-center justify-center gap-2 bg-transparent"
+                          className="border-green-300 text-green-700 hover:bg-green-50 flex-1 flex items-center justify-center gap-2"
                         >
                           <Percent className="h-4 w-4" />
                           <span>
@@ -1293,7 +1165,7 @@ export default function FinancePage() {
                       ) : (
                         <Button
                           variant="outline"
-                          className="border-green-300 text-green-700 hover:bg-green-50 flex-1 flex items-center justify-center gap-2 bg-transparent"
+                          className="border-green-300 text-green-700 hover:bg-green-50 flex-1 flex items-center justify-center gap-2"
                         >
                           <Shield className="h-4 w-4" />
                           <span>Best Value Guarantee</span>
@@ -1312,6 +1184,7 @@ export default function FinancePage() {
           )}
         </DialogContent>
       </Dialog>
-  </div> 
+    </div>
   )
 }
+
