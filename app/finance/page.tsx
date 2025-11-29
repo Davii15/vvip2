@@ -625,14 +625,6 @@ const financeColorScheme = {
   subtitle="Financial products that match your current needs based on the calendar"
 />
 
-
-
-
-
-
-
-
-
   {/* Trending and Popular Section */}
  <TrendingPopularSection
         trendingProducts={trendingProducts}
